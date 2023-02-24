@@ -49,6 +49,7 @@ set(SYCL_UNITTEST_SRCS
   ${SYCLBLAS_UNITTEST}/blas3/blas3_gemm_test.cpp
   ${SYCLBLAS_UNITTEST}/blas3/blas3_gemm_batched_test.cpp
   ${SYCLBLAS_UNITTEST}/blas3/blas3_trsm_test.cpp
+    ${SYCLBLAS_UNITTEST}/blas2/blas2_trsv_test.cpp
 )
 
 # Temporary disabling the following tests fro Intel DPC++ as currently Intel compiler crashes while running the following tests
@@ -64,7 +65,6 @@ if(is_computecpp)
     ${SYCLBLAS_UNITTEST}/blas1/blas1_iamin_test.cpp
     # Blas 2 tests
     ${SYCLBLAS_UNITTEST}/blas2/blas2_trmv_test.cpp
-    ${SYCLBLAS_UNITTEST}/blas2/blas2_trsv_test.cpp
     ${SYCLBLAS_UNITTEST}/blas2/blas2_tbmv_test.cpp
     # Blas buffer tests
     ${SYCLBLAS_UNITTEST}/buffers/sycl_buffer_test.cpp

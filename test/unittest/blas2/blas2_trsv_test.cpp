@@ -26,7 +26,7 @@
 #include "blas_test.hpp"
 
 template <typename T>
-using combination_t = std::tuple<index_t, bool, bool, bool, index_t, index_t>;
+using combination_t = std::tuple<index_t, bool, bool, bool, index_t, index_t, T>;
 
 template <typename scalar_t>
 void run_test(const combination_t<scalar_t> combi) {
@@ -36,7 +36,8 @@ void run_test(const combination_t<scalar_t> combi) {
   bool is_unit;
   index_t incX;
   index_t lda_mul;
-  std::tie(n, is_upper, trans, is_unit, incX, lda_mul) = combi;
+  scalar_t wa;
+  std::tie(n, is_upper, trans, is_unit, incX, lda_mul, wa) = combi;
 
   const char* t_str = trans ? "t" : "n";
   const char* uplo_str = is_upper ? "u" : "l";
@@ -46,7 +47,7 @@ void run_test(const combination_t<scalar_t> combi) {
   index_t x_size = 1 + (n - 1) * incX;
 
   // Input matrix
-  std::vector<scalar_t> a_m(a_size);
+  std::vector<scalar_t> a_m(a_size, 0);
   // Input/output vector
   std::vector<scalar_t> x_v(x_size);
   // Input/output system vector
@@ -80,6 +81,8 @@ void run_test(const combination_t<scalar_t> combi) {
                                           x_v.data(), x_size);
   sb_handle.wait(event);
 
+
+#define PRINTMAXERR
 #ifdef PRINTMAXERR
   double maxerr = -1.0;
   for (index_t i = 0; i < x_size; i += incX)
@@ -122,7 +125,8 @@ static std::string generate_name(
   bool is_upper;
   bool trans;
   bool is_unit;
-  BLAS_GENERATE_NAME(info.param, n, is_upper, trans, is_unit, incX, ldaMul);
+  T wa;
+  BLAS_GENERATE_NAME(info.param, n, is_upper, trans, is_unit, incX, ldaMul, wa);
 }
 
 BLAS_REGISTER_TEST_ALL(Trsv, combination_t, combi, generate_name);
