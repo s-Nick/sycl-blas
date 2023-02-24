@@ -102,7 +102,8 @@ const auto combi =
                        ::testing::Values(true, false),  // trans
                        ::testing::Values(true, false),  // is_unit
                        ::testing::Values(1, 2),         // incX
-                       ::testing::Values(1, 2)          // lda_mul
+                       ::testing::Values(1, 2),          // lda_mul
+                       ::testing::Values(0)          
     );
 #else
 // For the purpose of travis and other slower platforms, we need a faster test
@@ -114,7 +115,8 @@ const auto combi =
                        ::testing::Values(true, false),        // trans
                        ::testing::Values(true, false),        // is_unit
                        ::testing::Values(2),                  // incX
-                       ::testing::Values(2)                   // lda_mul
+                       ::testing::Values(2),                   // lda_mul
+                       ::testing::Values(0)          
     );
 #endif
 
