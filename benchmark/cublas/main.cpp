@@ -20,7 +20,8 @@ int main(int argc, char** argv) {
 
   // Create a sycl blas sb_handle from the queue
   cublasHandle_t cublas_handle = NULL;
-  cublasCreate(&cublas_handle);
+
+  CUBLAS_CHECK(cublasCreate(&cublas_handle));
 
   // This will be set to false by a failing benchmark
   bool success = true;

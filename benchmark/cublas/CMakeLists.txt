@@ -18,6 +18,8 @@ set(sources
   blas1/rotmg.cpp
   blas1/scal.cpp
   #blas1/sdsdot.cpp -> not implemented in cuBLAS
+  # Level 2 blas
+  blas2/trsv.cpp
 ) 
 
 #if(${BLAS_ENABLE_EXTENSIONS})
