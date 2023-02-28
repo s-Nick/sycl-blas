@@ -20,6 +20,7 @@ set(sources
   #blas1/sdsdot.cpp -> not implemented in cuBLAS
   # Level 2 blas
   blas2/trsv.cpp
+  blas2/gemv.cpp
 ) 
 
 #if(${BLAS_ENABLE_EXTENSIONS})
