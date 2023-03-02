@@ -35,6 +35,8 @@ inline double time_event<std::vector<cudaEvent_t>>(
   return static_cast<double>(elapsed_time) * 1'000'000.;
 }
 
+enum class Trasposition_cublas{ CUBLAS_OP_N, CUBLAS_OP_T, CUBLAS_OP_C };
+
 }  // namespace utils
 }  // namespace blas_benchmark
 
@@ -45,7 +47,7 @@ inline double time_event<std::vector<cudaEvent_t>>(
       std::printf("CUDA error %d at %s:%d\n", err_, __FILE__, __LINE__); \
       throw std::runtime_error("CUDA error");                            \
     }                                                                    \
-  } while (0)
+  }while(0)
 
 // cublas API error checking
 #define CUBLAS_CHECK(err)                                                  \
@@ -55,5 +57,5 @@ inline double time_event<std::vector<cudaEvent_t>>(
       std::printf("cublas error %d at %s:%d\n", err_, __FILE__, __LINE__); \
       throw std::runtime_error("cublas error");                            \
     }                                                                      \
-  } while (0)
+  }while(0) 
 #endif
