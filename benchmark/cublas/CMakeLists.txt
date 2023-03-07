@@ -21,6 +21,7 @@ set(sources
   # Level 2 blas 
   blas2/gbmv.cpp 
   blas2/sbmv.cpp 
+  blas2/tbmv.cpp
   blas2/trsv.cpp
   blas2/gemv.cpp
 ) 
@@ -48,7 +49,7 @@ target_include_directories(bench_cublas_${bench_cublas_exec} PRIVATE $ENV{CUBLAS
     target_link_libraries(bench_cublas_${bench_cublas_exec} PRIVATE blas::blas)
   endif()
 
-  message(STATUS "Created benchmark: ${bench_exec}")
+  message(STATUS "Created benchmark: ${bench_cublas_exec}")
   install(TARGETS bench_cublas_${bench_cublas_exec}
     RUNTIME
       DESTINATION ${CMAKE_INSTALL_BINDIR}
