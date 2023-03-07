@@ -24,6 +24,7 @@ set(sources
   blas2/tbmv.cpp
   blas2/trsv.cpp
   blas2/gemv.cpp
+  blas2/spr.cpp
 ) 
 
 #if(${BLAS_ENABLE_EXTENSIONS})
