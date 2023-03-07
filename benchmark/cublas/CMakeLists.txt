@@ -21,6 +21,8 @@ set(sources
   # Level 2 blas 
   blas2/gbmv.cpp 
   blas2/sbmv.cpp 
+  blas2/trsv.cpp
+  blas2/gemv.cpp
 ) 
 
 #if(${BLAS_ENABLE_EXTENSIONS})
