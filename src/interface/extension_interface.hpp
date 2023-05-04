@@ -393,6 +393,36 @@ typename sb_handle_t::event_t _transpose(sb_handle_t& sb_handle, index_t m,
                                        ld_b, inc);
 }
 
+template <typename sb_handle_t, typename element_t, typename index_t,
+          typename in_t, typename out_t>
+typename sb_handle_t::event_t _matcopy_batch(
+    sb_handle_t& sb_handle, char trans, index_t m, index_t n, element_t alpha,
+    in_t in_memory, index_t ld_in, index_t in_stride, out_t out_memory,
+    index_t ld_out, index_t out_stride, index_t batch_size) {
+  // bail out early if the leading dimensions are not correct
+  if (ld_in < m || ld_out < (trans == 't' ? n : m)) {
+    typename sb_handle_t::event_t ret;
+    return ret;
+  }
+  typename sb_handle_t::event_t ret;
+  for (index_t i = 0; i < batch_size; ++i) {
+    if (trans == 't') {
+      auto event = _matcopy_impl<true>(
+          sb_handle, m, n, alpha, in_memory + i * in_stride, ld_in,
+          static_cast<index_t>(1), out_memory + i * out_stride, ld_out,
+          static_cast<index_t>(1));
+      ret = concatenate_vectors(ret, typename sb_handle_t::event_t{event});
+    } else {
+      auto event = _matcopy_impl<false>(
+          sb_handle, m, n, alpha, in_memory + i * in_stride, ld_in,
+          static_cast<index_t>(1), out_memory + i * out_stride, ld_out,
+          static_cast<index_t>(1));
+      ret = concatenate_vectors(ret, typename sb_handle_t::event_t{event});
+    }
+  }
+  return ret;
+}
+
 template <typename operator_t, typename element_t, typename sb_handle_t,
           typename input_t, typename output_t, typename index_t>
 typename sb_handle_t::event_t _reduction(sb_handle_t& sb_handle,
