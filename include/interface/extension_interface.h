@@ -44,6 +44,13 @@ typename sb_handle_t::event_t _matcopy(sb_handle_t& sb_handle, char trans,
                                        index_t in_stride, out_t out_memory,
                                        index_t ld_out, index_t out_stride);
 
+template <typename sb_handle_t, typename element_t, typename index_t,
+          typename in_t, typename out_t>
+typename sb_handle_t::event_t _matcopy_batch(
+    sb_handle_t& sb_handle, char trans, index_t m, index_t n, element_t alpha,
+    in_t memory, index_t ld_in, index_t in_stride, out_t out_memory,
+    index_t ld_out, index_t out_stride, index_t batch_size);
+
 template <typename operator_t, typename element_t, typename sb_handle_t,
           typename input_t, typename output_t, typename index_t>
 typename sb_handle_t::event_t _reduction(sb_handle_t& sb_handle,
@@ -85,6 +92,17 @@ typename sb_handle_t::event_t _omatcopy2(sb_handle_t& sb_handle, char trans,
                                          index_t ld_out, index_t out_stride) {
   return internal::_matcopy(sb_handle, trans, m, n, alpha, in_memory, ld_in,
                             in_stride, out_memory, ld_out, out_stride);
+}
+
+template <typename sb_handle_t, typename element_t, typename index_t,
+          typename in_t, typename out_t>
+typename sb_handle_t::event_t _omatcopy_batch(
+    sb_handle_t& sb_handle, char trans, index_t m, index_t n, element_t alpha,
+    in_t in_memory, index_t ld_in, index_t in_stride, out_t out_memory,
+    index_t ld_out, index_t out_stride, index_t batch_size) {
+  return internal::_matcopy_batch(sb_handle, trans, m, n, alpha, in_memory,
+                                  ld_in, in_stride, out_memory, ld_out,
+                                  out_stride, batch_size);
 }
 
 template <typename operator_t, typename element_t, typename sb_handle_t,
