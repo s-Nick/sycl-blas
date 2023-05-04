@@ -56,6 +56,7 @@ set(SYCL_UNITTEST_SRCS
   ${SYCLBLAS_UNITTEST}/blas3/blas3_symm_test.cpp
   # Blas extension
   ${SYCLBLAS_UNITTEST}/extension/imatcopy_test.cpp
+  ${SYCLBLAS_UNITTEST}/extension/imatcopy_batch_test.cpp
   ${SYCLBLAS_UNITTEST}/extension/omatcopy_test.cpp
   ${SYCLBLAS_UNITTEST}/extension/omatcopy2_test.cpp
   ${SYCLBLAS_UNITTEST}/extension/omatcopy_batch_test.cpp

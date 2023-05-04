@@ -95,6 +95,18 @@ typename sb_handle_t::event_t _omatcopy2(sb_handle_t& sb_handle, char trans,
 }
 
 template <typename sb_handle_t, typename element_t, typename index_t,
+          typename in_out_t>
+typename sb_handle_t::event_t _imatcopy_batch(sb_handle_t& sb_handle,
+                                              char trans, index_t m, index_t n,
+                                              element_t alpha, in_out_t memory,
+                                              index_t ld_in, index_t ld_out,
+                                              index_t stride,
+                                              index_t batch_size) {
+  return internal::_matcopy_batch(sb_handle, trans, m, n, alpha, memory, ld_in,
+                                  stride, memory, ld_out, stride, batch_size);
+}
+
+template <typename sb_handle_t, typename element_t, typename index_t,
           typename in_t, typename out_t>
 typename sb_handle_t::event_t _omatcopy_batch(
     sb_handle_t& sb_handle, char trans, index_t m, index_t n, element_t alpha,
