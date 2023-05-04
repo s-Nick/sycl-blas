@@ -24,8 +24,6 @@
  **************************************************************************/
 
 #include "blas_test.hpp"
-#include "gtest/gtest.h"
-#include <cstdint>
 
 template <typename scalar_t>
 using combination_t =
