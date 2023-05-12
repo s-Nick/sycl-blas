@@ -19,46 +19,27 @@
  *
  *  SYCL-BLAS: BLAS implementation using SYCL
  *
- *  @filename sycl_blas.h
+ *  @filename copy_test_batch.cpp.in
  *
  **************************************************************************/
 
-#include <CL/sycl.hpp>
+#include "interface/extension_interface.hpp"
+#include "sb_handle/kernel_constructor.hpp"
+#include "sb_handle/sycl_blas_handle.hpp"
+#include "operations/extension/copy_test_batch.hpp"
 
-#include "blas_meta.h"
+namespace blas {
+namespace extension {
+namespace internal {
 
-#include "container/sycl_iterator.h"
+// This function represents both imatcopy and omatcopy operators
+template typename SB_Handle::event_t _copy_test_batch(
+    SB_Handle& sb_handle, char trans, ${INDEX_TYPE} m, ${INDEX_TYPE} n,
+    ${DATA_TYPE} alpha, ${container_t} in_memory, ${INDEX_TYPE} ld_in,
+    ${INDEX_TYPE} in_stride, ${container_t} out_memory, ${INDEX_TYPE} ld_out,
+    ${INDEX_TYPE} out_stride, ${INDEX_TYPE} batch_size);
 
-#include "sb_handle/sycl_blas_handle.h"
+}  // namespace internal
+}  // namespace extension
+}  // namespace blas
 
-#include "sb_handle/kernel_constructor.h"
-
-#include "interface/blas1_interface.h"
-
-#include "interface/blas2_interface.h"
-
-#include "interface/blas3_interface.h"
-
-#include "interface/gemm_launcher.h"
-
-#include "interface/extension_interface.h"
-
-#include "operations/blas1_trees.h"
-
-#include "operations/blas2_trees.h"
-
-#include "operations/blas3_trees.h"
-
-#include "operations/extension/reduction.h"
-
-#include "operations/extension/matcopy.h"
-
-#include "operations/extension/copy_test_batch.h"
-
-#include "operations/blas_constants.h"
-
-#include "operations/blas_operators.h"
-
-#include "sycl_blas_helper.h"
-
-#include "views/view.h"

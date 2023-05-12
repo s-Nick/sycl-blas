@@ -27,12 +27,12 @@
 
 template <typename scalar_t>
 using combination_t =
-    std::tuple<char, int64_t, int64_t, scalar_t, int64_t, int64_t, int64_t>;
+    std::tuple<char, index_t, index_t, scalar_t, index_t, index_t, index_t>;
 
 template <typename scalar_t>
 void run_test(const combination_t<scalar_t> combi) {
   char trans;
-  int64_t m, n, ld_in, ld_out, batch_size;
+  index_t m, n, ld_in, ld_out, batch_size;
   scalar_t alpha;
 
   std::tie(trans, m, n, alpha, ld_in, ld_out, batch_size) = combi;
@@ -43,10 +43,10 @@ void run_test(const combination_t<scalar_t> combi) {
   auto q = make_queue();
   blas::SB_Handle sb_handle(q);
 
-  int64_t stride_a = ld_in * n;
-  int64_t stride_b = (trans == 't') ? ld_out * m : ld_out * n;
+  index_t stride_a = ld_in * n;
+  index_t stride_b = (trans == 't') ? ld_out * m : ld_out * n;
 
-  int64_t size = std::max(ld_in, ld_out) * (trans == 't' ? std::max(m, n) : n);
+  index_t size = std::max(ld_in, ld_out) * (trans == 't' ? std::max(m, n) : n);
   std::vector<scalar_t> A(size * batch_size);
 
   fill_random(A);
@@ -63,11 +63,17 @@ void run_test(const combination_t<scalar_t> combi) {
   auto matrix_in_out =
       blas::make_sycl_iterator_buffer<scalar_t>(A, size * batch_size);
 
+  /*
+  blas::extension::_copy_test_batch(sb_handle, trans, m, n, alpha,
+  matrix_in_out, ld_in, stride_a, matrix_in_out, ld_out, stride_a, batch_size);
+
+  */
   blas::extension::_imatcopy_batch(sb_handle, trans, m, n, alpha, matrix_in_out,
                                    ld_in, ld_out, stride_a, batch_size);
 
   auto event = blas::helper::copy_to_host<scalar_t>(
       sb_handle.get_queue(), matrix_in_out, A.data(), size * batch_size);
+
   sb_handle.wait(event);
 
   // Validate the result
@@ -77,18 +83,18 @@ void run_test(const combination_t<scalar_t> combi) {
 
 template <typename scalar_t>
 const auto combi = ::testing::Combine(::testing::Values<char>('n'),
-                                      ::testing::Values<int64_t>(2,3),
-                                      ::testing::Values<int64_t>(2,3),
-                                      ::testing::Values<scalar_t>(0,1,2),
-                                      ::testing::Values<int64_t>(2,3),
-                                      ::testing::Values<int64_t>(2,3),
-                                      ::testing::Values<int64_t>(1, 2 ,4 ,8));
+                                      ::testing::Values<index_t>(2, 3),
+                                      ::testing::Values<index_t>(2, 3),
+                                      ::testing::Values<scalar_t>(0, 1, 2),
+                                      ::testing::Values<index_t>(2, 3),
+                                      ::testing::Values<index_t>(2, 3),
+                                      ::testing::Values<index_t>(1, 2, 4));
 
 template <class T>
 static std::string generate_name(
     const ::testing::TestParamInfo<combination_t<T>>& info) {
   char trans;
-  int64_t m, n, ld_in, ld_out, batch_size;
+  index_t m, n, ld_in, ld_out, batch_size;
   T alpha;
   BLAS_GENERATE_NAME(info.param, trans, m, n, alpha, ld_in, ld_out, batch_size);
 }

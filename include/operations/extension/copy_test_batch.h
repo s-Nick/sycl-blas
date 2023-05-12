@@ -1,0 +1,109 @@
+/***************************************************************************
+ *  @license
+ *  Copyright (C) Codeplay Software Limited
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  For your convenience, a copy of the License has been included in this
+ *  repository.
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  SYCL-BLAS: BLAS implementation using SYCL
+ *
+ *  @filename matcopy.h
+ *
+ **************************************************************************/
+
+#ifndef SYCL_BLAS_EXTENSION_COPY_TEST_BATCH_H
+#define SYCL_BLAS_EXTENSION_COPY_TEST_BATCH_H
+
+#include <operations/extension/matcopy.h>
+
+
+namespace blas {
+
+
+template <matcopy_op op,int ClSize, bool trans_rhs_1, typename lhs_t, typename rhs_t>
+struct Copytest_batch {
+ public:
+  using value_t = typename lhs_t::value_t;
+  using index_t = typename rhs_t::index_t;
+
+  lhs_t lhs_;
+  rhs_t rhs_1_;
+  value_t alpha_, beta_;
+  index_t m_, n_, lhs_ld_, rhs_1_ld_, lhs_stride_, rhs_1_stride_, batch_size_;
+
+  Copytest_batch(lhs_t lhs, rhs_t rhs_1, value_t alpha, value_t beta, index_t m,
+                 index_t n, index_t lhs_ld, index_t rhs_ld, index_t lhs_stride,
+                 index_t rhs_stride, index_t batch_size);
+  index_t get_size() const;
+  bool valid_thread(cl::sycl::nd_item<1> ndItem) const;
+  value_t eval(index_t i);
+  value_t eval(cl::sycl::nd_item<1> ndItem);
+  template <typename sharedT>
+  value_t eval(sharedT shMem, cl::sycl::nd_item<1> ndItem);
+  void bind(cl::sycl::handler &h);
+  void adjust_access_displacement();
+};
+/*
+template <typename lhs_t, typename rhs_t>
+struct Copytest_batch <
+   8 , false, lhs_t, rhs_t>{
+  using value_t = typename lhs_t::value_t;
+  using index_t = typename rhs_t::index_t;
+
+  lhs_t lhs_;
+  rhs_t rhs_1_;
+  value_t alpha_, beta_;
+  index_t m_, n_, lhs_ld_, rhs_1_ld_, lhs_stride_, rhs_1_stride_, batch_size_;
+
+  Copytest_batch(lhs_t lhs, rhs_t rhs_1, value_t alpha, value_t beta, index_t m,
+                 index_t n, index_t lhs_ld, index_t rhs_ld, index_t lhs_stride,
+                 index_t rhs_stride, index_t batch_size);
+  index_t get_size() const;
+  bool valid_thread(cl::sycl::nd_item<1> ndItem) const;
+  value_t eval(index_t i);
+  value_t eval(cl::sycl::nd_item<1> ndItem);
+  template <typename sharedT>
+  value_t eval(sharedT shMem, cl::sycl::nd_item<1> ndItem);
+  void bind(cl::sycl::handler &h);
+  void adjust_access_displacement();
+};
+*/
+
+/*
+template <int ClSize, bool trans_rhs_1, typename lhs_t,
+          typename rhs_t>
+int make_copytb(
+    lhs_t lhs, rhs_t rhs_1, typename rhs_t::value_t alpha,
+    typename rhs_t::value_t beta, typename rhs_t::index_t m,
+    typename rhs_t::index_t n, typename rhs_t::index_t lhs_ld,
+    typename rhs_t::index_t rhs_ld, typename rhs_t::index_t lhs_stride,
+    typename rhs_t::index_t rhs_stride, typename rhs_t::index_t batch_size_) {
+  return 1;
+}
+*/
+template <blas::matcopy_op op,int ClSize, bool trans_rhs_1, typename lhs_t, typename rhs_t>
+Copytest_batch<op,ClSize, trans_rhs_1, lhs_t, rhs_t> make_copytb(
+    lhs_t lhs, rhs_t rhs_1, typename rhs_t::value_t alpha,
+    typename rhs_t::value_t beta, typename rhs_t::index_t m,
+    typename rhs_t::index_t n, typename rhs_t::index_t lhs_ld,
+    typename rhs_t::index_t rhs_ld, typename rhs_t::index_t lhs_stride,
+    typename rhs_t::index_t rhs_stride, typename rhs_t::index_t batch_size) {
+  return Copytest_batch<op,ClSize, trans_rhs_1, lhs_t, rhs_t>(
+      lhs, rhs_1, alpha, beta, m, n, lhs_ld, rhs_ld, lhs_stride, rhs_stride,
+      batch_size);
+}
+
+}  // namespace blas
+
+#endif  // SYCL_BLAS_EXTENSION_COPY_TEST_BATCH_H
