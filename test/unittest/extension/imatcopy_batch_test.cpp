@@ -19,12 +19,11 @@
  *
  *  SYCL-BLAS: BLAS implementation using SYCL
  *
- *  @filename omatcopy_batch_test.cpp
+ *  @filename imatcopy_batch_test.cpp
  *
  **************************************************************************/
 
 #include "blas_test.hpp"
-#include "interface/extension_interface.h"
 
 template <typename scalar_t>
 using combination_t =
@@ -49,72 +48,47 @@ void run_test(const combination_t<scalar_t> combi) {
 
   index_t size = std::max(ld_in, ld_out) * (trans == 't' ? std::max(m, n) : n);
   std::vector<scalar_t> A(size * batch_size);
-  std::vector<scalar_t> B(size * batch_size);
 
   fill_random(A);
 
   std::vector<scalar_t> A_ref = A;
-  std::vector<scalar_t> B_ref = B;
 
   // Reference implementation does not provide batch version,
   // the loop overcome this limitation
   for (int i = 0; i < batch_size; ++i) {
-    reference_blas::omatcopy(trans, m, n, alpha, A_ref.data() + (i * stride_a),
-                             ld_in, B_ref.data() + (i * stride_b), ld_out);
+    reference_blas::imatcopy(trans, m, n, alpha, A_ref.data() + (i * stride_a),
+                             ld_in, ld_out);
   }
 
-  auto matrix_in =
+  auto matrix_in_out =
       blas::make_sycl_iterator_buffer<scalar_t>(A, size * batch_size);
-  auto matrix_out =
-      blas::make_sycl_iterator_buffer<scalar_t>(B, size * batch_size);
 
   /*
-  blas::extension::_copy_test_batch(sb_handle, trans, m, n, alpha, matrix_in,
-                                    ld_in, stride_a, matrix_out, ld_out,
-                                    stride_b, batch_size);
- */
-   blas::extension::_omatcopy_batch(sb_handle, trans, m, n, alpha, matrix_in,
-                                    ld_in, stride_a, matrix_out, ld_out,
-                                    stride_b, batch_size);
+  blas::extension::_copy_test_batch(sb_handle, trans, m, n, alpha,
+  matrix_in_out, ld_in, stride_a, matrix_in_out, ld_out, stride_a, batch_size);
+
+  */
+  blas::extension::_imatcopy_batch(sb_handle, trans, m, n, alpha, matrix_in_out,
+                                   ld_in, ld_out, stride_a, batch_size);
 
   auto event = blas::helper::copy_to_host<scalar_t>(
-      sb_handle.get_queue(), matrix_out, B.data(), size * batch_size);
+      sb_handle.get_queue(), matrix_in_out, A.data(), size * batch_size);
+
   sb_handle.wait(event);
 
-  /*
-  for(const auto e : B) {
-    std::cout << e <<' ' ;
-  }
-  std::cout << '\n';
-
-  for(const auto e : B_ref) {
-    std::cout << e <<' ' ;
-  }
-  std::cout << '\n';
-  */
   // Validate the result
-  const bool isAlmostEqual = utils::compare_vectors(B, B_ref);
+  const bool isAlmostEqual = utils::compare_vectors(A, A_ref);
   ASSERT_TRUE(isAlmostEqual);
 }
 
 template <typename scalar_t>
 const auto combi = ::testing::Combine(::testing::Values<char>('n'),
-                                      ::testing::Values<index_t>(6,13,64,128,256),
-                                      ::testing::Values<index_t>(6,13,64,128,256),
-                                      ::testing::Values<scalar_t>(0,1,2),
-                                      ::testing::Values<index_t>(6,13,64,128,256),
-                                      ::testing::Values<index_t>(6,13,64,128,256),
-                                      ::testing::Values<index_t>(1,2,4,8));
-/*
-template <typename scalar_t>
-const auto combi = ::testing::Combine(
-    ::testing::Values<char>('n'), ::testing::Values<index_t>(64, 128, 256),
-    ::testing::Values<index_t>(64,128,256),
-    ::testing::Values<scalar_t>(0, 1, 2),
-    ::testing::Values<index_t>(64,128,256),
-    ::testing::Values<index_t>(64,128,256),
-    ::testing::Values<index_t>(2,4,8));
-*/
+                                      ::testing::Values<index_t>(2, 3),
+                                      ::testing::Values<index_t>(2, 3),
+                                      ::testing::Values<scalar_t>(0, 1, 2),
+                                      ::testing::Values<index_t>(2, 3),
+                                      ::testing::Values<index_t>(2, 3),
+                                      ::testing::Values<index_t>(1, 2, 4));
 
 template <class T>
 static std::string generate_name(
@@ -125,4 +99,4 @@ static std::string generate_name(
   BLAS_GENERATE_NAME(info.param, trans, m, n, alpha, ld_in, ld_out, batch_size);
 }
 
-BLAS_REGISTER_TEST_ALL(OmatCopy_batch, combination_t, combi, generate_name);
+BLAS_REGISTER_TEST_ALL(ImatCopy_batch, combination_t, combi, generate_name);

@@ -53,6 +53,7 @@ void run_test(const combination_t<scalar_t> combi) {
   std::vector<scalar_t> B(size_b);
 
   fill_random(A);
+  //fill_random(B);
 
   std::vector<scalar_t> A_ref = A;
   std::vector<scalar_t> B_ref = B;
