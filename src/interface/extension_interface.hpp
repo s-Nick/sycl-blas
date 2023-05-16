@@ -118,9 +118,9 @@ _copy_test_batch_impl(sb_handle_t& sb_handle, index_t m, index_t n,
   auto in_view = make_matrix_view<col_major>(in_memory, m, n, ld_in, in_stride);
   auto out_view =
       make_matrix_view<col_major>(out_memory, m, n, ld_out, out_stride);
-  auto copy_batch_event =
-      make_copytb<matcopy_op::outplace,8, trans>(out_view, in_view, alpha, 0, m, n, ld_out, ld_in,
-                            out_stride, in_stride, batch_size);
+  auto copy_batch_event = make_copytb<matcopy_op::outplace, 8, trans>(
+      out_view, in_view,in_view, alpha, 0, m, n, ld_out, ld_in, 1, out_stride, in_stride, 1,
+      batch_size);
   // sb_handle.execute(copy_batch_event);
   return sb_handle.execute(copy_batch_event);
 }

@@ -34,21 +34,25 @@ namespace blas {
 template <matcopy_op op, int ClSize, bool trans_rhs_1, typename lhs_t,
           typename rhs_t>
 Copytest_batch<op, ClSize, trans_rhs_1, lhs_t, rhs_t>::Copytest_batch(
-    lhs_t lhs, rhs_t rhs_1, typename lhs_t::value_t alpha,
+    lhs_t lhs, rhs_t rhs_1, rhs_t rhs_2, typename lhs_t::value_t alpha,
     typename lhs_t::value_t beta, typename rhs_t::index_t m,
     typename rhs_t::index_t n, typename rhs_t::index_t lhs_ld,
-    typename rhs_t::index_t rhs_ld, typename rhs_t::index_t lhs_stride,
-    typename rhs_t::index_t rhs_stride, typename rhs_t::index_t batch_size)
+    typename rhs_t::index_t rhs_ld, typename rhs_t::index_t rhs_2_ld,
+    typename rhs_t::index_t lhs_stride, typename rhs_t::index_t rhs_stride,
+    typename rhs_t::index_t rhs_2_stride, typename rhs_t::index_t batch_size)
     : lhs_(lhs),
       rhs_1_(rhs_1),
+      rhs_2_(rhs_2),
       alpha_(alpha),
       beta_(beta),
       m_(m),
       n_(n),
       lhs_ld_(lhs_ld),
       rhs_1_ld_(rhs_ld),
+      rhs_2_ld_(rhs_2_ld),
       lhs_stride_(lhs_stride),
       rhs_1_stride_(rhs_stride),
+      rhs_2_stride_(rhs_2_stride),
       batch_size_(batch_size) {}
 
 template <matcopy_op op, int ClSize, bool trans_rhs_1, typename lhs_t,
@@ -61,76 +65,71 @@ template <matcopy_op op, int ClSize, bool trans_rhs_1, typename lhs_t,
 typename lhs_t::value_t
 Copytest_batch<op, ClSize, trans_rhs_1, lhs_t, rhs_t>::eval(
     cl::sycl::nd_item<1> ndItem) {
-  const index_t local_id = ndItem.get_local_id(0);
-  const index_t group_id = ndItem.get_group(0);
-  const index_t group_range = ndItem.get_group_range(0);
+  const index_t workgroup_cluster =
+      ((m_ * n_ - 1) / ndItem.get_local_range(0) + 1);
+  const index_t wg_batch_id = ndItem.get_group(0) / workgroup_cluster;
 
-  // const index_t wg_batch_id = ndItem.get_group(0) / ((m_ * n_ - 1) / 8);
-
-  if (group_id >= batch_size_) {
+  // This will disable all workgroups that dont have any batch to work on
+  if (wg_batch_id >= batch_size_) {
     return 0;
   }
-  const index_t l_rhs_stride = rhs_1_stride_;
-  const index_t l_lhs_stride = lhs_stride_;
 
-  auto orig_lhs = lhs_.get_pointer();    // + (group_id * l_lhs_stride);
-  auto orig_rhs = rhs_1_.get_pointer();  // + (group_id * l_rhs_stride);
+  const index_t batch_stride = ndItem.get_group_range(0) / workgroup_cluster;
+
+  const index_t l_size = m_ * lhs_ld_;
+  const index_t r_size = m_ * rhs_1_ld_;
+
+  const index_t l_lhs_stride = lhs_stride_;
+  const index_t l_rhs_stride = rhs_1_stride_;
 
   index_t item_id =
-      ndItem.get_group(0) * ndItem.get_group_range(0) + ndItem.get_local_id(0);
-
-  // if (local_id >= m_ * n_) {
-  // return 0;
-  //}
-  // const index_t row = item_id % m_;
-  // const index_t col = item_id / m_;
-
-  index_t row, col;
-
-  index_t batch_stride_ = batch_size_;
-
-  // auto A = orig_rhs;
-  // auto B = orig_lhs;
-
-  /*
-  B += item_id;
-  *B = item_id;
-  auto A = orig_rhs;
-  auto B = orig_lhs;
-  for (int i = local_id; i < 128; i += lhs_stride_) {
-    *B = 2;  // alpha_ * (*A);
-    A = A + i%rhs_1_stride_;
-    B = B + i%lhs_stride_;
+      (ndItem.get_group(0) % workgroup_cluster) * (ndItem.get_local_range(0)) +
+      ndItem.get_local_id(0);
+  if (item_id >= m_ * n_) {
+    return 0;
   }
-  const index_t loop_stride = (ndItem.get_local_range(0) < m_ * n_)
-                                  ? ndItem.get_local_range(0)
-                                  : m_ * n_;
-  const index_t bigger_matrix =
-      (l_lhs_stride < l_rhs_stride) ? l_lhs_stride : l_rhs_stride;
-    */
-  do {
-    auto A = orig_rhs;
-    auto B = orig_lhs;
+  auto orig_lhs = lhs_.get_pointer() + (wg_batch_id * l_lhs_stride);
+  auto orig_rhs = rhs_1_.get_pointer() + (wg_batch_id * l_rhs_stride);
 
-    for (int i = local_id, c = 1; i < m_ * n_;
-         i += ndItem.get_local_range(0), ++c) {
-      row = i % m_;
-      col = i / m_;
-      A = A + row + col * rhs_1_ld_;
-      B = B + row + col * lhs_ld_;
-      // B[0] = i;//batch_stride_;//ndItem.get_local_range(0);
+  const index_t row = item_id % m_;
+  const index_t col = item_id / m_;
+
+  orig_lhs = orig_lhs + row + col * lhs_ld_;
+  orig_rhs = orig_rhs + row + col * rhs_1_ld_;
+
+  // omatadd operator has another matrix as input and the computation is 
+  // slighlty different.
+  if constexpr (op == matcopy_op::outplaceadd) {
+    auto orig_rhs_2 = rhs_2_.get_pointer() + (wg_batch_id * rhs_2_stride_);
+    orig_rhs_2 = orig_rhs_2 + row + col * rhs_2_ld_;
+    do {
+      auto A = orig_rhs;
+      auto B = orig_rhs_2;
+      auto C = orig_lhs;
+
+      C[0] = alpha_ * A[0] + beta_ * B[0];
+
+      orig_lhs += (lhs_stride_ * batch_stride);
+      orig_rhs += (rhs_1_stride_ * batch_stride);
+      orig_rhs_2 += (rhs_2_stride_ * batch_stride);
+
+      batch_size_ -= batch_stride;
+
+    } while (batch_size_ > wg_batch_id);
+  } else {
+    do {
+      auto A = orig_rhs;
+      auto B = orig_lhs;
+
       B[0] = alpha_ * A[0];
-      A = orig_rhs;
-      B = orig_lhs;
-    }
-    /*
-    A = A + item_id;
-    B = B + item_id + lhs_ld_;
-    */
-    orig_rhs += l_rhs_stride;
-    orig_lhs += l_lhs_stride;
-    batch_stride_ -= 1;
-  } while (batch_stride_ > 0);
+
+      orig_lhs += (lhs_stride_ * batch_stride);
+      orig_rhs += (rhs_1_stride_ * batch_stride);
+
+      batch_size_ -= batch_stride;
+
+    } while (batch_size_ > wg_batch_id);
+  }
 
   return 0;
 }
