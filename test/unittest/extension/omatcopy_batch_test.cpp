@@ -68,30 +68,14 @@ void run_test(const combination_t<scalar_t> combi) {
   auto matrix_out =
       blas::make_sycl_iterator_buffer<scalar_t>(B, size * batch_size);
 
-  /*
-  blas::extension::_copy_test_batch(sb_handle, trans, m, n, alpha, matrix_in,
-                                    ld_in, stride_a, matrix_out, ld_out,
-                                    stride_b, batch_size);
- */
-   blas::extension::_omatcopy_batch(sb_handle, trans, m, n, alpha, matrix_in,
-                                    ld_in, stride_a, matrix_out, ld_out,
-                                    stride_b, batch_size);
+  blas::extension::_omatcopy_batch(sb_handle, trans, m, n, alpha, matrix_in,
+                                   ld_in, stride_a, matrix_out, ld_out,
+                                   stride_b, batch_size);
 
   auto event = blas::helper::copy_to_host<scalar_t>(
       sb_handle.get_queue(), matrix_out, B.data(), size * batch_size);
   sb_handle.wait(event);
 
-  /*
-  for(const auto e : B) {
-    std::cout << e <<' ' ;
-  }
-  std::cout << '\n';
-
-  for(const auto e : B_ref) {
-    std::cout << e <<' ' ;
-  }
-  std::cout << '\n';
-  */
   // Validate the result
   const bool isAlmostEqual = utils::compare_vectors(B, B_ref);
   ASSERT_TRUE(isAlmostEqual);
@@ -99,22 +83,12 @@ void run_test(const combination_t<scalar_t> combi) {
 
 template <typename scalar_t>
 const auto combi = ::testing::Combine(::testing::Values<char>('n'),
-                                      ::testing::Values<index_t>(6,13,64,128,256),
-                                      ::testing::Values<index_t>(6,13,64,128,256),
-                                      ::testing::Values<scalar_t>(0,1,2),
-                                      ::testing::Values<index_t>(6,13,64,128,256),
-                                      ::testing::Values<index_t>(6,13,64,128,256),
-                                      ::testing::Values<index_t>(1,2,4,8));
-/*
-template <typename scalar_t>
-const auto combi = ::testing::Combine(
-    ::testing::Values<char>('n'), ::testing::Values<index_t>(64, 128, 256),
-    ::testing::Values<index_t>(64,128,256),
-    ::testing::Values<scalar_t>(0, 1, 2),
-    ::testing::Values<index_t>(64,128,256),
-    ::testing::Values<index_t>(64,128,256),
-    ::testing::Values<index_t>(2,4,8));
-*/
+                                      ::testing::Values<index_t>(64, 128, 256),
+                                      ::testing::Values<index_t>(64, 128, 256),
+                                      ::testing::Values<scalar_t>(0, 1, 2),
+                                      ::testing::Values<index_t>(64, 128, 256),
+                                      ::testing::Values<index_t>(64, 128, 256),
+                                      ::testing::Values<index_t>(1, 2, 4, 8));
 
 template <class T>
 static std::string generate_name(
