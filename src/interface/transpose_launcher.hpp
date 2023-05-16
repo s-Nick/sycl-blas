@@ -69,6 +69,80 @@ Transpose_Launcher<Tile_size, local_memory>::_select_transpose_outplace(
   }
 }
 
+template <int Tile_size, bool local_memory>
+template <typename sb_handle_t, typename container_0_t, typename container_1_t,
+          typename element_t, typename index_t>
+typename sb_handle_t::event_t
+Transpose_Launcher<Tile_size, local_memory>::_select_transpose_inplace(
+    sb_handle_t& sb_handle, index_t _M, index_t _N, element_t _alpha,
+    container_0_t in_, index_t _ld_in, container_1_t out_, index_t _ld_out) {
+  // Matrix Views
+  auto in_view = make_matrix_view<col_major>(in_, _M, _N, _ld_in, (index_t)1);
+  auto out_view =
+      make_matrix_view<col_major>(out_, _M, _N, _ld_out, (index_t)1);
+
+  // Work items & groups sizes
+  index_t local_size = static_cast<index_t>(Tile_size * Tile_size);
+  index_t nWG = (_M * _N + local_size - 1) / local_size;
+  index_t global_size = nWG * local_size;
+
+  // Transpose expression Tree
+  auto trans_scale_tree = make_transpose<true, Tile_size, local_memory>(
+      in_view, (index_t)1, out_view, (index_t)1, _alpha);
+
+  if constexpr (local_memory) {
+    index_t shared_mem = static_cast<index_t>((Tile_size + 1) * Tile_size) *
+                         ((index_t)local_memory);
+    return sb_handle.execute(trans_scale_tree, local_size, global_size,
+                             shared_mem);
+  } else {
+    return sb_handle.execute(trans_scale_tree, local_size, global_size);
+  }
+}
+
+template <bool both_trans, int Tile_size, bool local_memory>
+template <typename sb_handle_t, typename container_0_t, typename container_1_t,
+          typename container_2_t, typename element_t, typename index_t>
+typename sb_handle_t::event_t
+TransposeAdd_Launcher<both_trans, Tile_size, local_memory>::
+    _select_transpose_add(sb_handle_t& sb_handle, index_t _M, index_t _N,
+                          element_t _alpha, container_0_t a_, index_t _lda,
+                          index_t _nrows_a, index_t _ncols_a, element_t _beta,
+                          container_1_t b_, index_t _ldb, index_t _nrows_b,
+                          index_t _ncols_b, container_2_t c_, index_t _ldc) {
+  // Matrix Views
+  auto A_view =
+      make_matrix_view<col_major>(a_, _nrows_a, _ncols_a, _lda, (index_t)1);
+  auto B_view =
+      make_matrix_view<col_major>(b_, _nrows_b, _ncols_b, _ldb, (index_t)1);
+
+  auto C_view = make_matrix_view<col_major>(c_, _M, _N, _ldc, (index_t)1);
+
+  // Work items & groups sizes
+  index_t local_size = static_cast<index_t>(Tile_size * Tile_size);
+  index_t nWG = (_M * _N + local_size - 1) / local_size;
+  index_t global_size = nWG * local_size;
+
+  // constexpr const bool both_trans = trans_a && trans_b;
+
+  if constexpr (local_memory) {
+    // TODO
+    // Transpose expression Tree
+    auto trans_scale_tree =
+        make_transpose_add<both_trans, Tile_size, local_memory>(
+            A_view, B_view, C_view, _alpha, _beta);
+
+    return sb_handle.execute(trans_scale_tree, local_size, global_size);
+  } else {
+    // Transpose expression Tree
+    auto trans_scale_tree =
+        make_transpose_add<both_trans, Tile_size, local_memory>(
+            A_view, B_view, C_view, _alpha, _beta);
+
+    return sb_handle.execute(trans_scale_tree, local_size, global_size);
+  }
+}
+
 }  // namespace internal
 }  // namespace extension
 }  // namespace blas

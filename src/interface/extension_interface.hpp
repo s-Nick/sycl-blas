@@ -91,8 +91,28 @@ typename std::enable_if<trans && in_place, typename sb_handle_t::event_t>::type
 _matcopy_impl(sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
               in_t in_memory, index_t ld_in, index_t in_stride,
               out_t out_memory, index_t ld_out, index_t out_stride) {
-  // TODO
   typename sb_handle_t::event_t ret;
+
+  bool use_local_memory = sb_handle.has_local_memory();
+
+  if (use_local_memory) {
+    // Using local Memory
+    if (m > 1024 && n > 1024) {
+      ret = Transpose_Launcher<32, true>::template _select_transpose_inplace(
+          sb_handle, m, n, alpha, in_memory, ld_in, out_memory, ld_out);
+    } else if (m > 64 && n > 64) {
+      ret = Transpose_Launcher<16, true>::template _select_transpose_inplace(
+          sb_handle, m, n, alpha, in_memory, ld_in, out_memory, ld_out);
+    } else {
+      ret = Transpose_Launcher<8, true>::template _select_transpose_inplace(
+          sb_handle, m, n, alpha, in_memory, ld_in, out_memory, ld_out);
+    }
+  } else {
+    // With no local Memory
+    ret = Transpose_Launcher<16, false>::template _select_transpose_inplace(
+        sb_handle, m, n, alpha, in_memory, ld_in, out_memory, ld_out);
+  }
+
   return ret;
 }
 
@@ -131,6 +151,22 @@ _omatadd_impl(sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
               index_t ldb, container_t c, index_t ldc) {
   // TODO
   typename sb_handle_t::event_t ret;
+
+  const index_t a_rows = trans_a ? n : m;
+  const index_t a_cols = trans_a ? m : n;
+  const index_t b_rows = trans_b ? n : m;
+  const index_t b_cols = trans_b ? n : m;
+
+  constexpr const bool both_trans = trans_a && trans_b;
+
+  ret = TransposeAdd_Launcher<
+      both_trans, 16, false>::template _select_transpose_add(sb_handle, m, n,
+                                                             alpha, a, lda,
+                                                             a_rows, a_cols,
+                                                             beta, b, ldb,
+                                                             b_rows, b_cols, c,
+                                                             ldc);
+
   return ret;
 }
 template <bool trans_a, bool trans_b, typename sb_handle_t, typename element_t,

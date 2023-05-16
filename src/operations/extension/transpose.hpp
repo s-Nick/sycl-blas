@@ -151,6 +151,87 @@ SYCL_BLAS_INLINE void Transpose<in_place, Tile_size, local_memory, in_t, out_t,
   }
 }
 
+// Transpose-Add
+template <bool both_trans, int Tile_size, bool local_memory, typename in1_t,
+          typename in2_t, typename out_t, typename element_t>
+SYCL_BLAS_INLINE bool
+TransposeAdd<both_trans, Tile_size, local_memory, in1_t, in2_t, out_t,
+             element_t>::valid_thread(cl::sycl::nd_item<1> item) const {
+  // Valid threads are established by ::eval()
+  return true;
+}
+
+template <bool both_trans, int Tile_size, bool local_memory, typename in1_t,
+          typename in2_t, typename out_t, typename element_t>
+SYCL_BLAS_INLINE void
+TransposeAdd<both_trans, Tile_size, local_memory, in1_t, in2_t, out_t,
+             element_t>::bind(cl::sycl::handler &cgh) {
+  A_.bind(cgh);
+  B_.bind(cgh);
+  C_.bind(cgh);
+}
+
+template <bool both_trans, int Tile_size, bool local_memory, typename in1_t,
+          typename in2_t, typename out_t, typename element_t>
+SYCL_BLAS_INLINE typename in1_t::index_t
+TransposeAdd<both_trans, Tile_size, local_memory, in1_t, in2_t, out_t,
+             element_t>::get_size() const {
+  return C_.get_size();
+}
+
+template <bool both_trans, int Tile_size, bool local_memory, typename in1_t,
+          typename in2_t, typename out_t, typename element_t>
+SYCL_BLAS_INLINE void
+TransposeAdd<both_trans, Tile_size, local_memory, in1_t, in2_t, out_t,
+             element_t>::adjust_access_displacement() {
+  A_.adjust_access_displacement();
+  B_.adjust_access_displacement();
+  C_.adjust_access_displacement();
+}
+
+template <bool both_trans, int Tile_size, bool local_memory, typename in1_t,
+          typename in2_t, typename out_t, typename element_t>
+SYCL_BLAS_INLINE void
+TransposeAdd<both_trans, Tile_size, local_memory, in1_t, in2_t, out_t,
+             element_t>::eval(cl::sycl::nd_item<1> id) {
+  auto idx = id.get_global_linear_id();
+
+  if (idx < get_size()) {
+    auto A = A_.get_data().get_pointer();
+    auto B = B_.get_data().get_pointer();
+    auto C = C_.get_data().get_pointer();
+
+    if constexpr (both_trans) {
+      // Compute sum & then transpose
+      auto j = idx / N_;
+      auto i = idx - j * N_;
+
+      auto in_index_a = i + j * lda_;
+      auto in_index_b = i + j * ldb_;
+
+      auto temp_sum = alpha_ * A[in_index_a] + beta_ * B[in_index_b];
+
+      auto out_index_c = i * ldc_ + j;
+
+      C[out_index_c] = temp_sum;
+
+    } else {
+      // Transpose A then compute sum (Applies to B as well)
+      auto j = idx / M_;
+      auto i = idx - j * M_;
+
+      auto in_index_at = j + i * lda_;
+      auto in_index_b = i + j * ldb_;
+
+      auto temp_sum = alpha_ * A[in_index_at] + beta_ * B[in_index_b];
+
+      auto out_index_c = i + j * ldc_;
+
+      C[out_index_c] = temp_sum;
+    }
+  }
+}
+
 }  // namespace blas
 
 #endif  // SYCL_BLAS_EXTENSION_TRANSPOSE_HPP
