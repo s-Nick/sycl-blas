@@ -123,22 +123,17 @@ TransposeAdd_Launcher<both_trans, Tile_size, local_memory>::
   index_t nWG = (_M * _N + local_size - 1) / local_size;
   index_t global_size = nWG * local_size;
 
-  // constexpr const bool both_trans = trans_a && trans_b;
+  // Transpose Add expression Tree
+  auto trans_scale_tree =
+      make_transpose_add<both_trans, Tile_size, local_memory>(
+          A_view, B_view, C_view, _alpha, _beta);
 
   if constexpr (local_memory) {
-    // TODO
-    // Transpose expression Tree
-    auto trans_scale_tree =
-        make_transpose_add<both_trans, Tile_size, local_memory>(
-            A_view, B_view, C_view, _alpha, _beta);
-
-    return sb_handle.execute(trans_scale_tree, local_size, global_size);
+    index_t shared_mem = static_cast<index_t>((Tile_size + 1) * Tile_size) *
+                         ((index_t)local_memory);
+    return sb_handle.execute(trans_scale_tree, local_size, global_size,
+                             shared_mem);
   } else {
-    // Transpose expression Tree
-    auto trans_scale_tree =
-        make_transpose_add<both_trans, Tile_size, local_memory>(
-            A_view, B_view, C_view, _alpha, _beta);
-
     return sb_handle.execute(trans_scale_tree, local_size, global_size);
   }
 }
