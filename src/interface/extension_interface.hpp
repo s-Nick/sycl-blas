@@ -113,7 +113,14 @@ _copy_test_batch_impl(sb_handle_t& sb_handle, index_t m, index_t n,
       out_view, in_view,in_view, alpha, 0, m, n, ld_out, ld_in, 1, out_stride, in_stride, 1,
       batch_size);
   // sb_handle.execute(copy_batch_event);
-  return sb_handle.execute(copy_batch_event);
+  if(m > 1024 && n > 1024)
+   return sb_handle.execute(copy_batch_event, 32, 64*m*4);
+  else if (m > 512 && n > 512)
+   return sb_handle.execute(copy_batch_event, 32, 64*2048);
+  else if (m >= 256 && n >= 256)
+   return sb_handle.execute(copy_batch_event, 32, 64*1024);
+  else 
+   return sb_handle.execute(copy_batch_event, 32, 64*1024);
 }
 /*!
  * @brief Wrapper around Reduction. Creates the views, then makes and launches
