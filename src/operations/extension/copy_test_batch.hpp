@@ -193,6 +193,7 @@ Copytest_batch<op, ClSize, trans_rhs_1, lhs_t, rhs_t>::eval(
       for (int i = 0; i < workgroup_cluster; ++i) {
         // if(ndItem.get_local_id(0) == 0)
         // if (item_id + i * rhs_1_ld_ > r_size) break;
+        if ( i >= limit_n ) break;
         reg_rhs[i] = A[i * rhs_1_ld_];
         /*
         B[ndItem.get_local_id(0) + i * lhs_ld_] =  // wg_id;
