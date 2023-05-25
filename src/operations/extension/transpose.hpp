@@ -117,32 +117,48 @@ Transpose<in_place, Tile_size, local_memory, in_t, out_t,
   out_idc = il * (Tile_size + 1) + jl;
 }
 
-template <bool both_trans, int Tile_size, typename index_t>
-SYCL_BLAS_INLINE void compute_trans_add_indices(
-    cl::sycl::nd_item<1> id, const index_t &row_tiles, const index_t &lda,
-    const index_t &ldb, const index_t &ldc, index_t &in_a_idx,
-    index_t &in_b_idx, index_t &in_local_idx, index_t &out_idx,
-    index_t &out_local_idx) {
-  index_t idx = id.get_global_linear_id();
+template <bool both_trans, int Tile_size, bool local_memory, typename in1_t,
+          typename in2_t, typename out_t, typename element_t>
+template <typename index_t>
+SYCL_BLAS_INLINE void
+TransposeAdd<both_trans, Tile_size, local_memory, in1_t, in2_t, out_t,
+             element_t>::compute_trans_add_indices(cl::sycl::nd_item<1> id,
+                                                   index_t &in_a_idx,
+                                                   index_t &in_b_idx,
+                                                   index_t &in_local_idx,
+                                                   index_t &out_idx,
+                                                   index_t &out_local_idx,
+                                                   bool &valid_index_in,
+                                                   bool &valid_index_out) {
+  index_t M = both_trans ? N_ : M_;
+  index_t N = both_trans ? M_ : N_;
+  index_t m_tiles = both_trans ? tile_count_n_ : tile_count_m_;
+
   index_t idg = id.get_group(0);
   index_t idc = id.get_local_id();
 
-  const index_t jg = idg / row_tiles;
-  const index_t ig = idg - jg * row_tiles;
+  const index_t jg = idg / m_tiles;
+  const index_t ig = idg - jg * m_tiles;
 
   const index_t jl = idc / Tile_size;
   const index_t il = idc - jl * Tile_size;
 
+  const index_t i_block_start = ig * Tile_size;
+  const index_t j_block_start = jg * Tile_size;
+
+  valid_index_in = (i_block_start + il < M && j_block_start + jl < N);
+  valid_index_out = (i_block_start + jl < M && j_block_start + il < N);
+
   if constexpr (both_trans) {
-    in_a_idx = ig * Tile_size + jg * Tile_size * lda + il + jl * lda;
-    out_idx = ig * Tile_size * ldc + jg * Tile_size + il + jl * ldc;
+    in_a_idx = i_block_start + j_block_start * lda_ + il + jl * lda_;
+    out_idx = i_block_start * ldc_ + j_block_start + il + jl * ldc_;
 
   } else {
-    in_a_idx = jg * Tile_size + ig * Tile_size * lda + il + jl * lda;
-    out_idx = ig * Tile_size + jg * Tile_size * ldc + il + jl * ldc;
+    in_a_idx = j_block_start + i_block_start * lda_ + il + jl * lda_;
+    out_idx = i_block_start + j_block_start * ldc_ + il + jl * ldc_;
   }
 
-  in_b_idx = ig * Tile_size + jg * Tile_size * ldb + il + jl * ldb;
+  in_b_idx = i_block_start + j_block_start * ldb_ + il + jl * ldb_;
 
   in_local_idx = jl * (Tile_size + 1) + il;
 
@@ -208,7 +224,7 @@ template <bool both_trans, int Tile_size, bool local_memory, typename in1_t,
 SYCL_BLAS_INLINE typename in1_t::index_t
 TransposeAdd<both_trans, Tile_size, local_memory, in1_t, in2_t, out_t,
              element_t>::get_size() const {
-  return C_.get_size();
+  return (tile_count_m_ * tile_count_n_ * Tile_size * Tile_size);
 }
 
 template <bool both_trans, int Tile_size, bool local_memory, typename in1_t,
@@ -281,32 +297,39 @@ TransposeAdd<both_trans, Tile_size, local_memory, in1_t, in2_t, out_t,
     auto C = C_.get_data().get_pointer();
 
     index_t in_a_idx, in_b_idx, in_local_id, out_idx, out_local_id;
+    bool valid_index_in, valid_index_out;
 
     if constexpr (both_trans) {
-      compute_trans_add_indices<both_trans, Tile_size>(
-          id, tile_count_n_, lda_, ldb_, ldc_, in_a_idx, in_b_idx, in_local_id,
-          out_idx, out_local_id);
+      compute_trans_add_indices(id, in_a_idx, in_b_idx, in_local_id, out_idx,
+                                out_local_id, valid_index_in, valid_index_out);
 
       // Compute & Copy sum/scaled input to local memory (before transpose)
-      local[in_local_id] = alpha_ * A[in_a_idx] + beta_ * B[in_b_idx];
+      if (valid_index_in) {
+        local[in_local_id] = alpha_ * A[in_a_idx] + beta_ * B[in_b_idx];
+      }
 
       id.barrier(sycl::access::fence_space::local_space);
 
       // Copy transposed output from local memory
-      C[out_idx] = local[out_local_id];
+      if (valid_index_out) {
+        C[out_idx] = local[out_local_id];
+      }
 
     } else {
-      compute_trans_add_indices<both_trans, Tile_size>(
-          id, tile_count_m_, lda_, ldb_, ldc_, in_a_idx, in_b_idx, in_local_id,
-          out_idx, out_local_id);
+      compute_trans_add_indices(id, in_a_idx, in_b_idx, in_local_id, out_idx,
+                                out_local_id, valid_index_in, valid_index_out);
 
       // Compute transposed-scaled A & copy to local memory
-      local[in_local_id] = alpha_ * A[in_a_idx];
+      if (valid_index_out) {
+        local[in_local_id] = alpha_ * A[in_a_idx];
+      }
 
       id.barrier(sycl::access::fence_space::local_space);
 
       // Compute & Copy output from local & global memory to global memory
-      C[out_idx] = local[out_local_id] + beta_ * B[in_b_idx];
+      if (valid_index_in) {
+        C[out_idx] = local[out_local_id] + beta_ * B[in_b_idx];
+      }
     }
   }
 }

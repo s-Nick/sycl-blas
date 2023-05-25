@@ -115,7 +115,10 @@ class TransposeAdd {
   index_t tile_count_m_;
   index_t tile_count_n_;
 
-  TransposeAdd(in1_t& A, in2_t& B, out_t& C, value_t& alpha, value_t& beta)
+  index_t M_pad_;
+  index_t N_pad_;
+
+  TransposeAdd(in1_t &A, in2_t &B, out_t &C, value_t &alpha, value_t &beta)
       : A_(A),
         B_(B),
         C_(C),
@@ -126,25 +129,33 @@ class TransposeAdd {
         N_(C_.get_size_col()),
         alpha_(alpha),
         beta_(beta),
-        tile_count_m_{M_ / Tile_size},
-        tile_count_n_{N_ / Tile_size} {}
+        tile_count_m_((M_ - 1) / Tile_size + 1),
+        tile_count_n_((N_ - 1) / Tile_size + 1),
+        M_pad_(tile_count_m_ * Tile_size),
+        N_pad_(tile_count_n_ * Tile_size) {}
 
   index_t get_size() const;
 
   bool valid_thread(cl::sycl::nd_item<1> item) const;
-  void bind(cl::sycl::handler& cgh);
+  void bind(cl::sycl::handler &cgh);
   void adjust_access_displacement();
   void eval(cl::sycl::nd_item<1> item);
   template <typename local_memory_t>
   void eval(local_memory_t local_mem, cl::sycl::nd_item<1> id);
+
+  template <typename index_t>
+  void compute_trans_add_indices(cl::sycl::nd_item<1> id, index_t &in_a_idx,
+                                 index_t &in_b_idx, index_t &in_local_idx,
+                                 index_t &out_idx, index_t &out_local_idx,
+                                 bool &valid_index_in, bool &valid_index_out);
 };
 
 template <bool both_trans, int Tile_size, bool local_memory, typename in1_t,
           typename in2_t, typename out_t, typename element_t>
 TransposeAdd<both_trans, Tile_size, local_memory, in1_t, in2_t, out_t,
              element_t>
-make_transpose_add(in1_t& A, in2_t& B, out_t& C, element_t& alpha,
-                   element_t& beta) {
+make_transpose_add(in1_t &A, in2_t &B, out_t &C, element_t &alpha,
+                   element_t &beta) {
   return TransposeAdd<both_trans, Tile_size, local_memory, in1_t, in2_t, out_t,
                       element_t>(A, B, C, alpha, beta);
 }
