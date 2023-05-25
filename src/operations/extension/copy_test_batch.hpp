@@ -68,12 +68,14 @@ Copytest_batch<op, ClSize, trans_rhs_1, lhs_t, rhs_t>::eval(
   const index_t m{m_};
   const index_t n{n_};
   constexpr index_t workgroup_cluster =
-      32;  // set to 32 to test warp size on nvidia gpu
+      64;  // set to 32 to test warp size on nvidia gpu
 
   const index_t required_tile =
-      (m * n % workgroup_cluster == 0 && !(m%workgroup_cluster) && !(n%workgroup_cluster))
+      (m * n % workgroup_cluster == 0 && !(m % workgroup_cluster) &&
+       !(n % workgroup_cluster))
           ? (((m * n - 1) / (workgroup_cluster * workgroup_cluster)) + 1)
-          : (((m * n - 1) / (workgroup_cluster * workgroup_cluster)) + 1) + (m/workgroup_cluster)+2;// +1;
+          : (((m * n - 1) / (workgroup_cluster * workgroup_cluster)) + 1) +
+                (m / workgroup_cluster) + (n / workgroup_cluster) + 1;  // +1;
 
   const index_t wg_batch_id = ndItem.get_group(0) / required_tile;
 
@@ -147,6 +149,10 @@ Copytest_batch<op, ClSize, trans_rhs_1, lhs_t, rhs_t>::eval(
   const bool is_internal_block =
       (m - wg_row >= workgroup_cluster) && (n - wg_col >= workgroup_cluster);
 
+  // check for short&large
+  const bool valid_index = (item_id > m || (item_id >= (m-wg_row)) ) ? false : true;
+  if (!valid_index) return 0;
+
   if (is_internal_block) {
     do {
       auto A = orig_rhs;
@@ -178,14 +184,15 @@ Copytest_batch<op, ClSize, trans_rhs_1, lhs_t, rhs_t>::eval(
   } else {
     const auto limit_m = m - wg_row;
     const auto limit_n = n - wg_col;
-    //if (limit_m == 0 || limit_n ==0 ) return 0;
+    //const auto limit_n = n - ;
+    // if (limit_m == 0 || limit_n ==0 ) return 0;
     do {
       auto A = orig_rhs;
       auto B = orig_lhs;
 
       for (int i = 0; i < workgroup_cluster; ++i) {
         // if(ndItem.get_local_id(0) == 0)
-        if (item_id + i * rhs_1_ld_ > r_size) break;
+        // if (item_id + i * rhs_1_ld_ > r_size) break;
         reg_rhs[i] = A[i * rhs_1_ld_];
         /*
         B[ndItem.get_local_id(0) + i * lhs_ld_] =  // wg_id;
@@ -196,9 +203,9 @@ Copytest_batch<op, ClSize, trans_rhs_1, lhs_t, rhs_t>::eval(
         // if(ndItem.get_local_id(0) == 0)
         // if (item_id + i * lhs_ld_ >= limit_n || item_id + i >= limit_m )
         // break;
-        if (item_id >= limit_m || item_id + i * lhs_ld_ > l_size) break;
-        B[i * lhs_ld_] = alpha * reg_rhs[i];
-        //B[0] = alpha * reg_rhs[i];
+        if ( i >= limit_n ) break;
+        B[i * lhs_ld_] =  alpha * reg_rhs[i];
+        // B[0] = alpha * reg_rhs[i];
       }
       // B[0] = alpha_ * A[0];
 

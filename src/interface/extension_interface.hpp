@@ -123,13 +123,13 @@ _copy_test_batch_impl(sb_handle_t& sb_handle, index_t m, index_t n,
       batch_size);
   // sb_handle.execute(copy_batch_event);
   if(m > 1024 && n > 1024)
-   return sb_handle.execute(copy_batch_event, 32, 64*m*4);
+   return sb_handle.execute(copy_batch_event, 64, 64*m*4);
   else if (m > 512 && n > 512)
-   return sb_handle.execute(copy_batch_event, 32, 64*2048);
+   return sb_handle.execute(copy_batch_event, 64, 64*2048);
   else if (m >= 256 && n >= 256)
-   return sb_handle.execute(copy_batch_event, 32, 64*1024);
+   return sb_handle.execute(copy_batch_event, 64, 64*1024);
   else 
-   return sb_handle.execute(copy_batch_event, 32, 64*1024);
+   return sb_handle.execute(copy_batch_event, 64, 64*1024);
 }
 /*!
  * @brief _omatadd_impl in the (trans_a || trans_b) case : This specialization

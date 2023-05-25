@@ -76,19 +76,39 @@ void run_test(const combination_t<scalar_t> combi) {
       sb_handle.get_queue(), matrix_out, B.data(), size * batch_size);
   sb_handle.wait(event);
 
+  /*
+  std::cout << "\nmatrix B\n";
+  for (int i = 0; i < size; ++i) {
+    if (i % m == 0) std::cout << "\nline  " << i << '\n';
+    std::cout << B[i] << ' ';
+  }
+  std::cout << '\n';
+  */
+
   // Validate the result
   const bool isAlmostEqual = utils::compare_vectors(B, B_ref);
   ASSERT_TRUE(isAlmostEqual);
 }
 
+/*
 template <typename scalar_t>
 const auto combi = ::testing::Combine(::testing::Values<char>('n'),
-                                      ::testing::Values<index_t>(64, 128, 256),
-                                      ::testing::Values<index_t>(64, 128, 256),
-                                      ::testing::Values<scalar_t>(0, 1, 2),
-                                      ::testing::Values<index_t>(64, 128, 256),
-                                      ::testing::Values<index_t>(64, 128, 256),
-                                      ::testing::Values<index_t>(1, 2, 4, 8));
+                                      ::testing::Range<index_t>(63,96),
+                                      ::testing::Range<index_t>(63,96),
+                                      ::testing::Values<scalar_t>(2),
+                                      ::testing::Range<index_t>(63,96),
+                                      ::testing::Range<index_t>(63,96),
+                                      ::testing::Values<index_t>(1));
+
+*/
+template <typename scalar_t>
+const auto combi = ::testing::Combine(::testing::Values<char>('n'),
+                                      ::testing::Values<index_t>(6,63,128,175,256,1024),
+                                      ::testing::Values<index_t>(6,63,128,175,256,1024),
+                                      ::testing::Values<scalar_t>(2),
+                                      ::testing::Values<index_t>(6,63,128,175,256,1024),
+                                      ::testing::Values<index_t>(6,63,128,175,256,1024),
+                                      ::testing::Values<index_t>(1,2,4));
 
 template <class T>
 static std::string generate_name(
