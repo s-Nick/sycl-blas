@@ -105,6 +105,82 @@ _matcopy_impl(sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
   return ret;
 }
 
+template <bool trans_a, bool trans_b, typename sb_handle_t, typename element_t,
+          typename index_t, typename container_t>
+typename std::enable_if<trans_a || trans_b, typename sb_handle_t::event_t>::type
+_omatadd_impl(sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
+              container_t a, index_t lda, element_t beta, container_t b,
+              index_t ldb, container_t c, index_t ldc) {
+  typename sb_handle_t::event_t ret;
+
+  const index_t a_rows = trans_a ? n : m;
+  const index_t a_cols = trans_a ? m : n;
+  const index_t b_rows = trans_b ? n : m;
+  const index_t b_cols = trans_b ? n : m;
+
+  constexpr const bool both_trans = trans_a && trans_b;
+
+  bool use_local_memory = sb_handle.has_local_memory();
+
+  if (use_local_memory) {
+    // Using local Memory
+    if (m > 1024 && n > 1024) {
+      ret = TransposeAdd_Launcher<
+          both_trans, 32, true>::template _select_transpose_add(sb_handle, m, n,
+                                                                alpha, a, lda,
+                                                                a_rows, a_cols,
+                                                                beta, b, ldb,
+                                                                b_rows, b_cols,
+                                                                c, ldc);
+    } else if (m > 64 && n > 64) {
+      ret = TransposeAdd_Launcher<
+          both_trans, 16, true>::template _select_transpose_add(sb_handle, m, n,
+                                                                alpha, a, lda,
+                                                                a_rows, a_cols,
+                                                                beta, b, ldb,
+                                                                b_rows, b_cols,
+                                                                c, ldc);
+    } else {
+      ret = TransposeAdd_Launcher<
+          both_trans, 8, true>::template _select_transpose_add(sb_handle, m, n,
+                                                               alpha, a, lda,
+                                                               a_rows, a_cols,
+                                                               beta, b, ldb,
+                                                               b_rows, b_cols,
+                                                               c, ldc);
+    }
+  } else {
+    // With no local Memory
+    ret = TransposeAdd_Launcher<
+        both_trans, 16, false>::template _select_transpose_add(sb_handle, m, n,
+                                                               alpha, a, lda,
+                                                               a_rows, a_cols,
+                                                               beta, b, ldb,
+                                                               b_rows, b_cols,
+                                                               c, ldc);
+  }
+
+  return ret;
+}
+template <bool trans_a, bool trans_b, typename sb_handle_t, typename element_t,
+          typename index_t, typename container_t>
+typename std::enable_if<!trans_a && !trans_b,
+                        typename sb_handle_t::event_t>::type
+_omatadd_impl(sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
+              container_t a, index_t lda, element_t beta, container_t b,
+              index_t ldb, container_t c, index_t ldc) {
+  typename sb_handle_t::event_t ret;
+  auto m_a_view = make_matrix_view<col_major>(a, m, n, lda);
+  auto m_b_view = make_matrix_view<col_major>(b, m, n, ldb);
+  auto m_c_view = make_matrix_view<col_major>(c, m, n, ldc);
+  auto scal_a = make_op<ScalarOp, ProductOperator>(alpha, m_a_view);
+  auto scal_b = make_op<ScalarOp, ProductOperator>(beta, m_b_view);
+  auto sum_op = make_op<BinaryOp, AddOperator>(scal_a, scal_b);
+  auto copy_op = make_op<Assign>(m_c_view, sum_op);
+  ret = sb_handle.execute(copy_op);
+  return ret;
+}
+
 /*!
  * @brief _omatadd_impl in the (trans_a || trans_b) case : This specialization
  * covers the following 3 cases :

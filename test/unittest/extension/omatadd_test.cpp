@@ -28,6 +28,7 @@
 using index_t = int;
 namespace reference_blas {
 
+<<<<<<< HEAD
 /**
  * @brief Reference omat-add implementation using reference omatcopy.
  *
@@ -51,6 +52,14 @@ void omatadd(const char trans_a, const char trans_b, const index_t m,
              const index_t n, const scalar_t alpha, std::vector<scalar_t> &A,
              const index_t lda_m, const scalar_t beta, std::vector<scalar_t> &B,
              const index_t ldb_m, std::vector<scalar_t> &C,
+=======
+// blas-like extension omatAdd used as wrapper around omatcopy
+template <typename scalar_t>
+void omatadd(const char trans_a, const char trans_b, const index_t m,
+             const index_t n, const scalar_t alpha, std::vector<scalar_t> &a,
+             const index_t lda_m, const scalar_t beta, std::vector<scalar_t> &b,
+             const index_t ldb_m, std::vector<scalar_t> &c,
+>>>>>>> b81a632... Added transposed omatAdd kernels & relevant tests
              const index_t ldc_m) {
   const index_t a_rows = trans_a == 't' ? n : m;
   const index_t a_cols = trans_a == 't' ? m : n;
@@ -59,6 +68,7 @@ void omatadd(const char trans_a, const char trans_b, const index_t m,
 
   index_t ldc = ldc_m * m;
 
+<<<<<<< HEAD
   // Temp Matrix 1 for computing A -> alpha * op(A)
   std::vector<scalar_t> TempMatrix1(ldc * n, 0);
   omatcopy(trans_a, a_rows, a_cols, alpha, A.data(), lda_m * a_rows,
@@ -72,6 +82,21 @@ void omatadd(const char trans_a, const char trans_b, const index_t m,
   for (index_t j = 0; j < n; j++) {
     for (index_t i = 0; i < m; i++) {
       C.at(i + j * ldc) =
+=======
+  // Temp Matrix 1 for computing a -> alpha * op(A)
+  std::vector<scalar_t> TempMatrix1(ldc * n, 0);
+  omatcopy(trans_a, a_rows, a_cols, alpha, a.data(), lda_m * a_rows,
+           TempMatrix1.data(), ldc);
+  // Temp Matrix 2 for computing b -> beta * op(B)
+  std::vector<scalar_t> TempMatrix2(ldc * n, 0);
+  omatcopy(trans_b, b_rows, b_cols, beta, b.data(), ldb_m * b_rows,
+           TempMatrix2.data(), ldc);
+
+  // Compute Sum of Temp matrices -> c
+  for (index_t j = 0; j < n; j++) {
+    for (index_t i = 0; i < m; i++) {
+      c.at(i + j * ldc) =
+>>>>>>> b81a632... Added transposed omatAdd kernels & relevant tests
           TempMatrix1.at(i + j * ldc) + TempMatrix2.at(i + j * ldc);
     }
   }
@@ -79,6 +104,10 @@ void omatadd(const char trans_a, const char trans_b, const index_t m,
 
 }  // namespace reference_blas
 
+<<<<<<< HEAD
+=======
+// Parameters : trans_a, trans_b, m, n, alpha, beta, lda_m, ldb_m, ldc_m
+>>>>>>> b81a632... Added transposed omatAdd kernels & relevant tests
 template <typename scalar_t>
 using combination_t =
     std::tuple<char, char, int, int, scalar_t, scalar_t, int, int, int>;
@@ -134,6 +163,7 @@ void run_test(const combination_t<scalar_t> combi) {
 }
 
 template <typename scalar_t>
+<<<<<<< HEAD
 const auto combi =
     ::testing::Combine(::testing::Values<char>('n', 't'),         // trans_a
                        ::testing::Values<char>('n', 't'),         // trans_b
@@ -144,6 +174,17 @@ const auto combi =
                        ::testing::Values<index_t>(1, 2),          // lda_mul
                        ::testing::Values<index_t>(1, 2),          // ldb_mul
                        ::testing::Values<index_t>(1, 2, 3));      // ldc_mul
+=======
+const auto combi = ::testing::Combine(::testing::Values<char>('n', 't'),
+                                      ::testing::Values<char>('n', 't'),
+                                      ::testing::Values<index_t>(16, 33, 63),
+                                      ::testing::Values<index_t>(16, 33, 63),
+                                      ::testing::Values<scalar_t>(0, 1, 2),
+                                      ::testing::Values<scalar_t>(0, 1, 2),
+                                      ::testing::Values<index_t>(1, 2),
+                                      ::testing::Values<index_t>(1, 2),
+                                      ::testing::Values<index_t>(1, 2, 3));
+>>>>>>> b81a632... Added transposed omatAdd kernels & relevant tests
 
 template <class T>
 static std::string generate_name(

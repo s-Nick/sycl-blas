@@ -158,6 +158,18 @@ typename sb_handle_t::event_t _omatcopy2(sb_handle_t& sb_handle, char trans,
                                    ld_in, inc_in, out_memory, ld_out, inc_out);
 }
 
+template <typename sb_handle_t, typename element_t, typename index_t,
+          typename container_t>
+typename sb_handle_t::event_t _omatadd(sb_handle_t& sb_handle, char trans_a,
+                                       char trans_b, index_t m, index_t n,
+                                       element_t alpha, container_t a,
+                                       index_t lda, element_t beta,
+                                       container_t b, index_t ldb,
+                                       container_t c, index_t ldc) {
+  return internal::_omatadd(sb_handle, trans_a, trans_b, m, n, alpha, a, lda,
+                            beta, b, ldb, c, ldc);
+}
+
 /**
  * \brief Computes scaled addition of two matrices A & B with or without
  * transpose and copying results back to an output matrix C.
