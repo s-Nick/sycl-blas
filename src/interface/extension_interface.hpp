@@ -105,9 +105,22 @@ _matcopy_impl(sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
   return ret;
 }
 
+/*!
+ * @brief _omatadd_impl in the (trans_a || trans_b) case : This specialization
+ * covers the following 3 cases :
+ *  - A transposed & B transposed
+ *  - A transposed & B not transposed
+ *  - A not transposed & B transposed
+ *
+ * For convenience purposes, these 3 cases can be brought down to 2 cases, where
+ * 1. either both matrices are transposed OR 2. only the 'first' matrix is
+ * transposed. Thus, this function assumes that if only one matrix is
+ * transposed, it should be the matrix a (trans_a == true).
+ *
+ */
 template <bool trans_a, bool trans_b, typename sb_handle_t, typename element_t,
           typename index_t, typename container_t>
-typename std::enable_if<trans_a || trans_b, typename sb_handle_t::event_t>::type
+typename std::enable_if<trans_a, typename sb_handle_t::event_t>::type
 _omatadd_impl(sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
               container_t a, index_t lda, element_t beta, container_t b,
               index_t ldb, container_t c, index_t ldc) {
