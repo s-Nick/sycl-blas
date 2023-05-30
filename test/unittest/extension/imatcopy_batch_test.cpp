@@ -74,14 +74,8 @@ void run_test(const combination_t<scalar_t> combi) {
   auto matrix_in_out =
       blas::make_sycl_iterator_buffer<scalar_t>(A, size * batch_size);
 
-  /*
-  blas::extension::_copy_test_batch(sb_handle, trans, m, n, alpha,
-  matrix_in_out, ld_in, stride_a, matrix_in_out, ld_out, stride_a, batch_size);
-
-  */
   blas::extension::_imatcopy_batch(sb_handle, trans, m, n, alpha, matrix_in_out,
                                    ld_in, ld_out, stride, batch_size);
-  //sb_handle.wait();
 
   auto event = blas::helper::copy_to_host<scalar_t>(
       sb_handle.get_queue(), matrix_in_out, A.data(), size * batch_size);

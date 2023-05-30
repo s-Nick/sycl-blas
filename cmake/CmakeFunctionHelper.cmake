@@ -981,7 +981,6 @@ function (build_library LIB_NAME ENABLE_EXTENSIONS)
                 $<TARGET_OBJECTS:transpose>
                 $<TARGET_OBJECTS:omatadd>
                 $<TARGET_OBJECTS:transpose_launcher>
-                $<TARGET_OBJECTS:copy_test_batch>
                 $<TARGET_OBJECTS:matcopy_batch>)
 
   if (${ENABLE_EXTENSIONS})
