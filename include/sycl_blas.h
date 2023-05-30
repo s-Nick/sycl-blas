@@ -41,6 +41,8 @@
 
 #include "interface/gemm_launcher.h"
 
+#include "interface/transpose_launcher.h"
+
 #include "interface/extension_interface.h"
 
 #include "operations/blas1_trees.h"
