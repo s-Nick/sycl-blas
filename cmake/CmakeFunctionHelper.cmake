@@ -990,7 +990,6 @@ function (build_library LIB_NAME ENABLE_EXTENSIONS)
                 $<TARGET_OBJECTS:symm>
                 $<TARGET_OBJECTS:trsm>
                 $<TARGET_OBJECTS:matcopy>
-                $<TARGET_OBJECTS:copy_test_batch>
                 $<TARGET_OBJECTS:matcopy_batch>)
 
   if (${ENABLE_EXTENSIONS})

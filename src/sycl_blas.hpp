@@ -50,7 +50,7 @@
 
 #include "operations/extension/matcopy.hpp"
 
-#include "operations/extension/copy_test_batch.hpp"
+#include "operations/extension/matcopy_batch.hpp"
 
 #include "operations/blas_constants.hpp"
 

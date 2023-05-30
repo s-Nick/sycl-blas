@@ -53,7 +53,7 @@
 
 #include "operations/extension/matcopy.h"
 
-#include "operations/extension/copy_test_batch.h"
+#include "operations/extension/matcopy_batch.h"
 
 #include "operations/blas_constants.h"
 

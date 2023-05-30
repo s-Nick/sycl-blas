@@ -18,20 +18,20 @@
  *
  *  SYCL-BLAS: BLAS implementation using SYCL
  *
- *  @filename matcopy.h
+ *  @filename Matcopy_batch.h
  *
  **************************************************************************/
 
-#ifndef SYCL_BLAS_EXTENSION_COPY_TEST_BATCH_H
-#define SYCL_BLAS_EXTENSION_COPY_TEST_BATCH_H
+#ifndef SYCL_BLAS_EXTENSION_MATCOPY_BATCH_H
+#define SYCL_BLAS_EXTENSION_MATCOPY_BATCH_H
 
 #include <operations/extension/matcopy.h>
 
 namespace blas {
 
-template <matcopy_op op, int ClSize, bool trans_rhs_1, typename lhs_t,
+template <matcopy_op op, int TileSize, bool trans_rhs_1, typename lhs_t,
           typename rhs_t>
-struct Copytest_batch {
+struct Matcopy_batch {
  public:
   using value_t = typename lhs_t::value_t;
   using index_t = typename rhs_t::index_t;
@@ -43,10 +43,10 @@ struct Copytest_batch {
   index_t m_, n_, lhs_ld_, rhs_1_ld_, rhs_2_ld_, lhs_stride_, rhs_1_stride_,
       rhs_2_stride_, batch_size_;
 
-  Copytest_batch(lhs_t lhs, rhs_t rhs_1, rhs_t rhs_2, value_t alpha,
-                 value_t beta, index_t m, index_t n, index_t lhs_ld,
-                 index_t rhs_ld, index_t rhs_2_ld, index_t lhs_stride,
-                 index_t rhs_stride, index_t rhs_2_stride, index_t batch_size);
+  Matcopy_batch(lhs_t lhs, rhs_t rhs_1, rhs_t rhs_2, value_t alpha,
+                value_t beta, index_t m, index_t n, index_t lhs_ld,
+                index_t rhs_ld, index_t rhs_2_ld, index_t lhs_stride,
+                index_t rhs_stride, index_t rhs_2_stride, index_t batch_size);
   index_t get_size() const;
   bool valid_thread(cl::sycl::nd_item<1> ndItem) const;
   value_t eval(index_t i);
@@ -57,20 +57,20 @@ struct Copytest_batch {
   void adjust_access_displacement();
 };
 
-template <blas::matcopy_op op, int ClSize, bool trans_rhs_1, typename lhs_t,
+template <blas::matcopy_op op, int TileSize, bool trans_rhs_1, typename lhs_t,
           typename rhs_t>
-Copytest_batch<op, ClSize, trans_rhs_1, lhs_t, rhs_t> make_copytb(
+Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t> make_matcopy_batch(
     lhs_t lhs, rhs_t rhs_1, rhs_t rhs_2, typename rhs_t::value_t alpha,
     typename rhs_t::value_t beta, typename rhs_t::index_t m,
     typename rhs_t::index_t n, typename rhs_t::index_t lhs_ld,
     typename rhs_t::index_t rhs_ld, typename rhs_t::index_t rhs_2_ld,
     typename rhs_t::index_t lhs_stride, typename rhs_t::index_t rhs_stride,
     typename rhs_t::index_t rhs_2_stride, typename rhs_t::index_t batch_size) {
-  return Copytest_batch<op, ClSize, trans_rhs_1, lhs_t, rhs_t>(
+  return Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t>(
       lhs, rhs_1, rhs_2, alpha, beta, m, n, lhs_ld, rhs_ld, rhs_2_ld,
       lhs_stride, rhs_stride, rhs_2_stride, batch_size);
 }
 
 }  // namespace blas
 
-#endif  // SYCL_BLAS_EXTENSION_COPY_TEST_BATCH_H
+#endif  // SYCL_BLAS_EXTENSION_MATCOPY_BATCH_H
