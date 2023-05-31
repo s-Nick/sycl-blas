@@ -27,6 +27,8 @@
 #define SYCL_BLAS_EXTENSION_INTERFACE_HPP
 
 #include "blas_meta.h"
+#include "interface/extension_interface.h"
+#include "interface/extension/backend/backend.hpp"
 #include "operations/extension/matcopy.h"
 #include "operations/extension/matcopy_batch.h"
 #include "operations/extension/reduction.h"
@@ -97,28 +99,29 @@ _matcopy_impl(sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
   }
   return ret;
 }
-
-template <bool trans, typename sb_handle_t, typename element_t,
-          typename index_t, typename in_t, typename out_t>
-typename std::enable_if<!trans, typename sb_handle_t::event_t>::type
-_matcopy_batch_impl(sb_handle_t& sb_handle, index_t m, index_t n,
-                    element_t alpha, in_t in_memory, index_t ld_in,
-                    index_t in_stride, out_t out_memory, index_t ld_out,
-                    index_t out_stride, index_t batch_size) {
+// typename std::enable_if<!trans, typename sb_handle_t::event_t>::type
+template <uint32_t TileSize, bool trans, typename sb_handle_t,
+          typename element_t, typename index_t, typename in_t, typename out_t>
+typename sb_handle_t::event_t _matcopy_batch_impl(
+    sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
+    in_t in_memory, index_t ld_in, index_t in_stride, out_t out_memory,
+    index_t ld_out, index_t out_stride, index_t batch_size) {
   // typename sb_handle_t::event_t ret;
   auto in_view = make_matrix_view<col_major>(in_memory, m, n, ld_in, in_stride);
   auto out_view =
       make_matrix_view<col_major>(out_memory, m, n, ld_out, out_stride);
-  auto copy_batch_tree = make_matcopy_batch<matcopy_op::outplace, 16, trans>(
-      out_view, in_view, in_view, alpha, 0, m, n, ld_out, ld_in, 1, out_stride,
-      in_stride, 1, batch_size);
+  auto copy_batch_tree =
+      make_matcopy_batch<matcopy_op::outplace, TileSize, trans>(
+          out_view, in_view, in_view, alpha, 0, m, n, ld_out, ld_in, 1,
+          out_stride, in_stride, 1, batch_size);
   // sb_handle.execute(copy_batch_event);
-  const index_t local_size = 16;
+  const index_t local_size = TileSize;
   const index_t wg_size =
       (((m - 1) / local_size) + 1) * (((n - 1) / local_size) + 1);
   const index_t global_size = wg_size * local_size * batch_size;
   return sb_handle.execute(copy_batch_tree, local_size, global_size);
 }
+
 /*!
  * @brief Wrapper around Reduction. Creates the views, then makes and launches
  * the Reduction kernel
@@ -227,10 +230,23 @@ typename sb_handle_t::event_t _matcopy_batch(
     typename sb_handle_t::event_t ret;
     return ret;
   } else {
+    return blas::omatcopy_batch::backend::_omatcopy_batch<false>(
+        sb_handle, m, n, alpha, in_memory, ld_in, in_stride, out_memory, ld_out,
+        out_stride, batch_size);
+  }
+  /*
+    return blas::omatcopy_batch::backend::_omatcopy_batch<false>(
+        sb_handle, m, n, alpha, in_memory, ld_in, in_stride, out_memory,
+        ld_out, out_stride, batch_size);
+  if (trans == 't') {
+    typename sb_handle_t::event_t ret;
+    return ret;
+  } else {
     return _matcopy_batch_impl<false>(sb_handle, m, n, alpha, in_memory, ld_in,
                                       in_stride, out_memory, ld_out, out_stride,
                                       batch_size);
   }
+  */
 }
 template <typename operator_t, typename element_t, typename sb_handle_t,
           typename input_t, typename output_t, typename index_t>
