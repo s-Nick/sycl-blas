@@ -25,8 +25,8 @@
 #ifndef SYCL_BLAS_EXTENSION_MATCOPY_BATCH_HPP
 #define SYCL_BLAS_EXTENSION_MATCOPY_BATCH_HPP
 
-#include "operations/extension/matcopy_batch.h"
 #include "operations/extension/matcopy.h"
+#include "operations/extension/matcopy_batch.h"
 
 namespace blas {
 
@@ -70,14 +70,20 @@ Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t>::eval(
   const index_t required_tile =
       (((m - 1) / TileSize) + 1) * (((n - 1) / TileSize) + 1);
 
-  const index_t wg_batch_id = ndItem.get_group(0) / required_tile;
+  constexpr index_t tile_for_group = 4;
+
+  const index_t tile_for_matrix = ((required_tile - 1) / tile_for_group) + 1;
+
+  const index_t wg_batch_id =
+      (ndItem.get_group(0)) / ((required_tile - 1) / tile_for_group + 1);
 
   // This will disable all workgroups that dont have any batch to work on
   if (wg_batch_id >= batch_size_) {
     return 0;
   }
 
-  const index_t batch_stride = ndItem.get_group_range(0) / (required_tile);
+  const index_t batch_stride =
+      (ndItem.get_group_range(0) * tile_for_group) / (required_tile);
 
   const index_t l_size = m_ * lhs_ld_;
   const index_t r_size = m_ * rhs_1_ld_;
@@ -87,7 +93,9 @@ Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t>::eval(
 
   const index_t number_of_block_per_row = ((m_ - 1) / TileSize) + 1;
 
-  const index_t wg_id = ndItem.get_group(0) % required_tile;
+  const index_t wg_id =
+      ndItem.get_local_id(0) / TileSize +
+      ((ndItem.get_group(0) % tile_for_matrix) * tile_for_group);
 
   /* row tile id  per work group */
   const index_t tile_id_row = wg_id % number_of_block_per_row;
@@ -98,7 +106,7 @@ Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t>::eval(
   /* the start position of the tile-column per work group */
   const index_t wg_col = tile_id_col * TileSize;
 
-  const index_t item_id = ndItem.get_local_id(0);
+  const index_t item_id = ndItem.get_local_id(0) % TileSize;
 
   auto orig_lhs = lhs_.get_pointer() + (wg_batch_id * l_lhs_stride);
   auto orig_rhs = rhs_1_.get_pointer() + (wg_batch_id * l_rhs_stride);
@@ -149,6 +157,7 @@ Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t>::eval(
       }
       for (int i = 0; i < TileSize; ++i) {
         if (i >= limit_n) break;
+        // B[i * lhs_ld_] = wg_id;
         B[i * lhs_ld_] = alpha * reg_rhs[i];
       }
 
@@ -165,7 +174,7 @@ Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t>::eval(
 template <matcopy_op op, int TileSize, bool trans_rhs_1, typename lhs_t,
           typename rhs_t>
 SYCL_BLAS_INLINE void Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t,
-                                     rhs_t>::bind(cl::sycl::handler& h) {
+                                    rhs_t>::bind(cl::sycl::handler& h) {
   lhs_.bind(h);
   rhs_1_.bind(h);
 }
@@ -173,7 +182,7 @@ SYCL_BLAS_INLINE void Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t,
 template <matcopy_op op, int TileSize, bool trans_rhs_1, typename lhs_t,
           typename rhs_t>
 SYCL_BLAS_INLINE void Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t,
-                                     rhs_t>::adjust_access_displacement() {
+                                    rhs_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   rhs_1_.adjust_access_displacement();
 }
