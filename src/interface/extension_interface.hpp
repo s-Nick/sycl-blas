@@ -108,7 +108,7 @@ _matcopy_impl(sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
   }
   return ret;
 }
-// typename std::enable_if<!trans, typename sb_handle_t::event_t>::type
+
 template <uint32_t TileSize, bool trans, typename sb_handle_t,
           typename element_t, typename index_t, typename in_t, typename out_t>
 typename sb_handle_t::event_t _matcopy_batch_impl(
@@ -124,10 +124,9 @@ typename sb_handle_t::event_t _matcopy_batch_impl(
           out_view, in_view, in_view, alpha, 0, m, n, ld_out, ld_in, 1,
           out_stride, in_stride, 1, batch_size);
   // sb_handle.execute(copy_batch_event);
-  const index_t local_size = TileSize;
-  const index_t wg_size =
-      (((m - 1) / local_size) + 1) * (((n - 1) / local_size) + 1);
-  const index_t global_size = wg_size * local_size * batch_size;
+  constexpr index_t local_size = TileSize * 4;
+  const index_t wg_size = 2048;
+  const index_t global_size = (wg_size)*local_size * batch_size;
   return sb_handle.execute(copy_batch_tree, local_size, global_size);
 }
 
