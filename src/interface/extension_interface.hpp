@@ -125,7 +125,9 @@ typename sb_handle_t::event_t _matcopy_batch_impl(
           out_stride, in_stride, 1, batch_size);
   // sb_handle.execute(copy_batch_event);
   constexpr index_t local_size = TileSize * 4;
-  const index_t wg_size = 2048;
+  const index_t tile_per_matrix =
+      (((m - 1) / TileSize) + 1) * (((n - 1) / TileSize) + 1);
+  const index_t wg_size = (tile_per_matrix - 1) / 4 + 1;
   const index_t global_size = (wg_size)*local_size * batch_size;
   return sb_handle.execute(copy_batch_tree, local_size, global_size);
 }
