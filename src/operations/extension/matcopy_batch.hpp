@@ -25,7 +25,6 @@
 #ifndef SYCL_BLAS_EXTENSION_MATCOPY_BATCH_HPP
 #define SYCL_BLAS_EXTENSION_MATCOPY_BATCH_HPP
 
-#include "operations/extension/matcopy.h"
 #include "operations/extension/matcopy_batch.h"
 
 namespace blas {

@@ -33,7 +33,6 @@
 #include "operations/blas_operators.hpp"
 #include "interface/extension_interface.h"
 #include "interface/extension/backend/backend.hpp"
-#include "operations/extension/matcopy.h"
 #include "operations/extension/matcopy_batch.h"
 #include "operations/extension/reduction.h"
 #include "sb_handle/sycl_blas_handle.h"

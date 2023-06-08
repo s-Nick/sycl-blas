@@ -25,9 +25,9 @@
 #ifndef SYCL_BLAS_EXTENSION_MATCOPY_BATCH_H
 #define SYCL_BLAS_EXTENSION_MATCOPY_BATCH_H
 
-#include <operations/extension/matcopy.h>
-
 namespace blas {
+
+enum class matcopy_op : int { inplace = 0, outplace = 1, outplaceadd = 2 };
 
 template <matcopy_op op, int TileSize, bool trans_rhs_1, typename lhs_t,
           typename rhs_t>
