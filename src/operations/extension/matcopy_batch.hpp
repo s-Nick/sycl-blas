@@ -29,9 +29,9 @@
 
 namespace blas {
 
-template <matcopy_op op, int TileSize, bool trans_rhs_1, typename lhs_t,
+template <matcopy_op op, int TileSize, int TilePerWG, typename lhs_t,
           typename rhs_t>
-Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t>::Matcopy_batch(
+Matcopy_batch<op, TileSize, TilePerWG, lhs_t, rhs_t>::Matcopy_batch(
     lhs_t lhs, rhs_t rhs_1, rhs_t rhs_2, typename lhs_t::value_t alpha,
     typename lhs_t::value_t beta, typename rhs_t::index_t m,
     typename rhs_t::index_t n, typename rhs_t::index_t lhs_ld,
@@ -53,15 +53,15 @@ Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t>::Matcopy_batch(
       rhs_2_stride_(rhs_2_stride),
       batch_size_(batch_size) {}
 
-template <matcopy_op op, int TileSize, bool trans_rhs_1, typename lhs_t,
+template <matcopy_op op, int TileSize, int TilePerWG, typename lhs_t,
           typename rhs_t>
 typename lhs_t::value_t
-Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t>::eval(index_t i) {}
+Matcopy_batch<op, TileSize, TilePerWG, lhs_t, rhs_t>::eval(index_t i) {}
 
-template <matcopy_op op, int TileSize, bool trans_rhs_1, typename lhs_t,
+template <matcopy_op op, int TileSize, int TilePerWG, typename lhs_t,
           typename rhs_t>
 typename lhs_t::value_t
-Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t>::eval(
+Matcopy_batch<op, TileSize, TilePerWG, lhs_t, rhs_t>::eval(
     cl::sycl::nd_item<1> ndItem) {
   const index_t m{m_};
   const index_t n{n_};
@@ -69,12 +69,10 @@ Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t>::eval(
   const index_t required_tile =
       (((m - 1) / TileSize) + 1) * (((n - 1) / TileSize) + 1);
 
-  constexpr index_t tile_for_group = 4;
-
-  const index_t tile_for_matrix = ((required_tile - 1) / tile_for_group) + 1;
+  const index_t tile_for_matrix = ((required_tile - 1) / TilePerWG) + 1;
 
   const index_t wg_batch_id =
-      (ndItem.get_group(0)) / ((required_tile - 1) / tile_for_group + 1);
+      (ndItem.get_group(0)) / ((required_tile - 1) / TilePerWG + 1);
 
   // This will disable all workgroups that dont have any batch to work on
   if (wg_batch_id >= batch_size_) {
@@ -82,7 +80,7 @@ Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t>::eval(
   }
 
   const index_t batch_stride =
-      (ndItem.get_group_range(0) * tile_for_group) / (required_tile);
+      (ndItem.get_group_range(0) * TilePerWG) / (required_tile);
 
   const index_t l_size = m_ * lhs_ld_;
   const index_t r_size = m_ * rhs_1_ld_;
@@ -92,9 +90,8 @@ Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t>::eval(
 
   const index_t number_of_block_per_row = ((m_ - 1) / TileSize) + 1;
 
-  const index_t wg_id =
-      ndItem.get_local_id(0) / TileSize +
-      ((ndItem.get_group(0) % tile_for_matrix) * tile_for_group);
+  const index_t wg_id = ndItem.get_local_id(0) / TileSize +
+                        ((ndItem.get_group(0) % tile_for_matrix) * TilePerWG);
 
   /* row tile id  per work group */
   const index_t tile_id_row = wg_id % number_of_block_per_row;
@@ -170,33 +167,33 @@ Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t>::eval(
   return 0;
 }
 
-template <matcopy_op op, int TileSize, bool trans_rhs_1, typename lhs_t,
+template <matcopy_op op, int TileSize, int TilePerWG, typename lhs_t,
           typename rhs_t>
-SYCL_BLAS_INLINE void Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t,
+SYCL_BLAS_INLINE void Matcopy_batch<op, TileSize, TilePerWG, lhs_t,
                                     rhs_t>::bind(cl::sycl::handler& h) {
   lhs_.bind(h);
   rhs_1_.bind(h);
 }
 
-template <matcopy_op op, int TileSize, bool trans_rhs_1, typename lhs_t,
+template <matcopy_op op, int TileSize, int TilePerWG, typename lhs_t,
           typename rhs_t>
-SYCL_BLAS_INLINE void Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t,
+SYCL_BLAS_INLINE void Matcopy_batch<op, TileSize, TilePerWG, lhs_t,
                                     rhs_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   rhs_1_.adjust_access_displacement();
 }
 
-template <matcopy_op op, int TileSize, bool trans_rhs_1, typename lhs_t,
+template <matcopy_op op, int TileSize, int TilePerWG, typename lhs_t,
           typename rhs_t>
 SYCL_BLAS_INLINE typename rhs_t::index_t
-Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t>::get_size() const {
+Matcopy_batch<op, TileSize, TilePerWG, lhs_t, rhs_t>::get_size() const {
   return m_ * n_;
 }
 
-template <matcopy_op op, int TileSize, bool trans_rhs_1, typename lhs_t,
+template <matcopy_op op, int TileSize, int TilePerWG, typename lhs_t,
           typename rhs_t>
 SYCL_BLAS_INLINE bool
-Matcopy_batch<op, TileSize, trans_rhs_1, lhs_t, rhs_t>::valid_thread(
+Matcopy_batch<op, TileSize, TilePerWG, lhs_t, rhs_t>::valid_thread(
     cl::sycl::nd_item<1> ndItem) const {
   return true;
 }

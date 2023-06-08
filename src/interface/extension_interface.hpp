@@ -108,7 +108,7 @@ _matcopy_impl(sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
   return ret;
 }
 
-template <uint32_t TileSize, bool trans, typename sb_handle_t,
+template <uint32_t TileSize, int TilePerWG, typename sb_handle_t,
           typename element_t, typename index_t, typename in_t, typename out_t>
 typename sb_handle_t::event_t _matcopy_batch_impl(
     sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
@@ -119,14 +119,14 @@ typename sb_handle_t::event_t _matcopy_batch_impl(
   auto out_view =
       make_matrix_view<col_major>(out_memory, m, n, ld_out, out_stride);
   auto copy_batch_tree =
-      make_matcopy_batch<matcopy_op::outplace, TileSize, trans>(
+      make_matcopy_batch<matcopy_op::outplace, TileSize, TilePerWG>(
           out_view, in_view, in_view, alpha, 0, m, n, ld_out, ld_in, 1,
           out_stride, in_stride, 1, batch_size);
   // sb_handle.execute(copy_batch_event);
-  constexpr index_t local_size = TileSize * 4;
+  constexpr index_t local_size = TileSize * TilePerWG;
   const index_t tile_per_matrix =
       (((m - 1) / TileSize) + 1) * (((n - 1) / TileSize) + 1);
-  const index_t wg_size = (tile_per_matrix - 1) / 4 + 1;
+  const index_t wg_size = (tile_per_matrix - 1) / TilePerWG + 1;
   const index_t global_size = (wg_size)*local_size * batch_size;
   return sb_handle.execute(copy_batch_tree, local_size, global_size);
 }
