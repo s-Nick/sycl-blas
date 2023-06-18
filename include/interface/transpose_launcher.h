@@ -59,8 +59,9 @@ struct TransposeAdd_Launcher {
   static typename sb_handle_t::event_t _select_transpose_add(
       sb_handle_t& sb_handle, index_t _M, index_t _N, element_t _alpha,
       container_0_t a_, index_t _lda, index_t _nrows_a, index_t _ncols_a,
-      element_t _beta, container_1_t b_, index_t _ld_b, index_t _nrows_b,
-      index_t _ncols_b, container_2_t c_, index_t _ldc);
+      index_t _stride_a, element_t _beta, container_1_t b_, index_t _ld_b,
+      index_t _nrows_b, index_t _ncols_b, index_t _stride_b, container_2_t c_,
+      index_t _ldc, index_t _stride_c, index_t _batch_size);
 };
 
 }  // namespace extension

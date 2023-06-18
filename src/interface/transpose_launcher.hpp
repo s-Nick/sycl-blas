@@ -88,9 +88,11 @@ typename sb_handle_t::event_t
 TransposeAdd_Launcher<both_trans, Tile_size, wg_size, cl_size, local_memory>::
     _select_transpose_add(sb_handle_t& sb_handle, index_t _M, index_t _N,
                           element_t _alpha, container_0_t a_, index_t _lda,
-                          index_t _nrows_a, index_t _ncols_a, element_t _beta,
-                          container_1_t b_, index_t _ldb, index_t _nrows_b,
-                          index_t _ncols_b, container_2_t c_, index_t _ldc) {
+                          index_t _nrows_a, index_t _ncols_a, index_t _stride_a,
+                          element_t _beta, container_1_t b_, index_t _ldb,
+                          index_t _nrows_b, index_t _ncols_b, index_t _stride_b,
+                          container_2_t c_, index_t _ldc, index_t _stride_c,
+                          index_t _batch_size) {
   constexpr const index_t num_cache_line_elems = cl_size / sizeof(element_t);
   constexpr const index_t num_tiles_per_cache_line =
       num_cache_line_elems / Tile_size;
@@ -104,12 +106,13 @@ TransposeAdd_Launcher<both_trans, Tile_size, wg_size, cl_size, local_memory>::
 
   // Work items & groups sizes
   index_t n_wg = ((_M - 1) / Tile_size + 1) * ((_N - 1) / Tile_size + 1);
-  index_t global_size = n_wg * wg_size;
+  index_t global_size = n_wg * wg_size * _batch_size;
 
   // Transpose Add expression Tree
   auto trans_scale_tree =
       make_transpose_add<both_trans, Tile_size, wg_size, cl_size, local_memory>(
-          A_view, B_view, C_view, _alpha, _beta);
+          A_view, _stride_a, B_view, _stride_b, C_view, _stride_c, _alpha,
+          _beta, _batch_size);
 
   if constexpr (local_memory) {
     index_t local_mem =

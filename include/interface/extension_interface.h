@@ -102,8 +102,8 @@ template <typename sb_handle_t, typename element_t, typename index_t,
           typename container_t>
 typename sb_handle_t::event_t _omatadd_batch(
     sb_handle_t& sb_handle, char trans_a, char trans_b, index_t m, index_t n,
-    element_t alpha, container_t A, index_t lda, index_t stride_a,
-    element_t beta, container_t B, index_t ldb, index_t stride_b, container_t C,
+    element_t alpha, container_t a, index_t lda, index_t stride_a,
+    element_t beta, container_t b, index_t ldb, index_t stride_b, container_t c,
     index_t ldc, index_t stride_c, index_t batch_size);
 
 template <uint32_t TileSize, int TilePerWG, typename sb_handle_t,
@@ -313,12 +313,12 @@ template <typename sb_handle_t, typename element_t, typename index_t,
           typename container_t>
 typename sb_handle_t::event_t _omatadd_batch(
     sb_handle_t& sb_handle, char trans_a, char trans_b, index_t m, index_t n,
-    element_t alpha, container_t A, index_t lda, index_t stride_a,
-    element_t beta, container_t B, index_t ldb, index_t stride_b, container_t C,
-    index_t ldc, index_t stride_c, index_t batch_size) {
-  return internal::_omatadd_batch<sb_handle_t, element_t, index_t, container_t>(
-      sb_handle, trans_a, trans_b, m, n, alpha, A, lda, stride_a, beta, B, ldb,
-      stride_b, C, ldc, stride_c, batch_size);
+    element_t alpha, container_t a, index_t lda, index_t stride_a,
+    element_t beta, container_t b, index_t stride_b, index_t ldb, container_t c,
+    index_t ldc, index_t stride_c, index_t batchs_size) {
+  return internal::_omatadd_batch(sb_handle, trans_a, trans_b, m, n, alpha, a,
+                                  lda, stride_a, beta, b, stride_b, ldb, c, ldc,
+                                  stride_c, batchs_size);
 }
 
 template <typename operator_t, typename element_t, typename sb_handle_t,

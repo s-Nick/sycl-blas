@@ -188,6 +188,11 @@ class TransposeAdd {
   index_t lda_;
   index_t ldb_;
   index_t ldc_;
+  // Stride values (denoted stride in oneMKL specification for batched
+  // operations)
+  index_t stride_a_;
+  index_t stride_b_;
+  index_t stride_c_;
   // Minimum number of tiles used to cover output matrix rows & columns
   index_t tile_count_m_;
   index_t tile_count_n_;
@@ -198,6 +203,10 @@ class TransposeAdd {
   // Minimum number of Tile-mutliple rows & columns to cover the output matrix
   index_t M_pad_;
   index_t N_pad_;
+  // Total size of Tile-mutliple covering matrix
+  index_t size_pad_;
+  // Batch size when using batched transpose
+  index_t batch_size_;
   // The number of elements per cache line size depends on the element type
   static constexpr index_t get_num_cache_line_elems() {
     return cl_size / sizeof(element_t);
@@ -207,7 +216,9 @@ class TransposeAdd {
     return get_num_cache_line_elems() / Tile_size;
   }
 
-  TransposeAdd(in1_t &A, in2_t &B, out_t &C, value_t &alpha, value_t &beta)
+  TransposeAdd(in1_t &A, index_t stride_a, in2_t &B, index_t stride_b, out_t &C,
+               index_t stride_c, value_t &alpha, value_t &beta,
+               index_t batch_size)
       : A_(A),
         B_(B),
         C_(C),
@@ -218,10 +229,15 @@ class TransposeAdd {
         N_(C_.get_size_col()),
         alpha_(alpha),
         beta_(beta),
+        stride_a_(stride_a),
+        stride_b_(stride_b),
+        stride_c_(stride_c),
         tile_count_m_((M_ - 1) / Tile_size + 1),
         tile_count_n_((N_ - 1) / Tile_size + 1),
         M_pad_(tile_count_m_ * Tile_size),
-        N_pad_(tile_count_n_ * Tile_size) {}
+        N_pad_(tile_count_n_ * Tile_size),
+        size_pad_(M_pad_ * N_pad_),
+        batch_size_(batch_size) {}
 
   index_t get_size() const;
 
@@ -244,13 +260,15 @@ class TransposeAdd {
  */
 template <bool both_trans, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in1_t, typename in2_t, typename out_t,
-          typename element_t>
+          typename element_t, typename index_t>
 TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t,
              in2_t, out_t, element_t>
-make_transpose_add(in1_t &A, in2_t &B, out_t &C, element_t &alpha,
-                   element_t &beta) {
+make_transpose_add(in1_t &A, index_t stride_a, in2_t &B, index_t stride_b,
+                   out_t &C, index_t stride_c, element_t &alpha,
+                   element_t &beta, index_t batch_size) {
   return TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory,
-                      in1_t, in2_t, out_t, element_t>(A, B, C, alpha, beta);
+                      in1_t, in2_t, out_t, element_t>(
+      A, stride_a, B, stride_b, C, stride_c, alpha, beta, batch_size);
 }
 
 }  // namespace blas
