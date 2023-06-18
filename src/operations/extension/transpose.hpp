@@ -385,13 +385,18 @@ SYCL_BLAS_INLINE void TransposeAdd<
                             index_t &out_idx, index_t &out_local_idx,
                             index_t &i_block_start, index_t &j_block_start,
                             index_t &il, index_t &jl) {
-  const index_t m_tiles = both_trans ? tile_count_n_ : tile_count_m_;
+  const index_t row_tiles = both_trans ? tile_count_n_ : tile_count_m_;
 
   index_t idg = id.get_group(0);
   index_t idc = id.get_local_id(0);
 
-  const index_t jg = idg / m_tiles;
-  const index_t ig = idg - jg * m_tiles;
+  const index_t ibatch =
+      (batch_size_ == index_t(1)) ? 0 : idg / tile_count_total_;
+
+  const index_t relative_idg = idg - ibatch * tile_count_total_;
+
+  const index_t jg = relative_idg / row_tiles;
+  const index_t ig = relative_idg - jg * row_tiles;
 
   jl = idc / Tile_size;
   il = idc - jl * Tile_size;
@@ -403,15 +408,20 @@ SYCL_BLAS_INLINE void TransposeAdd<
   index_t il_cl = idc - jl_cl * get_num_cache_line_elems();
 
   if constexpr (both_trans) {
-    in_a_idx = i_block_start + j_block_start * lda_ + il + jl * lda_;
-    out_idx = i_block_start * ldc_ + j_block_start + il + jl * ldc_;
+    in_a_idx = i_block_start + j_block_start * lda_ + il + jl * lda_ +
+               ibatch * stride_a_;
+    out_idx = i_block_start * ldc_ + j_block_start + il + jl * ldc_ +
+              ibatch * stride_c_;
 
   } else {
-    in_a_idx = j_block_start + i_block_start * lda_ + il + jl * lda_;
-    out_idx = i_block_start + j_block_start * ldc_ + il + jl * ldc_;
+    in_a_idx = j_block_start + i_block_start * lda_ + il + jl * lda_ +
+               ibatch * stride_a_;
+    out_idx = i_block_start + j_block_start * ldc_ + il + jl * ldc_ +
+              ibatch * stride_c_;
   }
 
-  in_b_idx = i_block_start + j_block_start * ldb_ + il + jl * ldb_;
+  in_b_idx = i_block_start + j_block_start * ldb_ + il + jl * ldb_ +
+             ibatch * stride_b_;
 
   in_local_idx = jl_cl * (get_num_cache_line_elems() + 1) + il_cl;
 

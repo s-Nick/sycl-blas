@@ -308,7 +308,8 @@ typename sb_handle_t::event_t _matcopy(sb_handle_t& sb_handle, char trans,
     return ret;
   }
 
-  const index_t stride = 1;
+  // Stride = 0 as a dummy value as it is not used when batch_size == 1
+  const index_t stride = 0;
   const index_t batch_size = 1;
 
   if (trans == 't') {
@@ -357,10 +358,17 @@ typename sb_handle_t::event_t _omatadd(sb_handle_t& sb_handle, char trans_a,
                                        index_t lda, element_t beta,
                                        container_t b, index_t ldb,
                                        container_t c, index_t ldc) {
+  // bail out early if the leading dimensions are not correct
+  if (ldc < m || lda < (trans_a == 't' ? n : m) ||
+      ldb < (trans_b == 't' ? n : m)) {
+    typename sb_handle_t::event_t ret;
+    return ret;
+  }
+  // Stride = 0 as a dummy value as it is not used when batch_size == 1
+  const index_t stride_a = 0;
+  const index_t stride_b = 0;
+  const index_t stride_c = 0;
   const index_t batch_size = 1;
-  const index_t stride_a = 1;
-  const index_t stride_b = 1;
-  const index_t stride_c = 1;
 
   if (trans_a == 't') {
     if (trans_b == 't') {
@@ -391,8 +399,15 @@ template <typename sb_handle_t, typename element_t, typename index_t,
 typename sb_handle_t::event_t _omatadd_batch(
     sb_handle_t& sb_handle, char trans_a, char trans_b, index_t m, index_t n,
     element_t alpha, container_t a, index_t lda, index_t stride_a,
-    element_t beta, container_t b, index_t stride_b, index_t ldb, container_t c,
+    element_t beta, container_t b, index_t ldb, index_t stride_b, container_t c,
     index_t ldc, index_t stride_c, index_t batch_size) {
+  // bail out early if the leading dimensions are not correct
+  if (ldc < m || lda < (trans_a == 't' ? n : m) ||
+      ldb < (trans_b == 't' ? n : m)) {
+    typename sb_handle_t::event_t ret;
+    return ret;
+  }
+
   if (trans_a == 't') {
     if (trans_b == 't') {
       return _omatadd_impl<true, true>(sb_handle, m, n, alpha, a, lda, stride_a,

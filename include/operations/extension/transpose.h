@@ -196,6 +196,8 @@ class TransposeAdd {
   // Minimum number of tiles used to cover output matrix rows & columns
   index_t tile_count_m_;
   index_t tile_count_n_;
+  // Total number of tiles used to cover the matrix
+  index_t tile_count_total_;
   // Inner WG Tiles
   static constexpr const index_t inner_tile_size_ = wg_size / Tile_size;
   static constexpr const index_t inner_tile_count_ =
@@ -234,6 +236,7 @@ class TransposeAdd {
         stride_c_(stride_c),
         tile_count_m_((M_ - 1) / Tile_size + 1),
         tile_count_n_((N_ - 1) / Tile_size + 1),
+        tile_count_total_(tile_count_m_ * tile_count_n_),
         M_pad_(tile_count_m_ * Tile_size),
         N_pad_(tile_count_n_ * Tile_size),
         size_pad_(M_pad_ * N_pad_),

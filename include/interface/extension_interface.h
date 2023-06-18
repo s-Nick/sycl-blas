@@ -314,10 +314,10 @@ template <typename sb_handle_t, typename element_t, typename index_t,
 typename sb_handle_t::event_t _omatadd_batch(
     sb_handle_t& sb_handle, char trans_a, char trans_b, index_t m, index_t n,
     element_t alpha, container_t a, index_t lda, index_t stride_a,
-    element_t beta, container_t b, index_t stride_b, index_t ldb, container_t c,
+    element_t beta, container_t b, index_t ldb, index_t stride_b, container_t c,
     index_t ldc, index_t stride_c, index_t batchs_size) {
   return internal::_omatadd_batch(sb_handle, trans_a, trans_b, m, n, alpha, a,
-                                  lda, stride_a, beta, b, stride_b, ldb, c, ldc,
+                                  lda, stride_a, beta, b, ldb, stride_b, c, ldc,
                                   stride_c, batchs_size);
 }
 
