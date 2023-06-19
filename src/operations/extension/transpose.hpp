@@ -295,13 +295,18 @@ TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t,
                                                    index_t &in_b_idx,
                                                    index_t &out_idx, index_t &i,
                                                    index_t &j) {
-  const index_t m_tiles = both_trans ? tile_count_n_ : tile_count_m_;
+  const index_t row_tiles = both_trans ? tile_count_n_ : tile_count_m_;
 
   index_t idg = id.get_group(0);
   index_t idc = id.get_local_id(0);
 
-  const index_t jg = idg / m_tiles;
-  const index_t ig = idg - jg * m_tiles;
+  const index_t ibatch =
+      (batch_size_ == index_t(1)) ? 0 : idg / tile_count_total_;
+
+  const index_t relative_idg = idg - ibatch * tile_count_total_;
+
+  const index_t jg = relative_idg / row_tiles;
+  const index_t ig = relative_idg - jg * row_tiles;
 
   const index_t jl = idc / Tile_size;
   const index_t il = idc - jl * Tile_size;
@@ -313,13 +318,19 @@ TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t,
   j = j_block_start + jl;
 
   if constexpr (both_trans) {
-    in_a_idx = i_block_start + j_block_start * lda_ + il + jl * lda_;
-    in_b_idx = i_block_start + j_block_start * ldb_ + il + jl * ldb_;
-    out_idx = i_block_start * ldc_ + j_block_start + jl + il * ldc_;
+    in_a_idx = i_block_start + j_block_start * lda_ + il + jl * lda_ +
+               ibatch * stride_a_;
+    in_b_idx = i_block_start + j_block_start * ldb_ + il + jl * ldb_ +
+               ibatch * stride_b_;
+    out_idx = i_block_start * ldc_ + j_block_start + jl + il * ldc_ +
+              ibatch * stride_c_;
   } else {
-    in_a_idx = i_block_start * lda_ + j_block_start + jl + il * lda_;
-    in_b_idx = i_block_start + j_block_start * ldb_ + il + jl * ldb_;
-    out_idx = i_block_start + j_block_start * ldc_ + il + jl * ldc_;
+    in_a_idx = i_block_start * lda_ + j_block_start + jl + il * lda_ +
+               ibatch * stride_a_;
+    in_b_idx = i_block_start + j_block_start * ldb_ + il + jl * ldb_ +
+               ibatch * stride_b_;
+    out_idx = i_block_start + j_block_start * ldc_ + il + jl * ldc_ +
+              ibatch * stride_c_;
   }
 }
 
