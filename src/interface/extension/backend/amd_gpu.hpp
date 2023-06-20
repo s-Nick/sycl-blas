@@ -103,6 +103,36 @@ _matcopy_batch(sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
 }
 }  // namespace backend
 }  // namespace matcopy_batch
+
+namespace omatadd_batch {
+namespace backend {
+template <typename sb_handle_t, typename element_t, typename index_t,
+          typename container_t>
+typename sb_handle_t::event_t _omatadd_batch(
+    sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
+    container_t a, index_t lda, index_t stride_a, element_t beta, container_t b,
+    index_t ldb, index_t stride_b, container_t c, index_t ldc, index_t stride_c,
+    index_t batch_size) {
+  if (m >= 512 && n >= 512) {
+    return blas::extension::internal::_omatadd_batch_impl<
+        32, 8, sb_handle_t, element_t, index_t, container_t>(
+        sb_handle, m, n, alpha, a, lda, stride_a, beta, b, ldb, stride_b, c,
+        ldc, stride_c, batch_size);
+  } else if (m >= 128 && n >= 128) {
+    return blas::extension::internal::_omatadd_batch_impl<
+        32, 4, sb_handle_t, element_t, index_t, container_t>(
+        sb_handle, m, n, alpha, a, lda, stride_a, beta, b, ldb, stride_b, c,
+        ldc, stride_c, batch_size);
+  } else {
+    return blas::extension::internal::_omatadd_batch_impl<
+        1, 256, sb_handle_t, element_t, index_t, container_t>(
+        sb_handle, m, n, alpha, a, lda, stride_a, beta, b, ldb, stride_b, c,
+        ldc, stride_c, batch_size);
+  }
+}
+}  // namespace backend
+}  // namespace omatadd_batch
+
 }  // namespace blas
 
 #endif

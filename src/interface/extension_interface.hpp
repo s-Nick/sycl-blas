@@ -189,6 +189,29 @@ _omatadd_impl(sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
   return ret;
 }
 
+template <uint32_t TileSize, int TilePerWG, typename sb_handle_t,
+          typename element_t, typename index_t, typename container_t>
+typename sb_handle_t::event_t _omatadd_batch_impl(
+    sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
+    container_t a, index_t lda, index_t stride_a, element_t beta, container_t b,
+    index_t ldb, index_t stride_b, container_t c, index_t ldc, index_t stride_c,
+    index_t batch_size) {
+  auto m_a_view = make_matrix_view<col_major>(a, m, n, lda);
+  auto m_b_view = make_matrix_view<col_major>(b, m, n, ldb);
+  auto m_c_view = make_matrix_view<col_major>(c, m, n, ldc);
+  auto copy_batch_tree =
+      make_matcopy_batch<matcopy_op::outplaceadd, TileSize, TilePerWG>(
+          m_c_view, m_a_view, m_b_view, alpha, beta, m, n, ldc, lda, ldb,
+          stride_c, stride_a, stride_b, batch_size);
+  constexpr index_t local_size = TileSize * TilePerWG;
+  const index_t tile_per_matrix =
+      (((m - 1) / TileSize) + 1) * (((n - 1) / TileSize) + 1);
+  const index_t wg_size = (tile_per_matrix - 1) / TilePerWG + 1;
+  const index_t global_size = (wg_size)*local_size * batch_size;
+  return sb_handle.execute(copy_batch_tree, local_size, global_size);
+}
+
+
 /*!
  * @brief Wrapper around Reduction. Creates the views, then makes and launches
  * the Reduction kernel
@@ -367,6 +390,24 @@ typename sb_handle_t::event_t _transpose(sb_handle_t& sb_handle, index_t m,
                                        inc, stride, B, ld_b, inc, stride,
                                        batch_size);
 }
+
+template <typename sb_handle_t, typename element_t, typename index_t,
+          typename container_t>
+typename sb_handle_t::event_t _omatadd_batch(
+    sb_handle_t& sb_handle, char trans_a, char trans_b, index_t m, index_t n,
+    element_t alpha, container_t a, index_t lda, index_t stride_a,
+    element_t beta, container_t b, index_t ldb, index_t stride_b, container_t c,
+    index_t ldc, index_t stride_c, index_t batch_size) {
+  if (trans_a != 't' && trans_b != 't') {
+    return blas::omatadd_batch::backend::_omatadd_batch(
+        sb_handle, m, n, alpha, a, lda, stride_a, beta, b, ldb, stride_b, c,
+        ldc, stride_c, batch_size);
+  } else {
+    typename sb_handle_t::event_t ret;
+    return ret;
+  }
+}
+
 
 template <typename operator_t, typename element_t, typename sb_handle_t,
           typename input_t, typename output_t, typename index_t>

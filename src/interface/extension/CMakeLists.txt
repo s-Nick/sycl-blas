@@ -28,6 +28,7 @@ generate_blas_extension_objects(extension transpose)
 generate_blas_extension_objects(extension omatadd)
 generate_blas_transpose_objects(extension transpose_launcher)
 generate_blas_extension_objects(extension matcopy_batch)
+generate_blas_extension_objects(extension omatadd_batch)
 
 if(${BLAS_ENABLE_EXTENSIONS})
     generate_blas_reduction_objects(extension reduction)

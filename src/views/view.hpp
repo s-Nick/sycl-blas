@@ -27,7 +27,6 @@
 #define SYCL_BLAS_VIEW_HPP
 
 #include "views/view.h"
-#include <iostream>
 #include <stdexcept>
 #include <vector>
 
