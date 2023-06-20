@@ -53,6 +53,10 @@ struct Matcopy_batch {
   value_t eval(sharedT shMem, cl::sycl::nd_item<1> ndItem);
   void bind(cl::sycl::handler &h);
   void adjust_access_displacement();
+  void compute_matcopy_batch(const index_t wg_batch_id, const index_t wg_row,
+                             const index_t wg_col, const index_t item_id);
+  void compute_omatadd_batch(const index_t wg_batch_id, const index_t wg_row,
+                             const index_t wg_col, const index_t item_id);
 };
 
 template <bool is_add, int TileSize, int TilePerWG, typename lhs_t,

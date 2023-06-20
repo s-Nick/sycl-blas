@@ -25,6 +25,7 @@
 #ifndef SYCL_BLAS_EXTENSION_MATCOPY_BATCH_HPP
 #define SYCL_BLAS_EXTENSION_MATCOPY_BATCH_HPP
 
+#include "blas_meta.h"
 #include "operations/extension/matcopy_batch.h"
 
 namespace blas {
@@ -66,6 +67,138 @@ typename lhs_t::value_t Matcopy_batch<is_add, TileSize, TilePerWG, lhs_t, rhs_t,
 
 template <bool is_add, int TileSize, int TilePerWG, typename lhs_t,
           typename rhs_t, typename rhs_2_t>
+SYCL_BLAS_INLINE void
+Matcopy_batch<is_add, TileSize, TilePerWG, lhs_t, rhs_t,
+              rhs_2_t>::compute_matcopy_batch(const index_t wg_batch_id,
+                                              const index_t wg_row,
+                                              const index_t wg_col,
+                                              const index_t item_id) {
+  const index_t m{m_};
+  const index_t n{n_};
+
+  const index_t l_lhs_stride = lhs_stride_;
+  const index_t l_rhs_stride = rhs_1_stride_;
+  const index_t l_rhs_2_stride = rhs_2_stride_;
+  auto orig_lhs = lhs_.get_pointer() + (wg_batch_id * l_lhs_stride);
+  auto orig_rhs = rhs_1_.get_pointer() + (wg_batch_id * l_rhs_stride);
+  auto orig_rhs_2 = rhs_2_.get_pointer() + (wg_batch_id * l_rhs_2_stride);
+
+  orig_lhs = orig_lhs + wg_row + wg_col * lhs_ld_ + item_id;
+  orig_rhs = orig_rhs + wg_row + wg_col * rhs_1_ld_ + item_id;
+  orig_rhs_2 = orig_rhs_2 + wg_row + wg_col * rhs_2_ld_ + item_id;
+
+  value_t reg_rhs[TileSize];
+  const index_t alpha = alpha_;
+
+  const bool is_internal_block =
+      (m - wg_row >= TileSize) && (n - wg_col >= TileSize);
+
+  // check for short&large
+  const bool valid_index =
+      (item_id > m || (item_id >= (m - wg_row))) ? false : true;
+  if (!valid_index) return;
+
+  if (is_internal_block) {
+    auto A = orig_rhs;
+    auto B = orig_lhs;
+
+#pragma unroll
+    for (int i = 0; i < TileSize; ++i) {
+      reg_rhs[i] = A[i * rhs_1_ld_];
+    }
+#pragma unroll
+    for (int i = 0; i < TileSize; ++i) {
+      B[i * lhs_ld_] = alpha * reg_rhs[i];
+    }
+
+  } else {
+    const auto limit_m = m - wg_row;
+    const auto limit_n = n - wg_col;
+    auto A = orig_rhs;
+    auto B = orig_lhs;
+
+    for (int i = 0; i < TileSize; ++i) {
+      if (i >= limit_n) break;
+      reg_rhs[i] = A[i * rhs_1_ld_];
+    }
+
+    for (int i = 0; i < TileSize; ++i) {
+      if (i >= limit_n) break;
+      B[i * lhs_ld_] = alpha * reg_rhs[i];
+    }
+  }
+}
+
+template <bool is_add, int TileSize, int TilePerWG, typename lhs_t,
+          typename rhs_t, typename rhs_2_t>
+SYCL_BLAS_INLINE void
+Matcopy_batch<is_add, TileSize, TilePerWG, lhs_t, rhs_t,
+              rhs_2_t>::compute_omatadd_batch(const index_t wg_batch_id,
+                                              const index_t wg_row,
+                                              const index_t wg_col,
+                                              const index_t item_id) {
+  const index_t m{m_};
+  const index_t n{n_};
+
+  const index_t l_lhs_stride = lhs_stride_;
+  const index_t l_rhs_stride = rhs_1_stride_;
+  const index_t l_rhs_2_stride = rhs_2_stride_;
+  auto orig_lhs = lhs_.get_pointer() + (wg_batch_id * l_lhs_stride);
+  auto orig_rhs = rhs_1_.get_pointer() + (wg_batch_id * l_rhs_stride);
+  auto orig_rhs_2 = rhs_2_.get_pointer() + (wg_batch_id * l_rhs_2_stride);
+
+  orig_lhs = orig_lhs + wg_row + wg_col * lhs_ld_ + item_id;
+  orig_rhs = orig_rhs + wg_row + wg_col * rhs_1_ld_ + item_id;
+  orig_rhs_2 = orig_rhs_2 + wg_row + wg_col * rhs_2_ld_ + item_id;
+
+  value_t reg_rhs[TileSize];
+  value_t reg_rhs_2[TileSize];
+  const index_t alpha = alpha_;
+  const index_t beta = beta_;
+
+  const bool is_internal_block =
+      (m - wg_row >= TileSize) && (n - wg_col >= TileSize);
+
+  // check for short&large
+  const bool valid_index =
+      (item_id > m || (item_id >= (m - wg_row))) ? false : true;
+  if (!valid_index) return;
+
+  if (is_internal_block) {
+    auto A = orig_rhs;
+    auto B = orig_rhs_2;
+    auto C = orig_lhs;
+
+#pragma unroll
+    for (int i = 0; i < TileSize; ++i) {
+      reg_rhs[i] = A[i * rhs_1_ld_];
+      reg_rhs_2[i] = B[i * rhs_2_ld_];
+    }
+#pragma unroll
+    for (int i = 0; i < TileSize; ++i) {
+      C[i * lhs_ld_] = alpha * reg_rhs[i] + beta * reg_rhs_2[i];
+    }
+  } else {
+    const auto limit_m = m - wg_row;
+    const auto limit_n = n - wg_col;
+    auto A = orig_rhs;
+    auto B = orig_rhs_2;
+    auto C = orig_lhs;
+
+    for (int i = 0; i < TileSize; ++i) {
+      if (i >= limit_n) break;
+      reg_rhs[i] = A[i * rhs_1_ld_];
+      reg_rhs_2[i] = B[i * rhs_2_ld_];
+    }
+    for (int i = 0; i < TileSize; ++i) {
+      if (i >= limit_n) break;
+      C[i * lhs_ld_] = alpha * reg_rhs[i] + beta * reg_rhs_2[i];
+    }
+  }
+}
+
+template <bool is_add, int TileSize, int TilePerWG, typename lhs_t,
+          typename rhs_t, typename rhs_2_t>
 typename lhs_t::value_t
 Matcopy_batch<is_add, TileSize, TilePerWG, lhs_t, rhs_t, rhs_2_t>::eval(
     cl::sycl::nd_item<1> ndItem) {
@@ -96,72 +229,12 @@ Matcopy_batch<is_add, TileSize, TilePerWG, lhs_t, rhs_t, rhs_2_t>::eval(
 
   const index_t item_id = ndItem.get_local_id(0) % TileSize;
 
-  const index_t l_lhs_stride = lhs_stride_;
-  const index_t l_rhs_stride = rhs_1_stride_;
-  const index_t l_rhs_2_stride = rhs_2_stride_;
-  auto orig_lhs = lhs_.get_pointer() + (wg_batch_id * l_lhs_stride);
-  auto orig_rhs = rhs_1_.get_pointer() + (wg_batch_id * l_rhs_stride);
-  auto orig_rhs_2 = rhs_2_.get_pointer() + (wg_batch_id * l_rhs_2_stride);
-
-  orig_lhs = orig_lhs + wg_row + wg_col * lhs_ld_ + item_id;
-  orig_rhs = orig_rhs + wg_row + wg_col * rhs_1_ld_ + item_id;
-  orig_rhs_2 = orig_rhs_2 + wg_row + wg_col * rhs_2_ld_ + item_id;
-
-  value_t reg_rhs[TileSize];
-  value_t reg_rhs_2[TileSize];
-  const index_t alpha = alpha_;
-  const index_t beta = beta_;
-
-  const bool is_internal_block =
-      (m - wg_row >= TileSize) && (n - wg_col >= TileSize);
-
-  // check for short&large
-  const bool valid_index =
-      (item_id > m || (item_id >= (m - wg_row))) ? false : true;
-  if (!valid_index) return 0;
-
-  if (is_internal_block) {
-    auto A = orig_rhs;
-    auto B = orig_rhs_2;
-    auto C = orig_lhs;
-
-#pragma unroll
-    for (int i = 0; i < TileSize; ++i) {
-      reg_rhs[i] = A[i * rhs_1_ld_];
-      if constexpr (is_add) {
-        reg_rhs_2[i] = B[i * rhs_2_ld_];
-      }
-    }
-#pragma unroll
-    for (int i = 0; i < TileSize; ++i) {
-      if constexpr (is_add) {
-        C[i * lhs_ld_] = alpha * reg_rhs[i] + beta * reg_rhs_2[i];
-      } else {
-        C[i * lhs_ld_] = alpha * reg_rhs[i];
-      }
-    }
-
+  if constexpr (is_add) {
+    compute_omatadd_batch(wg_batch_id, wg_row, wg_col, item_id);
   } else {
-    const auto limit_m = m - wg_row;
-    const auto limit_n = n - wg_col;
-    auto A = orig_rhs;
-    auto B = orig_rhs_2;
-    auto C = orig_lhs;
-
-    for (int i = 0; i < TileSize; ++i) {
-      if (i >= limit_n) break;
-      reg_rhs[i] = A[i * rhs_1_ld_];
-      if constexpr (is_add) reg_rhs_2[i] = B[i * rhs_2_ld_];
-    }
-    for (int i = 0; i < TileSize; ++i) {
-      if (i >= limit_n) break;
-      if constexpr (is_add) {
-        C[i * lhs_ld_] = alpha * reg_rhs[i] + beta * reg_rhs_2[i];
-      } else {
-        C[i * lhs_ld_] = alpha * reg_rhs[i];
-      }
-    }
+    compute_matcopy_batch(wg_batch_id, wg_row, wg_col, item_id);
   }
+
   return 0;
 }
 
