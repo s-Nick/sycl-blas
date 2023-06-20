@@ -35,7 +35,6 @@ template <bool in_place, int Tile_size, int wg_size, int cl_size,
 SYCL_BLAS_INLINE bool
 Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
           element_t>::valid_thread(cl::sycl::nd_item<1> item) const {
-  // Valid threads are established by ::eval()
   index_t idx = item.get_global_linear_id();
   return (idx < get_size());
 }
@@ -258,7 +257,7 @@ SYCL_BLAS_INLINE typename in1_t::index_t
 TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t,
              in2_t, out_t, element_t>::get_size() const {
   // Smallest TileSize square-multiple containing input/output matrices
-  return (M_pad_ * N_pad_);
+  return (size_pad_ * batch_size_);
 }
 
 template <bool both_trans, int Tile_size, int wg_size, int cl_size,
