@@ -123,12 +123,12 @@ typename sb_handle_t::event_t _omatadd_batch(
         ldc, stride_c, batch_size);
   } else if (m >= 128 && n >= 128) {
     return blas::extension::internal::_omatadd_batch_impl<
-        4, 16, sb_handle_t, element_t, index_t, container_t>(
+        8, 8, sb_handle_t, element_t, index_t, container_t>(
         sb_handle, m, n, alpha, a, lda, stride_a, beta, b, ldb, stride_b, c,
         ldc, stride_c, batch_size);
   } else {
     return blas::extension::internal::_omatadd_batch_impl<
-        1, 256, sb_handle_t, element_t, index_t, container_t>(
+        2, 16, sb_handle_t, element_t, index_t, container_t>(
         sb_handle, m, n, alpha, a, lda, stride_a, beta, b, ldb, stride_b, c,
         ldc, stride_c, batch_size);
   }
