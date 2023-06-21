@@ -217,7 +217,6 @@ typename sb_handle_t::event_t _omatadd_batch_impl(
   return sb_handle.execute(copy_batch_tree, local_size, global_size);
 }
 
-
 /*!
  * @brief Wrapper around Reduction. Creates the views, then makes and launches
  * the Reduction kernel
@@ -426,9 +425,9 @@ typename sb_handle_t::event_t _omatadd_batch(
                                       alpha, a, lda, stride_a, c, ldc, stride_c,
                                       batch_size);
   } else {
-    return _omatadd_impl<false, false>(sb_handle, m, n, alpha, a, lda, stride_a,
-                                       beta, b, ldb, stride_b, c, ldc, stride_c,
-                                       batch_size);
+    return blas::omatadd_batch::backend::_omatadd_batch(
+        sb_handle, m, n, alpha, a, lda, stride_a, beta, b, ldb, stride_b, c,
+        ldc, stride_c, batch_size);
   }
 }
 
@@ -453,6 +452,7 @@ typename sb_handle_t::event_t _transpose(sb_handle_t& sb_handle, index_t m,
                                        batch_size);
 }
 
+/*
 template <typename sb_handle_t, typename element_t, typename index_t,
           typename container_t>
 typename sb_handle_t::event_t _omatadd_batch(
@@ -469,7 +469,7 @@ typename sb_handle_t::event_t _omatadd_batch(
     return ret;
   }
 }
-
+*/
 
 template <typename operator_t, typename element_t, typename sb_handle_t,
           typename input_t, typename output_t, typename index_t>
