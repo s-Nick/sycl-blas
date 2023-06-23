@@ -83,8 +83,8 @@ void run(benchmark::State& state, blas::SB_Handle* sb_handle_ptr, int ti_a,
   // Run a first time with a verification of the results
   std::vector<scalar_t> m_c_ref = m_c;
 
-  reference_blas::omatadd_ref(*t_str_a, *t_str_b, m, n, alpha, m_a, lda, beta,
-                              m_b, ldb, m_c_ref, ldc);
+  reference_blas::omatadd_ref(*t_str_a, *t_str_b, m, n, alpha, m_a.data(), lda, beta,
+                              m_b.data(), ldb, m_c_ref.data(), ldc);
 
   std::vector<scalar_t> m_c_temp = m_c;
   {

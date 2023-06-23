@@ -27,8 +27,8 @@
 #include "extension_reference.hpp"
 
 template <typename scalar_t>
-using combination_t =
-    std::tuple<char, char, index_t, index_t, scalar_t, scalar_t, index_t, index_t, index_t>;
+using combination_t = std::tuple<char, char, index_t, index_t, scalar_t,
+                                 scalar_t, index_t, index_t, index_t>;
 
 template <typename scalar_t>
 void run_test(const combination_t<scalar_t> combi) {
@@ -58,8 +58,8 @@ void run_test(const combination_t<scalar_t> combi) {
   const index_t ldc = m * ld_c_mul;
 
   // Reference implementation
-  reference_blas::omatadd_ref(trans_a, trans_b, m, n, alpha, A, lda, beta, B,
-                              ldb, C_ref, ldc);
+  reference_blas::omatadd_ref(trans_a, trans_b, m, n, alpha, A.data(), lda,
+                              beta, B.data(), ldb, C_ref.data(), ldc);
 
   auto m_a_gpu =
       blas::make_sycl_iterator_buffer<scalar_t>(A, base_size * ld_a_mul);

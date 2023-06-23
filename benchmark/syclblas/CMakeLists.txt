@@ -66,6 +66,7 @@ set(sources
   extension/omatcopy.cpp
   extension/omatadd.cpp
   extension/omatcopy_batched.cpp
+  extension/omatadd_batched.cpp
 )
 
 if(${BLAS_ENABLE_EXTENSIONS})
