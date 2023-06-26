@@ -70,9 +70,9 @@ Transpose_Launcher<Tile_size, wg_size, cl_size, local_memory>::
     index_t local_mem =
         static_cast<index_t>((num_cache_line_elems + 1) * num_cache_line_elems /
                              num_tiles_per_cache_line);
-    return sb_handle.execute(trans_scale_tree, wg_size, global_size, local_mem);
+    return sb_handle.execute(trans_scale_tree, static_cast<index_t>(wg_size), global_size, local_mem);
   } else {
-    return sb_handle.execute(trans_scale_tree, wg_size, global_size);
+    return sb_handle.execute(trans_scale_tree, static_cast<index_t>(wg_size), global_size);
   }
 }
 
@@ -118,9 +118,9 @@ TransposeAdd_Launcher<both_trans, Tile_size, wg_size, cl_size, local_memory>::
     index_t local_mem =
         static_cast<index_t>((num_cache_line_elems + 1) * num_cache_line_elems /
                              num_tiles_per_cache_line);
-    return sb_handle.execute(trans_scale_tree, wg_size, global_size, local_mem);
+    return sb_handle.execute(trans_scale_tree, static_cast<index_t>(wg_size), global_size, local_mem);
   } else {
-    return sb_handle.execute(trans_scale_tree, wg_size, global_size);
+    return sb_handle.execute(trans_scale_tree, static_cast<index_t>(wg_size), global_size);
   }
 }
 
