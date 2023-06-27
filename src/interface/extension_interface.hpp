@@ -119,9 +119,9 @@ typename sb_handle_t::event_t _matcopy_batch_impl(
     sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
     in_t in_memory, index_t ld_in, index_t in_stride, out_t out_memory,
     index_t ld_out, index_t out_stride, index_t batch_size) {
-  auto in_view = make_matrix_view<col_major>(in_memory, m, n, ld_in, in_stride);
+  auto in_view = make_matrix_view<col_major>(in_memory, m, n, ld_in);
   auto out_view =
-      make_matrix_view<col_major>(out_memory, m, n, ld_out, out_stride);
+      make_matrix_view<col_major>(out_memory, m, n, ld_out);
   auto copy_batch_tree =
       make_matcopy_batch<matcopy_op::outplace, TileSize, TilePerWG>(
           out_view, in_view, in_view, alpha, 0, m, n, ld_out, ld_in, 1,
