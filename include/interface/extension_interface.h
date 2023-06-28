@@ -309,6 +309,31 @@ typename sb_handle_t::event_t _omatcopy_batch(
       ld_out, stride_out, batch_size);
 }
 
+/**
+ * \brief Batch Computation of scaled addition of two matrices A & B with or without
+ * transpose and copying results back to an output matrix C.
+ *
+ * @tparam sb_handle_t SB_Handle type
+ * @tparam element_t Undelying element data type of the matrix container
+ * @tparam index_t Index type
+ * @tparam container_t Inputs/Output Container Type
+ * @param trans_a Apply or not matrix transpose to A.
+ * @param trans_b Apply or not matrix transpose to B.
+ * @param m Number of rows in output matrix C
+ * @param n Number of columns in output matrix C
+ * @param alpha Scaling factor of matrix A
+ * @param A Container Input matrix A
+ * @param lda Matrix A leading dimension
+ * @param stride_a stride distance between two matrices inside A container
+ * @param beta scaling factor of matrix B
+ * @param B Container Input matrix B
+ * @param ldb Matrix B leading dimension
+ * @param stride_b stride distance between two matrices inside B container
+ * @param C Container Output matrix C
+ * @param ldc Matrix C leading dimension
+ * @param stride_c stride distance between two matrices inside C container
+ * @param batch_size number of matrices to compute in this batch 
+ */
 template <typename sb_handle_t, typename element_t, typename index_t,
           typename container_t>
 typename sb_handle_t::event_t _omatadd_batch(

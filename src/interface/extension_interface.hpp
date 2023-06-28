@@ -179,19 +179,18 @@ _omatadd_impl(sb_handle_t& sb_handle, index_t m, index_t n, element_t alpha,
               container_t a, index_t lda, index_t stride_a, element_t beta,
               container_t b, index_t ldb, index_t stride_b, container_t c,
               index_t ldc, index_t stride_c, index_t batch_size) {
+  // This implementation of omatadd must be used only for non batched version
+  // of the operator. For this reason is not needed to check for batch size.
+  // The batched implementation is completely different.
   typename sb_handle_t::event_t ret;
-  if (batch_size == 1) {
-    auto m_a_view = make_matrix_view<col_major>(a, m, n, lda);
-    auto m_b_view = make_matrix_view<col_major>(b, m, n, ldb);
-    auto m_c_view = make_matrix_view<col_major>(c, m, n, ldc);
-    auto scal_a = make_op<ScalarOp, ProductOperator>(alpha, m_a_view);
-    auto scal_b = make_op<ScalarOp, ProductOperator>(beta, m_b_view);
-    auto sum_op = make_op<BinaryOp, AddOperator>(scal_a, scal_b);
-    auto copy_op = make_op<Assign>(m_c_view, sum_op);
-    ret = sb_handle.execute(copy_op);
-  } else {
-    // TODO
-  }
+  auto m_a_view = make_matrix_view<col_major>(a, m, n, lda);
+  auto m_b_view = make_matrix_view<col_major>(b, m, n, ldb);
+  auto m_c_view = make_matrix_view<col_major>(c, m, n, ldc);
+  auto scal_a = make_op<ScalarOp, ProductOperator>(alpha, m_a_view);
+  auto scal_b = make_op<ScalarOp, ProductOperator>(beta, m_b_view);
+  auto sum_op = make_op<BinaryOp, AddOperator>(scal_a, scal_b);
+  auto copy_op = make_op<Assign>(m_c_view, sum_op);
+  ret = sb_handle.execute(copy_op);
   return ret;
 }
 
@@ -206,7 +205,7 @@ typename sb_handle_t::event_t _omatadd_batch_impl(
   auto m_b_view = make_matrix_view<col_major>(b, m, n, ldb);
   auto m_c_view = make_matrix_view<col_major>(c, m, n, ldc);
   auto copy_batch_tree =
-      make_matcopy_batch<matcopy_op::outplaceadd, TileSize, TilePerWG>(
+      make_matcopy_batch<true, TileSize, TilePerWG>(
           m_c_view, m_a_view, m_b_view, alpha, beta, m, n, ldc, lda, ldb,
           stride_c, stride_a, stride_b, batch_size);
   constexpr index_t local_size = TileSize * TilePerWG;
@@ -312,9 +311,9 @@ typename sb_handle_t::event_t _matcopy(sb_handle_t& sb_handle, char trans,
   const index_t batch_size = 1;
 
   if (trans == 't') {
-    return _matcopy_impl<in_place, true>(sb_handle, m, n, alpha, in_memory,
-                                         ld_in, inc_in, stride, out_memory,
-                                         ld_out, inc_out, stride, static_cast<index_t>(1));
+    return _matcopy_impl<in_place, true>(
+        sb_handle, m, n, alpha, in_memory, ld_in, inc_in, stride, out_memory,
+        ld_out, inc_out, stride, static_cast<index_t>(1));
   } else {
     return _matcopy_impl<in_place, false>(sb_handle, m, n, alpha, in_memory,
                                           ld_in, inc_in, stride, out_memory,
@@ -389,7 +388,7 @@ typename sb_handle_t::event_t _omatadd(sb_handle_t& sb_handle, char trans_a,
   } else {
     return _omatadd_impl<false, false>(sb_handle, m, n, alpha, a, lda, stride_a,
                                        beta, b, ldb, stride_b, c, ldc, stride_c,
-                                       batch_size);
+                                       static_cast<index_t>(1));
   }
 }
 
@@ -451,25 +450,6 @@ typename sb_handle_t::event_t _transpose(sb_handle_t& sb_handle, index_t m,
                                        stride, B, ld_b, inc, stride,
                                        batch_size);
 }
-
-/*
-template <typename sb_handle_t, typename element_t, typename index_t,
-          typename container_t>
-typename sb_handle_t::event_t _omatadd_batch(
-    sb_handle_t& sb_handle, char trans_a, char trans_b, index_t m, index_t n,
-    element_t alpha, container_t a, index_t lda, index_t stride_a,
-    element_t beta, container_t b, index_t ldb, index_t stride_b, container_t c,
-    index_t ldc, index_t stride_c, index_t batch_size) {
-  if (trans_a != 't' && trans_b != 't') {
-    return blas::omatadd_batch::backend::_omatadd_batch(
-        sb_handle, m, n, alpha, a, lda, stride_a, beta, b, ldb, stride_b, c,
-        ldc, stride_c, batch_size);
-  } else {
-    typename sb_handle_t::event_t ret;
-    return ret;
-  }
-}
-*/
 
 template <typename operator_t, typename element_t, typename sb_handle_t,
           typename input_t, typename output_t, typename index_t>
