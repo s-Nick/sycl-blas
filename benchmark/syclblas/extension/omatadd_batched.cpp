@@ -61,15 +61,15 @@ void run(benchmark::State& state, blas::SB_Handle* sb_handle_ptr, int ti_a,
 
   const auto lda = (*t_str_b == 't') ? lda_mul * n : lda_mul * m;
   const auto ldb = (*t_str_b == 't') ? ldb_mul * n : ldb_mul * m;
-  const auto ldc = ldc_mul * n;
+  const auto ldc = ldc_mul * m;
 
-  const auto size_a = lda * ((*t_str_a == 't') ? m : n) * batch_size;
-  const auto size_b = ldb * ((*t_str_b == 't') ? m : n) * batch_size;
-  const auto size_c = ldc * n * batch_size;
+  const auto stride_a = lda * ((*t_str_a == 't') ? m : n);
+  const auto stride_b = ldb * ((*t_str_b == 't') ? m : n);
+  const auto stride_c = ldc * n;
 
-  const auto stride_a = size_a * stride_a_mul;
-  const auto stride_b = size_b * stride_b_mul;
-  const auto stride_c = size_c * stride_c_mul;
+  const auto size_a = stride_a * stride_a_mul * batch_size;
+  const auto size_b = stride_b * stride_b_mul * batch_size;
+  const auto size_c = stride_c * stride_c_mul * batch_size;
 
   blas_benchmark::utils::init_extension_counters<
       blas_benchmark::utils::ExtensionOP::omatadd_batch, scalar_t>(

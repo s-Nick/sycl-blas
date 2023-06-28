@@ -41,8 +41,8 @@ namespace reference_blas {
  */
 template <typename index_t, typename scalar_t>
 void omatcopy_ref(char trans, const index_t m, const index_t n,
-                  const scalar_t alpha, scalar_t* A,
-                  const index_t lda, scalar_t* B, index_t ldb) {
+                  const scalar_t alpha, scalar_t* A, const index_t lda,
+                  scalar_t* B, index_t ldb) {
   if (trans != 't') {
     for (index_t j = 0; j < n; j++) {
       for (index_t i = 0; i < m; i++) {
@@ -109,9 +109,14 @@ void omatcopy2_ref(const char& t, const index_t& m, const index_t& n,
  */
 template <typename index_t, typename scalar_t>
 void omatadd_ref(char transa, char transb, index_t m, index_t n, scalar_t alpha,
-                 scalar_t* A, index_t lda, scalar_t beta,
-                 scalar_t* B, index_t ldb,
-                 scalar_t* C, index_t ldc) {
+                 scalar_t* A, index_t lda, scalar_t beta, scalar_t* B,
+                 index_t ldb, scalar_t* C, index_t ldc) {
+  // bail out early if the leading dimensions are not correct
+  if (ldc < m || lda < (transa == 't' ? n : m) ||
+      ldb < (transb == 't' ? n : m)) {
+    return;
+  }
+
   for (index_t j = 0; j < n; j++) {
     for (index_t i = 0; i < m; i++) {
       C[j * ldc + i] = 0.0;
