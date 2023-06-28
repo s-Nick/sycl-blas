@@ -29,9 +29,9 @@
 
 namespace blas {
 
-template <matcopy_op op, int TileSize, int TilePerWG, typename lhs_t,
+template <bool is_add, int TileSize, int TilePerWG, typename lhs_t,
           typename rhs_t>
-Matcopy_batch<op, TileSize, TilePerWG, lhs_t, rhs_t>::Matcopy_batch(
+Matcopy_batch<is_add, TileSize, TilePerWG, lhs_t, rhs_t>::Matcopy_batch(
     lhs_t lhs, rhs_t rhs_1, rhs_t rhs_2, typename lhs_t::value_t alpha,
     typename lhs_t::value_t beta, typename rhs_t::index_t m,
     typename rhs_t::index_t n, typename rhs_t::index_t lhs_ld,
@@ -53,15 +53,15 @@ Matcopy_batch<op, TileSize, TilePerWG, lhs_t, rhs_t>::Matcopy_batch(
       rhs_2_stride_(rhs_2_stride),
       batch_size_(batch_size) {}
 
-template <matcopy_op op, int TileSize, int TilePerWG, typename lhs_t,
+template <bool is_add, int TileSize, int TilePerWG, typename lhs_t,
           typename rhs_t>
 typename lhs_t::value_t
-Matcopy_batch<op, TileSize, TilePerWG, lhs_t, rhs_t>::eval(index_t i) {}
+Matcopy_batch<is_add, TileSize, TilePerWG, lhs_t, rhs_t>::eval(index_t i) {}
 
-template <matcopy_op op, int TileSize, int TilePerWG, typename lhs_t,
+template <bool is_add, int TileSize, int TilePerWG, typename lhs_t,
           typename rhs_t>
 typename lhs_t::value_t
-Matcopy_batch<op, TileSize, TilePerWG, lhs_t, rhs_t>::eval(
+Matcopy_batch<is_add, TileSize, TilePerWG, lhs_t, rhs_t>::eval(
     cl::sycl::nd_item<1> ndItem) {
   const index_t m{m_};
   const index_t n{n_};
@@ -142,33 +142,33 @@ Matcopy_batch<op, TileSize, TilePerWG, lhs_t, rhs_t>::eval(
   return 0;
 }
 
-template <matcopy_op op, int TileSize, int TilePerWG, typename lhs_t,
+template <bool is_add, int TileSize, int TilePerWG, typename lhs_t,
           typename rhs_t>
-SYCL_BLAS_INLINE void Matcopy_batch<op, TileSize, TilePerWG, lhs_t,
+SYCL_BLAS_INLINE void Matcopy_batch<is_add, TileSize, TilePerWG, lhs_t,
                                     rhs_t>::bind(cl::sycl::handler& h) {
   lhs_.bind(h);
   rhs_1_.bind(h);
 }
 
-template <matcopy_op op, int TileSize, int TilePerWG, typename lhs_t,
+template <bool is_add, int TileSize, int TilePerWG, typename lhs_t,
           typename rhs_t>
-SYCL_BLAS_INLINE void Matcopy_batch<op, TileSize, TilePerWG, lhs_t,
+SYCL_BLAS_INLINE void Matcopy_batch<is_add, TileSize, TilePerWG, lhs_t,
                                     rhs_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   rhs_1_.adjust_access_displacement();
 }
 
-template <matcopy_op op, int TileSize, int TilePerWG, typename lhs_t,
+template <bool is_add, int TileSize, int TilePerWG, typename lhs_t,
           typename rhs_t>
 SYCL_BLAS_INLINE typename rhs_t::index_t
-Matcopy_batch<op, TileSize, TilePerWG, lhs_t, rhs_t>::get_size() const {
+Matcopy_batch<is_add, TileSize, TilePerWG, lhs_t, rhs_t>::get_size() const {
   return m_ * n_;
 }
 
-template <matcopy_op op, int TileSize, int TilePerWG, typename lhs_t,
+template <bool is_add, int TileSize, int TilePerWG, typename lhs_t,
           typename rhs_t>
 SYCL_BLAS_INLINE bool
-Matcopy_batch<op, TileSize, TilePerWG, lhs_t, rhs_t>::valid_thread(
+Matcopy_batch<is_add, TileSize, TilePerWG, lhs_t, rhs_t>::valid_thread(
     cl::sycl::nd_item<1> ndItem) const {
   return true;
 }

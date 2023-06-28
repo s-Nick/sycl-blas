@@ -123,7 +123,7 @@ typename sb_handle_t::event_t _matcopy_batch_impl(
   auto out_view =
       make_matrix_view<col_major>(out_memory, m, n, ld_out);
   auto copy_batch_tree =
-      make_matcopy_batch<matcopy_op::outplace, TileSize, TilePerWG>(
+      make_matcopy_batch<false, TileSize, TilePerWG>(
           out_view, in_view, in_view, alpha, 0, m, n, ld_out, ld_in, 1,
           out_stride, in_stride, 1, batch_size);
   constexpr index_t local_size = TileSize * TilePerWG;
