@@ -538,6 +538,131 @@ AssignReduction<operator_t, lhs_t, rhs_t>::adjust_access_displacement() {
   rhs_.adjust_access_displacement();
 }
 
+/*! Asum.
+ * @brief Implements the reduction operation for assignments (in the form y
+ * = x) with y a scalar and x a subexpression tree.
+ */
+template <typename lhs_t, typename rhs_t>
+Asum<lhs_t, rhs_t>::Asum(lhs_t &_l, rhs_t &_r, index_t _blqS, index_t _grdS)
+    : lhs_(_l), rhs_(_r), local_num_thread_(_blqS), global_num_thread_(_grdS){};
+
+template <typename lhs_t, typename rhs_t>
+SYCL_BLAS_INLINE typename Asum<lhs_t, rhs_t>::index_t
+Asum<lhs_t, rhs_t>::get_size() const {
+  return rhs_.get_size();
+}
+
+template <typename lhs_t, typename rhs_t>
+SYCL_BLAS_INLINE bool Asum<lhs_t, rhs_t>::valid_thread(
+    cl::sycl::nd_item<1> ndItem) const {
+  return true;
+}
+template <typename lhs_t, typename rhs_t>
+SYCL_BLAS_INLINE typename Asum<lhs_t, rhs_t>::value_t Asum<lhs_t, rhs_t>::eval(
+    typename Asum<lhs_t, rhs_t>::index_t i) {
+  index_t vecS = rhs_.get_size();
+  index_t frs_thrd = 2 * local_num_thread_ * i;
+  index_t lst_thrd = ((frs_thrd + local_num_thread_) > vecS)
+                         ? vecS
+                         : (frs_thrd + local_num_thread_);
+  // this will be computed at compile time
+  // It goes right here, you can start coding here.
+  return {};
+}
+template <typename lhs_t, typename rhs_t>
+SYCL_BLAS_INLINE typename Asum<lhs_t, rhs_t>::value_t Asum<lhs_t, rhs_t>::eval(
+    cl::sycl::nd_item<1> ndItem) {
+  auto atomic_res = sycl::atomic_ref<value_t, sycl::memory_order::relaxed,
+                                     sycl::memory_scope::system,
+                                     sycl::access::address_space::global_space>(
+      lhs_.get_data()[0]);
+  const auto size = rhs_.get_size();
+  int lid = ndItem.get_global_linear_id();
+  value_t in_val{0};  // = in[lid];
+
+  // First loop for big arrays
+  for (int id = lid; id < size;
+       id += ndItem.get_local_range()[0] * ndItem.get_group_range()[0]) {
+    in_val += std::abs(rhs_.eval(id));
+  }
+
+  in_val =
+      sycl::reduce_over_group(ndItem.get_sub_group(), in_val, sycl::plus<>());
+
+  // if (ndItem.get_sub_group().get_local_id() == 0) {
+  if ((ndItem.get_local_id() &
+       (ndItem.get_sub_group().get_local_range() - 1)) == 0) {
+    atomic_res += sycl::abs(in_val);
+  }
+  return {};  // Asum<lhs_t, rhs_t>::eval(ndItem.get_global_id(0));
+}
+template <typename lhs_t, typename rhs_t>
+template <typename sharedT>
+SYCL_BLAS_INLINE typename Asum<lhs_t, rhs_t>::value_t Asum<lhs_t, rhs_t>::eval(
+    sharedT scratch, cl::sycl::nd_item<1> ndItem) {
+  /*
+  index_t localid = ndItem.get_local_id(0);
+  index_t localSz = ndItem.get_local_range(0);
+  index_t groupid = ndItem.get_group(0);
+
+
+  index_t vecS = rhs_.get_size();
+  index_t frs_thrd = 2 * groupid * localSz + localid;
+  */
+  auto atomic_res = sycl::atomic_ref<value_t, sycl::memory_order::relaxed,
+                                     sycl::memory_scope::system,
+                                     sycl::access::address_space::global_space>(
+      lhs_.get_data()[0]);
+  const auto size = rhs_.get_size();
+  const int lid = static_cast<int>(ndItem.get_global_linear_id());
+  value_t in_val{0};  // = in[lid];
+
+  // First loop for big arrays
+  for (int id = lid; id < size;
+       id += ndItem.get_local_range()[0] * ndItem.get_group_range()[0]) {
+    in_val += std::abs(rhs_.eval(id));
+  }
+
+  in_val =
+      sycl::reduce_over_group(ndItem.get_sub_group(), in_val, sycl::plus<>());
+
+  if (ndItem.get_sub_group().get_local_id() == 0) {
+    scratch[ndItem.get_sub_group().get_group_linear_id()] = in_val;
+  }
+  ndItem.barrier();
+
+  in_val = (ndItem.get_local_id() <
+            (ndItem.get_local_range()[0] / ndItem.get_sub_group().get_local_range()[0]))
+               ? scratch[ndItem.get_sub_group().get_local_id()]
+               : 0;
+  if (ndItem.get_sub_group().get_group_id() == 0) {
+    // in_val = scratch[ndItem.get_sub_group().get_local_id()];
+    in_val =
+        sycl::reduce_over_group(ndItem.get_sub_group(), in_val, sycl::plus<>());
+  }
+  //ndItem.barrier();
+  if (ndItem.get_local_id() == 0) {
+    atomic_res += in_val;
+  }
+
+  // Reduction across the grid
+  // TODO(Peter): This should be constexpr once half supports it
+
+  return {};//lhs_.eval(groupid);
+}
+
+template <typename lhs_t, typename rhs_t>
+SYCL_BLAS_INLINE void Asum<lhs_t, rhs_t>::bind(cl::sycl::handler &h) {
+  lhs_.bind(h);
+  rhs_.bind(h);
+}
+
+template <typename lhs_t, typename rhs_t>
+SYCL_BLAS_INLINE void Asum<lhs_t, rhs_t>::adjust_access_displacement() {
+  lhs_.adjust_access_displacement();
+  rhs_.adjust_access_displacement();
+}
+
 template <typename operand_t>
 Rotg<operand_t>::Rotg(operand_t &_a, operand_t &_b, operand_t &_c,
                       operand_t &_s)

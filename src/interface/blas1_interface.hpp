@@ -181,11 +181,18 @@ typename sb_handle_t::event_t _asum(sb_handle_t &sb_handle, index_t _N,
   auto rs = make_vector_view(_rs, static_cast<increment_t>(1),
                              static_cast<index_t>(1));
 
+  // typename sb_handle_t::event_t ret;
   const auto localSize = sb_handle.get_work_group_size();
-  const auto nWG = 2 * localSize;
-  auto assignOp = make_assign_reduction<AbsoluteAddOperator>(rs, vx, localSize,
-                                                             localSize * nWG);
-  auto ret = sb_handle.execute(assignOp);
+  // const auto nWG = 2 * localSize;
+  const auto blocks = std::min((_N + localSize - 1) / localSize, 1024ul);
+
+  // std:: cout << "test localSize " << localSize << " test nWG " << nWG <<
+  // '\n';
+  // auto assignOp = make_assign_reduction<AbsoluteAddOperator>(rs, vx,
+  //  localSize, localSize * nWG);
+  auto assignOp = make_asum(rs, vx, localSize, localSize * blocks);
+  // ret = sb_handle.execute(assignOp);
+  auto ret = sb_handle.execute(assignOp, localSize, localSize * blocks, 32ul);
   return ret;
 }
 

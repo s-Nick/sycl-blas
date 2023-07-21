@@ -26,14 +26,15 @@
 #include "blas_test.hpp"
 
 template <typename scalar_t>
-using combination_t = std::tuple<api_type, int, int>;
+using combination_t = std::tuple<api_type, int, int, scalar_t>;
 
 template <typename scalar_t>
 void run_test(const combination_t<scalar_t> combi) {
   api_type api;
   index_t size;
   index_t incX;
-  std::tie(api, size, incX) = combi;
+  scalar_t unused;
+  std::tie(api, size, incX, unused) = combi;
 
   // Input vector
   std::vector<scalar_t> x_v(size * incX);
@@ -68,6 +69,7 @@ void run_test(const combination_t<scalar_t> combi) {
   }
 
   // Validate the result
+  //std::cout << "gpu_res: " << out_s << " cpu_res: " << out_cpu_s << '\n';
   const bool is_almost_equal = utils::almost_equal(out_s, out_cpu_s);
   ASSERT_TRUE(is_almost_equal);
 }
@@ -77,15 +79,25 @@ const auto combi = ::testing::Combine(::testing::Values(api_type::async,
                                                         api_type::sync),  // Api
                                       ::testing::Values(11, 65, 10000,
                                                         1002400),  // size
-                                      ::testing::Values(1, 4)      // incX
-);
+                                      ::testing::Values(1, 4),     // incX
+                                      ::testing::Values(1.0));
+
+/*
+template <typename scalar_t>
+const auto combi =
+    ::testing::Combine(::testing::Values(api_type::sync),  // Api
+                       ::testing::Values(1024),            // size
+                       ::testing::Values(1),                // incX
+                       ::testing::Values(1.0));
+*/
 
 template <class T>
 static std::string generate_name(
     const ::testing::TestParamInfo<combination_t<T>>& info) {
   api_type api;
   int size, incX;
-  BLAS_GENERATE_NAME(info.param, api, size, incX);
+  T unused;
+  BLAS_GENERATE_NAME(info.param, api, size, incX, unused);
 }
 
 BLAS_REGISTER_TEST_ALL(Asum, combination_t, combi, generate_name);
