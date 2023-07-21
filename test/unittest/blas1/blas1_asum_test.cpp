@@ -69,7 +69,6 @@ void run_test(const combination_t<scalar_t> combi) {
   }
 
   // Validate the result
-  //std::cout << "gpu_res: " << out_s << " cpu_res: " << out_cpu_s << '\n';
   const bool is_almost_equal = utils::almost_equal(out_s, out_cpu_s);
   ASSERT_TRUE(is_almost_equal);
 }
@@ -82,11 +81,12 @@ const auto combi = ::testing::Combine(::testing::Values(api_type::async,
                                       ::testing::Values(1, 4),     // incX
                                       ::testing::Values(1.0));
 
+
 /*
 template <typename scalar_t>
 const auto combi =
     ::testing::Combine(::testing::Values(api_type::sync),  // Api
-                       ::testing::Values(1024),            // size
+                       ::testing::Values(11),            // size
                        ::testing::Values(1),                // incX
                        ::testing::Values(1.0));
 */

@@ -191,8 +191,8 @@ typename sb_handle_t::event_t _asum(sb_handle_t &sb_handle, index_t _N,
   // auto assignOp = make_assign_reduction<AbsoluteAddOperator>(rs, vx,
   //  localSize, localSize * nWG);
   auto assignOp = make_asum(rs, vx, localSize, localSize * blocks);
-  // ret = sb_handle.execute(assignOp);
-  auto ret = sb_handle.execute(assignOp, localSize, localSize * blocks, 32ul);
+  auto ret = sb_handle.execute(assignOp);
+  //auto ret = sb_handle.execute(assignOp, localSize, localSize * blocks, 32ul);
   return ret;
 }
 
@@ -699,7 +699,7 @@ typename ValueType<container_t>::type _asum(sb_handle_t &sb_handle, index_t _N,
                                             increment_t _incx) {
   using element_t = typename ValueType<container_t>::type;
   auto res = std::vector<element_t>(1, element_t(0));
-  auto gpu_res = make_sycl_iterator_buffer<element_t>(static_cast<index_t>(1));
+  auto gpu_res = make_sycl_iterator_buffer<element_t>(res.data(),static_cast<index_t>(1));
   blas::internal::_asum(sb_handle, _N, _vx, _incx, gpu_res);
   auto event =
       blas::helper::copy_to_host(sb_handle.get_queue(), gpu_res, res.data(), 1);

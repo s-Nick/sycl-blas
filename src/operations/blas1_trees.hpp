@@ -609,6 +609,7 @@ SYCL_BLAS_INLINE typename Asum<lhs_t, rhs_t>::value_t Asum<lhs_t, rhs_t>::eval(
   index_t vecS = rhs_.get_size();
   index_t frs_thrd = 2 * groupid * localSz + localid;
   */
+  lhs_.get_data()[0] = 0;
   auto atomic_res = sycl::atomic_ref<value_t, sycl::memory_order::relaxed,
                                      sycl::memory_scope::system,
                                      sycl::access::address_space::global_space>(
@@ -631,16 +632,17 @@ SYCL_BLAS_INLINE typename Asum<lhs_t, rhs_t>::value_t Asum<lhs_t, rhs_t>::eval(
   }
   ndItem.barrier();
 
-  in_val = (ndItem.get_local_id() <
-            (ndItem.get_local_range()[0] / ndItem.get_sub_group().get_local_range()[0]))
-               ? scratch[ndItem.get_sub_group().get_local_id()]
-               : 0;
+  in_val =
+      (ndItem.get_local_id() < (ndItem.get_local_range()[0] /
+                                ndItem.get_sub_group().get_local_range()[0]))
+          ? scratch[ndItem.get_sub_group().get_local_id()]
+          : 0;
   if (ndItem.get_sub_group().get_group_id() == 0) {
     // in_val = scratch[ndItem.get_sub_group().get_local_id()];
     in_val =
         sycl::reduce_over_group(ndItem.get_sub_group(), in_val, sycl::plus<>());
   }
-  //ndItem.barrier();
+  // ndItem.barrier();
   if (ndItem.get_local_id() == 0) {
     atomic_res += in_val;
   }
@@ -648,7 +650,7 @@ SYCL_BLAS_INLINE typename Asum<lhs_t, rhs_t>::value_t Asum<lhs_t, rhs_t>::eval(
   // Reduction across the grid
   // TODO(Peter): This should be constexpr once half supports it
 
-  return {};//lhs_.eval(groupid);
+  return {};  // lhs_.eval(groupid);
 }
 
 template <typename lhs_t, typename rhs_t>
