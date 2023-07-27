@@ -191,8 +191,8 @@ typename sb_handle_t::event_t _asum(sb_handle_t &sb_handle, index_t _N,
   // auto assignOp = make_assign_reduction<AbsoluteAddOperator>(rs, vx,
   //  localSize, localSize * nWG);
   auto assignOp = make_asum(rs, vx, localSize, localSize * blocks);
-  auto ret = sb_handle.execute(assignOp);
-  //auto ret = sb_handle.execute(assignOp, localSize, localSize * blocks, 32ul);
+  //auto ret = sb_handle.execute(assignOp);
+  auto ret = sb_handle.execute(assignOp, localSize, localSize * blocks, 32ul);
   return ret;
 }
 

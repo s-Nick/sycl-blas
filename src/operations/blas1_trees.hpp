@@ -609,7 +609,6 @@ SYCL_BLAS_INLINE typename Asum<lhs_t, rhs_t>::value_t Asum<lhs_t, rhs_t>::eval(
   index_t vecS = rhs_.get_size();
   index_t frs_thrd = 2 * groupid * localSz + localid;
   */
-  lhs_.get_data()[0] = 0;
   auto atomic_res = sycl::atomic_ref<value_t, sycl::memory_order::relaxed,
                                      sycl::memory_scope::system,
                                      sycl::access::address_space::global_space>(
@@ -621,7 +620,7 @@ SYCL_BLAS_INLINE typename Asum<lhs_t, rhs_t>::value_t Asum<lhs_t, rhs_t>::eval(
   // First loop for big arrays
   for (int id = lid; id < size;
        id += ndItem.get_local_range()[0] * ndItem.get_group_range()[0]) {
-    in_val += std::abs(rhs_.eval(id));
+    in_val += sycl::abs(rhs_.eval(id));
   }
 
   in_val =
