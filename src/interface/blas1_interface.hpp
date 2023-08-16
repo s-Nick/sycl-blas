@@ -177,6 +177,7 @@ template <typename sb_handle_t, typename container_0_t, typename container_1_t,
 typename sb_handle_t::event_t _asum(sb_handle_t &sb_handle, index_t _N,
                                     container_0_t _vx, increment_t _incx,
                                     container_1_t _rs) {
+  
   auto vx = make_vector_view(_vx, _incx, _N);
   auto rs = make_vector_view(_rs, static_cast<increment_t>(1),
                              static_cast<index_t>(1));
@@ -186,13 +187,11 @@ typename sb_handle_t::event_t _asum(sb_handle_t &sb_handle, index_t _N,
   // const auto nWG = 2 * localSize;
   const auto blocks = std::min((_N + localSize - 1) / localSize, 1024ul);
 
-  // std:: cout << "test localSize " << localSize << " test nWG " << nWG <<
-  // '\n';
   // auto assignOp = make_assign_reduction<AbsoluteAddOperator>(rs, vx,
   //  localSize, localSize * nWG);
   auto assignOp = make_asum(rs, vx, localSize, localSize * blocks);
-  //auto ret = sb_handle.execute(assignOp);
   auto ret = sb_handle.execute(assignOp, localSize, localSize * blocks, 32ul);
+
   return ret;
 }
 

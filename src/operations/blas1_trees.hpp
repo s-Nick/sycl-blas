@@ -573,7 +573,7 @@ template <typename lhs_t, typename rhs_t>
 SYCL_BLAS_INLINE typename Asum<lhs_t, rhs_t>::value_t Asum<lhs_t, rhs_t>::eval(
     cl::sycl::nd_item<1> ndItem) {
   auto atomic_res = sycl::atomic_ref<value_t, sycl::memory_order::relaxed,
-                                     sycl::memory_scope::system,
+                                     sycl::memory_scope::device,
                                      sycl::access::address_space::global_space>(
       lhs_.get_data()[0]);
   const auto size = rhs_.get_size();
@@ -583,7 +583,7 @@ SYCL_BLAS_INLINE typename Asum<lhs_t, rhs_t>::value_t Asum<lhs_t, rhs_t>::eval(
   // First loop for big arrays
   for (int id = lid; id < size;
        id += ndItem.get_local_range()[0] * ndItem.get_group_range()[0]) {
-    in_val += std::abs(rhs_.eval(id));
+    in_val += sycl::abs(rhs_.eval(id));
   }
 
   in_val =
@@ -592,7 +592,7 @@ SYCL_BLAS_INLINE typename Asum<lhs_t, rhs_t>::value_t Asum<lhs_t, rhs_t>::eval(
   // if (ndItem.get_sub_group().get_local_id() == 0) {
   if ((ndItem.get_local_id() &
        (ndItem.get_sub_group().get_local_range() - 1)) == 0) {
-    atomic_res += sycl::abs(in_val);
+    atomic_res += in_val;
   }
   return {};  // Asum<lhs_t, rhs_t>::eval(ndItem.get_global_id(0));
 }
@@ -610,7 +610,7 @@ SYCL_BLAS_INLINE typename Asum<lhs_t, rhs_t>::value_t Asum<lhs_t, rhs_t>::eval(
   index_t frs_thrd = 2 * groupid * localSz + localid;
   */
   auto atomic_res = sycl::atomic_ref<value_t, sycl::memory_order::relaxed,
-                                     sycl::memory_scope::system,
+                                     sycl::memory_scope::device,
                                      sycl::access::address_space::global_space>(
       lhs_.get_data()[0]);
   const auto size = rhs_.get_size();
@@ -645,9 +645,6 @@ SYCL_BLAS_INLINE typename Asum<lhs_t, rhs_t>::value_t Asum<lhs_t, rhs_t>::eval(
   if (ndItem.get_local_id() == 0) {
     atomic_res += in_val;
   }
-
-  // Reduction across the grid
-  // TODO(Peter): This should be constexpr once half supports it
 
   return {};  // lhs_.eval(groupid);
 }
