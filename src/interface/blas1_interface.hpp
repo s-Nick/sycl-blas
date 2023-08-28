@@ -27,12 +27,12 @@
 #define PORTBLAS_BLAS1_INTERFACE_HPP
 
 #include <cmath>
-#include <iostream>
 #include <stdexcept>
 #include <vector>
 
 #include "blas_meta.h"
 #include "container/sycl_iterator.h"
+#include "interface/blas1/backend/backend.hpp"
 #include "interface/blas1_interface.h"
 #include "operations/blas1_trees.h"
 #include "operations/blas_constants.h"
@@ -171,12 +171,15 @@ typename sb_handle_t::event_t _sdsdot(sb_handle_t &sb_handle, index_t _N,
  * @param sb_handle_t sb_handle
  * @param _vx  BufferIterator
  * @param _incx Increment in X axis
+ * @param _rs BufferIterator for output
  */
 template <typename sb_handle_t, typename container_0_t, typename container_1_t,
           typename index_t, typename increment_t>
 typename sb_handle_t::event_t _asum(sb_handle_t &sb_handle, index_t _N,
                                     container_0_t _vx, increment_t _incx,
                                     container_1_t _rs) {
+  // keep compatibility with older sycl versions
+#if SYCL_LANGUAGE_VERSION < 202000
   auto vx = make_vector_view(_vx, _incx, _N);
   auto rs = make_vector_view(_rs, static_cast<increment_t>(1),
                              static_cast<index_t>(1));
@@ -187,7 +190,49 @@ typename sb_handle_t::event_t _asum(sb_handle_t &sb_handle, index_t _N,
                                                              localSize * nWG);
   auto ret = sb_handle.execute(assignOp);
   return ret;
+#else
+  return blas::asum::backend::_asum(sb_handle, _N, _vx, _incx, _rs);
+#endif
 }
+
+#if SYCL_LANGUAGE_VERSION >= 202000
+/*! _asum_impl.
+ * @brief Internal implementation of the Absolute sum operator.
+ *
+ * This function contains the code that sets up and executes the kernels
+ * required to perform the asum operation.
+ *
+ * This function is called by blas::internal::backend::asum which, dependent on
+ * the platform being compiled for and other parameters, provides different
+ * template parameters to ensure the most optimal kernel is constructed.
+ *
+ * @tparam localSize  specifies the number of threads per work group used by
+ *                    the kernel
+ * @tparam localMemSize specifies the size of local shared memory to use, which
+ *                      is device and implementation dependent. If 0 the
+ *                      implementation use a kernel implementation which doesn't
+ *                      require local memory.
+ */
+template <int localSize, int localMemSize, typename sb_handle_t,
+          typename container_0_t, typename container_1_t, typename index_t,
+          typename increment_t>
+typename sb_handle_t::event_t _asum_impl(sb_handle_t &sb_handle, index_t _N,
+                                         container_0_t _vx, increment_t _incx,
+                                         container_1_t _rs, int blocks) {
+  auto vx = make_vector_view(_vx, _incx, _N);
+  auto rs = make_vector_view(_rs, static_cast<increment_t>(1),
+                             static_cast<index_t>(1));
+  typename sb_handle_t::event_t ret;
+  auto asumOp = make_asum(rs, vx);
+  if constexpr (localMemSize != 0) {
+    ret =
+        sb_handle.execute(asumOp, localSize, blocks * localSize, localMemSize);
+  } else {
+    ret = sb_handle.execute(asumOp, localSize, blocks * localSize);
+  }
+  return ret;
+}
+#endif
 
 /**
  * \brief IAMAX finds the index of the first element having maximum
@@ -692,7 +737,8 @@ typename ValueType<container_t>::type _asum(sb_handle_t &sb_handle, index_t _N,
                                             increment_t _incx) {
   using element_t = typename ValueType<container_t>::type;
   auto res = std::vector<element_t>(1, element_t(0));
-  auto gpu_res = make_sycl_iterator_buffer<element_t>(static_cast<index_t>(1));
+  auto gpu_res =
+      make_sycl_iterator_buffer<element_t>(res.data(), static_cast<index_t>(1));
   blas::internal::_asum(sb_handle, _N, _vx, _incx, gpu_res);
   auto event =
       blas::helper::copy_to_host(sb_handle.get_queue(), gpu_res, res.data(), 1);
