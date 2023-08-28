@@ -30,6 +30,7 @@ include_directories(${PORTBLAS_TEST} ${BLAS_INCLUDE_DIRS})
 # compiling tests
 set(SYCL_UNITTEST_SRCS
   # Blas 1 tests
+  ${PORTBLAS_UNITTEST}/blas1/blas1_asum_test.cpp
   ${PORTBLAS_UNITTEST}/blas1/blas1_axpy_test.cpp
   ${PORTBLAS_UNITTEST}/blas1/blas1_copy_test.cpp
   ${PORTBLAS_UNITTEST}/blas1/blas1_scal_test.cpp
@@ -81,7 +82,6 @@ if(is_computecpp)
   set(SYCL_UNITTEST_SRCS ${SYCL_UNITTEST_SRCS}
     # Blas 1 tests
     ${PORTBLAS_UNITTEST}/blas1/blas1_swap_test.cpp
-    ${PORTBLAS_UNITTEST}/blas1/blas1_asum_test.cpp
     ${PORTBLAS_UNITTEST}/blas1/blas1_dot_test.cpp
     ${PORTBLAS_UNITTEST}/blas1/blas1_nrm2_test.cpp
     ${PORTBLAS_UNITTEST}/blas1/blas1_iamax_test.cpp

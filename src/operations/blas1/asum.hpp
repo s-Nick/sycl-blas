@@ -31,10 +31,6 @@
 
 namespace blas {
 
-/*! Asum.
- * @brief Implements the reduction operation for assignments
- * (in the form y = x) with y a scalar and x a subexpression tree.
- */
 template <typename lhs_t, typename rhs_t>
 Asum<lhs_t, rhs_t>::Asum(lhs_t &_l, rhs_t &_r) : lhs_(_l), rhs_(_r){};
 

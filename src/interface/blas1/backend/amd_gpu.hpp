@@ -35,13 +35,13 @@ typename sb_handle_t::event_t _asum(sb_handle_t &sb_handle, index_t _N,
                                     container_0_t _vx, increment_t _incx,
                                     container_1_t _rs) {
   if (_N < (1 << 18)) {
-    constexpr auto localSize = 1024ul;
+    constexpr auto localSize = 1024;
     const auto blocks = (_N + localSize - 1) / localSize;
     return blas::internal::_asum_impl<localSize, 32>(sb_handle, _N, _vx, _incx,
                                                      _rs, blocks);
   } else {
-    constexpr auto localSize = 512ul;
-    constexpr auto blocks = 256ul;
+    constexpr auto localSize = 512;
+    constexpr auto blocks = 256;
     return blas::internal::_asum_impl<localSize, 32>(sb_handle, _N, _vx, _incx,
                                                      _rs, blocks);
   }
