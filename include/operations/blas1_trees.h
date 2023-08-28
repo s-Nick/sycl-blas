@@ -205,6 +205,30 @@ struct Asum {
   void adjust_access_displacement();
 };
 
+/*! .
+ * @brief Implements the dot operator providing different
+ * implementations of the dot kernel function.
+ *
+ * The class is constructed using the make_dot function below.
+ *
+ */
+template <typename lhs_t, typename rhs_t>
+struct Dot {
+  using value_t = typename lhs_t::value_t;
+  using index_t = typename rhs_t::index_t;
+  lhs_t lhs_;
+  rhs_t rhs_;
+  rhs_t rhs2_;
+  Dot(lhs_t &_l, rhs_t &_r, rhs_t& rhs2_);
+  index_t get_size() const;
+  bool valid_thread(cl::sycl::nd_item<1> ndItem) const;
+  value_t eval(cl::sycl::nd_item<1> ndItem);
+  template <typename sharedT>
+  value_t eval(sharedT scratch, cl::sycl::nd_item<1> ndItem);
+  void bind(cl::sycl::handler &h);
+  void adjust_access_displacement();
+};
+
 /*! Rotg.
  * @brief Implements the rotg (blas level 1 api)
  */
@@ -258,6 +282,11 @@ inline AssignReduction<operator_t, lhs_t, rhs_t> make_assign_reduction(
 template <typename lhs_t, typename rhs_t>
 inline Asum<lhs_t, rhs_t> make_asum(lhs_t &lhs_, rhs_t &rhs_) {
   return Asum<lhs_t, rhs_t>(lhs_, rhs_);
+}
+
+template <typename lhs_t, typename rhs_t>
+inline Dot<lhs_t, rhs_t> make_dot(lhs_t &lhs_, rhs_t &rhs_, rhs_t& rhs2_) {
+  return Dot<lhs_t, rhs_t>(lhs_, rhs_, rhs2_);
 }
 
 /*!

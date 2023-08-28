@@ -117,6 +117,11 @@ typename sb_handle_t::event_t _dot(sb_handle_t &sb_handle, index_t _N,
   auto vy = make_vector_view(_vy, _incy, _N);
   auto rs = make_vector_view(_rs, static_cast<increment_t>(1),
                              static_cast<index_t>(1));
+  auto localSize = sb_handle.get_work_group_size();
+  auto blocks = std::min((_N+localSize-1)/localSize, 512ul);
+  auto dotOp = make_dot(rs, vx, vy);
+  auto ret = sb_handle.execute(dotOp,localSize, localSize*blocks, 32ul); 
+  /*
   auto prdOp = make_op<BinaryOp, ProductOperator>(vx, vy);
 
   auto localSize = sb_handle.get_work_group_size();
@@ -125,6 +130,7 @@ typename sb_handle_t::event_t _dot(sb_handle_t &sb_handle, index_t _N,
   auto assignOp =
       make_assign_reduction<AddOperator>(rs, prdOp, localSize, localSize * nWG);
   auto ret = sb_handle.execute(assignOp);
+  */
   return ret;
 }
 

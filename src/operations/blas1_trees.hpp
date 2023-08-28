@@ -30,6 +30,7 @@
 #include "operations/blas_operators.hpp"
 #if SYCL_LANGUAGE_VERSION >= 202000
 #include "blas1/asum.hpp"
+#include "blas1/dot.hpp"
 #endif
 #include "views/view_sycl.hpp"
 #include <stdexcept>
