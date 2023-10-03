@@ -76,6 +76,7 @@ struct IndexValueTuple {
 
   constexpr explicit IndexValueTuple(index_t _ind, value_t _val)
       : ind(_ind), val(_val){};
+  constexpr IndexValueTuple(): ind(0), val(0){};
   PORTBLAS_INLINE index_t get_index() const { return ind; }
   PORTBLAS_INLINE typename GetTupleValue<value_t>::return_t get_value() const {
     return GetTupleValue<value_t>::get(val);
@@ -88,6 +89,16 @@ struct IndexValueTuple {
     ind = other.ind;
 
     return *this;
+  }
+
+  bool operator<(const IndexValueTuple<index_t, value_t> &other) {
+    auto is_less = val < other.val;
+    auto is_bigger = val > other.val;
+    if (is_less || (!is_bigger && ind < other.ind)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 };
 

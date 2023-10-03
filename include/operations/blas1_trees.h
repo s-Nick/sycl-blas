@@ -190,7 +190,7 @@ struct AssignReduction {
  * function below.
  *
  */
-template <typename operator_t, typename lhs_t, typename rhs_t>
+template <typename operator_t, typename lhs_t, typename rhs_t, typename reduceOp=sycl::plus<>>
 struct WGAtomicReduction {
   using value_t = typename lhs_t::value_t;
   using index_t = typename rhs_t::index_t;
@@ -256,10 +256,10 @@ inline AssignReduction<operator_t, lhs_t, rhs_t> make_assign_reduction(
       lhs_, rhs_, local_num_thread_, global_num_thread_);
 }
 
-template <typename operator_t, typename lhs_t, typename rhs_t>
-inline WGAtomicReduction<operator_t, lhs_t, rhs_t> make_wg_atomic_reduction(
+template <typename operator_t, typename lhs_t, typename rhs_t, typename reduceOp=sycl::plus<>>
+inline WGAtomicReduction<operator_t, lhs_t, rhs_t, reduceOp> make_wg_atomic_reduction(
     lhs_t &lhs_, rhs_t &rhs_) {
-  return WGAtomicReduction<operator_t, lhs_t, rhs_t>(lhs_, rhs_);
+  return WGAtomicReduction<operator_t, lhs_t, rhs_t, reduceOp>(lhs_, rhs_);
 }
 
 /*!

@@ -25,8 +25,12 @@
 
 #ifndef WG_ATOMIC_REDUCTION_HPP
 #define WG_ATOMIC_REDUCTION_HPP
+#include "blas_meta.h"
 #include "operations/blas1_trees.h"
+#include "operations/blas_constants.h"
 #include "operations/blas_operators.hpp"
+#include <atomic_fence.hpp>
+#include <memory_enums.hpp>
 
 namespace blas {
 
@@ -35,30 +39,54 @@ namespace blas {
  * and atomics operation to combine the results.
  *
  * */
-template <typename operator_t, typename lhs_t, typename rhs_t>
-WGAtomicReduction<operator_t, lhs_t, rhs_t>::WGAtomicReduction(lhs_t& _l,
-                                                               rhs_t& _r)
+template <typename operator_t, typename lhs_t, typename rhs_t,
+          typename reduceOp>
+WGAtomicReduction<operator_t, lhs_t, rhs_t, reduceOp>::WGAtomicReduction(
+    lhs_t& _l, rhs_t& _r)
     : lhs_(_l), rhs_(_r){};
 
-template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename WGAtomicReduction<operator_t, lhs_t, rhs_t>::index_t
-WGAtomicReduction<operator_t, lhs_t, rhs_t>::get_size() const {
+template <typename operator_t, typename lhs_t, typename rhs_t,
+          typename reduceOp>
+PORTBLAS_INLINE
+    typename WGAtomicReduction<operator_t, lhs_t, rhs_t, reduceOp>::index_t
+    WGAtomicReduction<operator_t, lhs_t, rhs_t, reduceOp>::get_size() const {
   return rhs_.get_size();
 }
 
-template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE bool WGAtomicReduction<operator_t, lhs_t, rhs_t>::valid_thread(
+template <typename operator_t, typename lhs_t, typename rhs_t,
+          typename reduceOp>
+PORTBLAS_INLINE bool
+WGAtomicReduction<operator_t, lhs_t, rhs_t, reduceOp>::valid_thread(
     cl::sycl::nd_item<1> ndItem) const {
   return true;
 }
 
-template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename WGAtomicReduction<operator_t, lhs_t, rhs_t>::value_t
-WGAtomicReduction<operator_t, lhs_t, rhs_t>::eval(cl::sycl::nd_item<1> ndItem) {
-  auto atomic_res = sycl::atomic_ref<value_t, sycl::memory_order::relaxed,
-                                     sycl::memory_scope::device,
-                                     sycl::access::address_space::global_space>(
-      lhs_.get_data()[0]);
+template <typename T>
+static PORTBLAS_INLINE T iamax_reduction(sycl::nd_item<1>& ndItem,
+                                         sycl::sub_group g, T& init) {
+  decltype(init.val) l_val = init.val;
+  decltype(init.ind) l_ind = init.ind;
+  g.barrier();
+  for (int offset = g.get_local_range().get(0) / 2; offset > 0; offset /= 2) {
+    auto shf_val = sycl::shift_group_left(g, l_val, offset);
+    auto shf_ind = sycl::shift_group_left(g, l_ind, offset);
+    auto is_less = l_val < shf_val;
+    auto is_bigger = l_val > shf_val;
+    if (is_less || (!is_bigger && (l_ind > shf_ind))) {
+      l_val = shf_val;
+      l_ind = shf_ind;
+    }
+    g.barrier();
+  }
+  return T(l_ind, l_val);
+}
+
+template <typename operator_t, typename lhs_t, typename rhs_t,
+          typename reduceOp>
+PORTBLAS_INLINE
+    typename WGAtomicReduction<operator_t, lhs_t, rhs_t, reduceOp>::value_t
+    WGAtomicReduction<operator_t, lhs_t, rhs_t, reduceOp>::eval(
+        cl::sycl::nd_item<1> ndItem) {
   const auto size = get_size();
   int lid = ndItem.get_global_linear_id();
   value_t val = operator_t::template init<rhs_t>();
@@ -70,23 +98,49 @@ WGAtomicReduction<operator_t, lhs_t, rhs_t>::eval(cl::sycl::nd_item<1> ndItem) {
     val = operator_t::eval(val, rhs_.eval(id));
   }
 
-  val = sycl::reduce_over_group(ndItem.get_sub_group(), val, sycl::plus<>());
+  if constexpr (std::is_same_v<reduceOp, sycl::plus<>>) {
+    auto atomic_res =
+        sycl::atomic_ref<value_t, sycl::memory_order::relaxed,
+                         sycl::memory_scope::device,
+                         sycl::access::address_space::global_space>(
+            lhs_.get_data()[0]);
 
-  if ((ndItem.get_local_id() &
-       (ndItem.get_sub_group().get_local_range() - 1)) == 0) {
-    atomic_res += val;
+    val = sycl::reduce_over_group(ndItem.get_sub_group(), val, reduceOp());
+    if ((ndItem.get_local_id() &
+         (ndItem.get_sub_group().get_local_range() - 1)) == 0) {
+      auto atomic_res =
+          sycl::atomic_ref<value_t, sycl::memory_order::relaxed,
+                           sycl::memory_scope::device,
+                           sycl::access::address_space::global_space>(
+              lhs_.get_data()[0]);
+      atomic_res += val;
+    }
+  } else {
+    val = iamax_reduction(ndItem, ndItem.get_sub_group(), val);
+    if ((ndItem.get_local_id().get(0) &
+         (ndItem.get_sub_group().get_local_range().get(0) - 1)) == 0) {
+      lhs_.get_data()[ndItem.get_sub_group().get_group_id()] = val;
+    }
   }
+
   return {};
 }
-template <typename operator_t, typename lhs_t, typename rhs_t>
+template <typename operator_t, typename lhs_t, typename rhs_t,
+          typename reduceOp>
 template <typename sharedT>
-PORTBLAS_INLINE typename WGAtomicReduction<operator_t, lhs_t, rhs_t>::value_t
-WGAtomicReduction<operator_t, lhs_t, rhs_t>::eval(sharedT scratch,
-                                                  cl::sycl::nd_item<1> ndItem) {
-  auto atomic_res = sycl::atomic_ref<value_t, sycl::memory_order::relaxed,
-                                     sycl::memory_scope::device,
-                                     sycl::access::address_space::global_space>(
-      lhs_.get_data()[0]);
+PORTBLAS_INLINE
+    typename WGAtomicReduction<operator_t, lhs_t, rhs_t, reduceOp>::value_t
+    WGAtomicReduction<operator_t, lhs_t, rhs_t, reduceOp>::eval(
+        sharedT scratch, cl::sycl::nd_item<1> ndItem) {
+  /*
+if constexpr (std::is_same_v<reduceOp, sycl::plus<>>) {
+auto atomic_res =
+    sycl::atomic_ref<value_t, sycl::memory_order::relaxed,
+                     sycl::memory_scope::device,
+                     sycl::access::address_space::global_space>(
+        lhs_.get_data()[0]);
+}
+*/
   const auto size = get_size();
   const int lid = static_cast<int>(ndItem.get_global_linear_id());
   const auto loop_stride =
@@ -98,37 +152,65 @@ WGAtomicReduction<operator_t, lhs_t, rhs_t>::eval(sharedT scratch,
     val = operator_t::eval(val, rhs_.eval(id));
   }
 
-  val = sycl::reduce_over_group(ndItem.get_sub_group(), val, sycl::plus<>());
+  if constexpr (std::is_same_v<reduceOp, sycl::plus<>>) {
+    val = sycl::reduce_over_group(ndItem.get_sub_group(), val, reduceOp());
 
-  if (ndItem.get_sub_group().get_local_id() == 0) {
-    scratch[ndItem.get_sub_group().get_group_linear_id()] = val;
-  }
-  ndItem.barrier();
+    if (ndItem.get_sub_group().get_local_id() == 0) {
+      scratch[ndItem.get_sub_group().get_group_linear_id()] = val;
+    }
+    ndItem.barrier();
 
-  val = (ndItem.get_local_id() < (ndItem.get_local_range(0) /
+    val =
+        (ndItem.get_local_id() < (ndItem.get_local_range(0) /
                                   ndItem.get_sub_group().get_local_range()[0]))
             ? scratch[ndItem.get_sub_group().get_local_id()]
             : 0;
-  if (ndItem.get_sub_group().get_group_id() == 0) {
-    val = sycl::reduce_over_group(ndItem.get_sub_group(), val, sycl::plus<>());
-  }
-  if (ndItem.get_local_id() == 0) {
-    atomic_res += val;
+    if (ndItem.get_sub_group().get_group_id() == 0) {
+      val = sycl::reduce_over_group(ndItem.get_sub_group(), val, reduceOp());
+    }
+    if (ndItem.get_local_id() == 0) {
+      auto atomic_res =
+          sycl::atomic_ref<value_t, sycl::memory_order::relaxed,
+                           sycl::memory_scope::device,
+                           sycl::access::address_space::global_space>(
+              lhs_.get_data()[0]);
+      atomic_res += val;
+    }
+  } else {
+    val = iamax_reduction(ndItem, ndItem.get_sub_group(), val);
+    if (ndItem.get_sub_group().get_local_id() == 0) {
+      scratch[ndItem.get_sub_group().get_group_linear_id()] = val;
+    }
+    ndItem.barrier();
+
+    val =
+        (ndItem.get_local_id() < (ndItem.get_local_range(0) /
+                                  ndItem.get_sub_group().get_local_range()[0]))
+            ? scratch[ndItem.get_sub_group().get_local_id()]
+            : value_t(-1, -1);
+    if (ndItem.get_sub_group().get_group_id() == 0) {
+      val = iamax_reduction(ndItem, ndItem.get_sub_group(), val);
+    }
+    if (ndItem.get_local_id() == 0) {
+      lhs_.get_data()[ndItem.get_group().get_id(0)] = val;
+    }
   }
 
   return {};
 }
 
-template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE void WGAtomicReduction<operator_t, lhs_t, rhs_t>::bind(
-    cl::sycl::handler& h) {
+template <typename operator_t, typename lhs_t, typename rhs_t,
+          typename reduceOp>
+PORTBLAS_INLINE void WGAtomicReduction<operator_t, lhs_t, rhs_t,
+                                       reduceOp>::bind(cl::sycl::handler& h) {
   lhs_.bind(h);
   rhs_.bind(h);
 }
 
-template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE void
-WGAtomicReduction<operator_t, lhs_t, rhs_t>::adjust_access_displacement() {
+template <typename operator_t, typename lhs_t, typename rhs_t,
+          typename reduceOp>
+PORTBLAS_INLINE void WGAtomicReduction<operator_t, lhs_t, rhs_t,
+                                       reduceOp>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   rhs_.adjust_access_displacement();
 }

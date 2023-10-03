@@ -28,15 +28,18 @@
 
 #include <cmath>
 #include <stdexcept>
+#include <type_traits>
 #include <vector>
 
 #include "blas_meta.h"
 #include "container/sycl_iterator.h"
+#include "functional.hpp"
 #include "interface/blas1/backend/backend.hpp"
 #include "interface/blas1_interface.h"
 #include "operations/blas1_trees.h"
 #include "operations/blas_constants.h"
 #include "operations/blas_operators.hpp"
+#include "portblas_helper.h"
 #include "sb_handle/portblas_handle.h"
 #include "views/view.h"
 
@@ -269,13 +272,33 @@ typename sb_handle_t::event_t _iamax(
       make_vector_view(_vx, _incx, _N);
   auto rs = make_vector_view(_rs, static_cast<increment_t>(1),
                              static_cast<index_t>(1));
-  const auto localSize = sb_handle.get_work_group_size();
-  const auto nWG = 2 * localSize;
+  decltype(_rs) tmp;
+  if constexpr (std::is_pointer_v<ContainerI>) {
+    tmp = blas::helper::allocate<blas::helper::AllocType::usm,
+                                 typename ValueType<decltype(_rs)>::type>(
+        128, sb_handle.get_queue());
+  } else {
+    tmp = blas::helper::allocate<blas::helper::AllocType::buffer,
+                                 typename ValueType<decltype(_rs)>::type>(
+        128, sb_handle.get_queue());
+  }
+  auto tmp2 = make_vector_view(tmp, static_cast<increment_t>(1),
+                               static_cast<index_t>(128));
   auto tupOp = make_tuple_op(vx);
+  auto assignOp =
+      make_wg_atomic_reduction<IMaxOperator, decltype(rs), decltype(tupOp),
+                               sycl::maximum<>>(tmp2, tupOp);
+  /*
   auto assignOp = make_assign_reduction<IMaxOperator>(rs, tupOp, localSize,
                                                       localSize * nWG);
-  auto ret = sb_handle.execute(assignOp, _dependencies);
-  return ret;
+  */
+  auto ret = sb_handle.execute(assignOp, 256, 256*16, 16, _dependencies);
+  auto assignOp2 =
+      make_wg_atomic_reduction<IMaxOperator, decltype(rs), decltype(tmp2),
+                               sycl::maximum<>>(rs, tmp2);
+  auto ret2 = sb_handle.execute(assignOp2, 128, 128, 16, {ret});
+  blas::helper::enqueue_deallocate(ret2, tmp, sb_handle.get_queue());
+ return concatenate_vectors(ret, ret2);
 }
 
 /**

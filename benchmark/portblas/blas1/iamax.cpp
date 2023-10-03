@@ -24,6 +24,8 @@
  **************************************************************************/
 
 #include "../utils.hpp"
+#include "portblas_helper.h"
+#include <limits>
 
 constexpr blas_benchmark::utils::Level1Op benchmark_op =
     blas_benchmark::utils::Level1Op::iamax;
@@ -64,14 +66,15 @@ void run(benchmark::State& state, blas::SB_Handle* sb_handle_ptr, index_t size,
   // Run a first time with a verification of the results
   index_t idx_ref =
       static_cast<index_t>(reference_blas::iamax(size, v1.data(), 1));
-  tuple_scalar_t idx_temp{-1, 0};
+  tuple_scalar_t idx_temp{-1, std::numeric_limits<scalar_t>::min()};
   {
     auto idx_temp_gpu = blas::helper::allocate<mem_alloc, tuple_scalar_t>(1, q);
+    auto copy_out = blas::helper::copy_to_device<tuple_scalar_t>(q, &idx_temp, idx_temp_gpu, 1);
     auto iamax_event =
-        _iamax(sb_handle, size, inx, static_cast<index_t>(1), idx_temp_gpu);
+        _iamax(sb_handle, size, inx, static_cast<index_t>(1), idx_temp_gpu, {copy_out});
     sb_handle.wait(iamax_event);
     auto copy_output =
-        blas::helper::copy_to_host(q, idx_temp_gpu, &idx_temp, 1);
+        blas::helper::copy_to_host<tuple_scalar_t>(q, idx_temp_gpu, &idx_temp, 1);
     sb_handle.wait(copy_output);
 
     blas::helper::deallocate<mem_alloc>(idx_temp_gpu, q);
@@ -81,6 +84,7 @@ void run(benchmark::State& state, blas::SB_Handle* sb_handle_ptr, index_t size,
     std::ostringstream err_stream;
     err_stream << "Index mismatch: " << idx_temp.ind << "; expected "
                << idx_ref;
+    err_stream << "Value cpu: "<< v1[idx_ref] << " value portBLAS: " << idx_temp.val; 
     const std::string& err_str = err_stream.str();
     state.SkipWithError(err_str.c_str());
     *success = false;
