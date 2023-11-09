@@ -618,7 +618,10 @@ typename sb_handle_t::event_t _axpy_batch(
   auto vy = make_vector_view(_vy, _incy, _N * _batch_size);
   const auto local_size = sb_handle.get_work_group_size();
   const auto nWG = (_N + local_size - 1) / local_size;
-  const auto global_size = local_size * nWG * _batch_size;
+  const auto global_size =
+      (_N * _batch_size >= 327680)
+          ? (_N > (1 << 19)) ? (local_size * nWG) / 4 : local_size * nWG
+          : local_size * nWG * _batch_size;
   // If both vectors are read from the same side it doesn't matter the sign of
   // the increment
   if (_incx * _incy > 0) {

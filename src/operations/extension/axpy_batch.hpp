@@ -55,27 +55,54 @@ PORTBLAS_INLINE typename lhs_t::value_t
 Axpy_batch<same_sign, lhs_t, rhs_t>::eval(cl::sycl::nd_item<1> ndItem) {
   const index_t n{n_};
   const value_t alpha{alpha_};
+  const auto vx = rhs_.get_data();
+  const auto vy = lhs_.get_data();
+  const int nbl = sycl::min((n + 256 - 1) / 256, 32);
 
-  const index_t l_id = static_cast<index_t>(ndItem.get_global_linear_id() % n);
-  const index_t group_id =
-      static_cast<index_t>(ndItem.get_global_linear_id() / n);
+  const index_t block_id = ndItem.get_group(0) % nbl;
+  const index_t l_id =
+      static_cast<index_t>(ndItem.get_local_range(0)) * block_id +
+      ndItem.get_local_id(0);
+  // const index_t group_id =
+  // static_cast<index_t>(ndItem.get_global_linear_id() / n);
+  const index_t group_id = static_cast<index_t>(ndItem.get_group(0) / nbl);
 
-  if (group_id >= batch_size_) return {};
+  const index_t size_compute_rateo =
+      (n > nbl * 256) ? n / (nbl * 256) : batch_size_;
+  const index_t jump_value{sycl::min(batch_size_, size_compute_rateo)};
+
+  if (group_id >= jump_value || l_id > n) return {};
+
+  const index_t stride_x = ndItem.get_local_range(0) * nbl * inc_r;
+  const index_t stride_y = ndItem.get_local_range(0) * nbl * inc_l;
+  index_t x_index{};
+  index_t y_index{};
+  int j{0};
 
   if constexpr (same_sign) {
-    const index_t x_index = group_id * rhs_stride_ + l_id * inc_r;
-    const index_t y_index = group_id * lhs_stride_ + l_id * inc_l;
-
-    const value_t ax = alpha * rhs_.get_data()[x_index];
-    lhs_.get_data()[y_index] += ax;
+    for (auto out_loop = group_id; out_loop < batch_size_;
+         out_loop += jump_value) {
+      x_index = out_loop * rhs_stride_ + l_id * inc_r;
+      y_index = out_loop * lhs_stride_ + l_id * inc_l;
+      j = y_index;
+      for (auto i = x_index; i < (out_loop * rhs_stride_) + n * inc_r;
+           i += stride_x, j += stride_y) {
+        vy[j] += alpha * vx[i];
+      }
+    }
 
   } else {
-    const index_t x_index =
-        group_id * rhs_stride_ + inc_r + n * sycl::abs(inc_r) + l_id * inc_r;
-    const index_t y_index = group_id * lhs_stride_ + l_id * inc_l;
-
-    const value_t ax = alpha * rhs_.get_data()[x_index];
-    lhs_.get_data()[y_index] += ax;
+    for (auto out_loop = group_id; out_loop < batch_size_;
+         out_loop += jump_value) {
+      x_index =
+          out_loop * rhs_stride_ + inc_r + n * sycl::abs(inc_r) + l_id * inc_r;
+      y_index = out_loop * lhs_stride_ + l_id * inc_l;
+      j = y_index;
+      for (auto i = x_index; i >= (out_loop * rhs_stride_);
+           i += stride_x, j += stride_y) {
+        vy[j] += alpha * vx[i];
+      }
+    }
   }
 
   return {};
