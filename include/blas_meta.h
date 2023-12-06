@@ -32,7 +32,7 @@
 #ifdef BLAS_ENABLE_COMPLEX
 #define SYCL_EXT_ONEAPI_COMPLEX
 #include <complex>
-#include <ext/oneapi/experimental/sycl_complex.hpp>
+#include <ext/oneapi/experimental/complex/complex.hpp>
 #endif
 
 namespace blas {
