@@ -1,4 +1,4 @@
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 # Default values for the build
 ARG command
@@ -17,9 +17,9 @@ RUN apt-get -yq update
 # Utilities
 RUN apt-get install -yq --allow-downgrades --allow-remove-essential            \
     --allow-change-held-packages git wget python3-pip apt-utils cmake unzip    \
-    libboost-all-dev software-properties-common libtinfo5
+    libboost-all-dev software-properties-common libtinfo5  
 
-RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test
+RUN add-apt-repository -y ppa:ubuntu-toolchain-r/test 
 
 RUN apt-get -yq update
 
@@ -36,6 +36,7 @@ RUN bash /portBLAS/.scripts/build_OpenBLAS.sh
 # Intel OpenCL Runtime
 RUN bash /portBLAS/.scripts/install_intel_opencl.sh
 
+ENV TERM=screen-256color
 # SYCL
 RUN if [ "${impl}" = 'DPCPP' ]; then cd /portBLAS && bash /portBLAS/.scripts/build_dpcpp.sh; fi
 

@@ -14,8 +14,8 @@
 export IMPL=DPCPP
 export CXX_COMPILER="/tmp/dpcpp/bin/clang++"
 export CC_COMPILER="/tmp/dpcpp/bin/clang"
-export GIT_SLUG="codeplaysoftware/portBLAS"
-export GIT_BRANCH="master"
+export GIT_SLUG="s-Nick/sycl-blas"
+export GIT_BRANCH="fix_ci"
 export COMMAND="build-test"
 
 
