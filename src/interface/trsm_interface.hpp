@@ -350,7 +350,7 @@ typename sb_handle_t::event_t _trsm(
       //  X1 = B1*A11{-1}  + 0*X1
       //
 
-      // True when (upper triangular) or (lower triangular and transposed)
+      // True when (uper triangular) or (lower triangular and transposed)
       for (index_t i = 0; i < N; i += blockSize) {
         const index_t currentBlockSize = std::min(N - i, blockSize);
 

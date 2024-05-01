@@ -790,6 +790,12 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type,
         typename Packetize<work_per_load, element_t, index_t>::PacketType;
     l_vector_t in_vec{};
     if (in_range) {
+      // This is a workaround to avoid the following store at line 812 to hang
+      // on NVIDIA GPUs.
+      // Reasons that make this sync necessary are still unclear.
+#if __NVPTX__
+      __syncthreads();
+#endif
       // If in range perform a vectorised load.
       in_vec.template load<address_t::global_space>(
           0,
