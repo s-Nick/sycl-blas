@@ -36,21 +36,11 @@ if(EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
   list(APPEND CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 endif()
 
-option(INSTALL_HEADER_ONLY "Install portBLAS as a header only library" OFF)
-
-set(BUILD_SHARED_LIBS ON CACHE BOOL "")
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-set(CMAKE_POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS})
 
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations  -Wno-deprecated-copy-with-user-provided-copy") 
-
-if(DEFINED SYSTEM_BLAS_ROOT)
-  message(DEPRECATION
-    "SYSTEM_BLAS_ROOT is deprecated. Add the path to the reference BLAS to CMAKE_PREFIX_PATH instead")
-  list(INSERT CMAKE_PREFIX_PATH 0 ${SYSTEM_BLAS_ROOT})
-endif()
 
 list(APPEND CMAKE_MODULE_PATH
   ${CMAKE_CURRENT_SOURCE_DIR}/cmake/
@@ -60,23 +50,10 @@ list(APPEND CMAKE_MODULE_PATH
 # This turns the long file names that are generated into short versions using a hash
 # This is required to build portBLAS on Windows and on WSL since Windows doesn't
 # have good support for long file names
-option(PORTBLAS_USE_SHORT_NAMES "Whether to use short names for generated files" OFF)
 if (WIN32)
   # On WIN32 we can force this option to be true, but when building on WSL this
   # must be set in the command line
   set(PORTBLAS_USE_SHORT_NAMES ON CACHE BOOL "Enable short names for generated files in Windows" FORCE)
-endif()
-
-# Setup datatypes, workgroup sizes and other options.
-# NB: This has to be included before CmakeFunctionHelper as it declares various options.
-if (NOT INSTALL_HEADER_ONLY)
-  include(ConfigurePORTBLAS)
-  include(SYCL)
-  find_package(PythonInterp 3 REQUIRED)
-  if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/external/py_gen/README.md" )
-    message(FATAL_ERROR "Repository not cloned recursively, missing submodule.\n"
-       "To continue please clone submodule using `git submodule update --init`")
-  endif()
 endif()
 
 if (MSVC)
@@ -89,26 +66,21 @@ endif()
 
 # By default, tall and skinny Gemm is enabled (for better performance)
 option(GEMM_TALL_SKINNY_SUPPORT "Whether to enable tall and skinny Gemm" ON)
-# By default vectorization in gemm kernels is enabled as it imrpove the performance on all Devices.
+# By default vectorization in gemm kernels is enabled as it improve the performance on all Devices.
 option(GEMM_VECTORIZATION_SUPPORT "Whether to enable vectorization in Gemm kernels" ON)
 
 add_definitions(-DCL_TARGET_OPENCL_VERSION=220)
 
-set(CBLAS_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/external/cblas/include)
-set(PORTBLAS_GENERATED_SRC ${CMAKE_CURRENT_BINARY_DIR}/generated_src)
 set(PORTBLAS_INCLUDE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-set(PORTBLAS_COMMON_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/common/include)
+set(PORTBLAS_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 if(INSTALL_HEADER_ONLY)
   set(PORTBLAS_INSTALL_SRC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src> $<INSTALL_INTERFACE:src>)
 endif()
-set(PORTBLAS_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src)
-set(PORTBLAS_SRC_GENERATOR ${CMAKE_CURRENT_SOURCE_DIR}/python_generator)
-list(APPEND THIRD_PARTIES_INCLUDE ${CBLAS_INCLUDE})
 
 option(BLAS_ENABLE_EXTENSIONS "Whether to enable portBLAS extensions" ON)
-option(BLAS_ENABLE_COMPLEX "Whether to enable complex data type for GEMM" OFF)
-option(BLAS_ENABLE_HALF "Whether to enable sycl::half data type for supported operators" OFF)
+option(BLAS_ENABLE_COMPLEX "Whether to enable complex data type for GEMM" ON)
+option(BLAS_ENABLE_HALF "Whether to enable sycl::half data type for supported operators" ON)
 
 if (SYCL_COMPILER MATCHES "adaptivecpp") 
   if(BLAS_ENABLE_COMPLEX)
@@ -123,80 +95,37 @@ if (SYCL_COMPILER MATCHES "adaptivecpp")
   endif()
 endif()
 
-# CmakeFunctionHelper has to be included after any options that it depends on are declared.
-# These include:
-# * TARGET
-# * GEMM_TALL_SKINNY_SUPPORT
-# * GEMM_VECTORIZATION_SUPPORT
-# * BLAS_DATA_TYPES
-# * BLAS_INDEX_TYPES
-# * NAIVE_GEMM
-# * BLAS_ENABLE_COMPLEX
-# * BLAS_ENABLE_HALF
-
-include(CmakeFunctionHelper)
-
-if (INSTALL_HEADER_ONLY)
-  add_library(portblas INTERFACE)
-  set_target_properties(portblas PROPERTIES
-    INTERFACE_INCLUDE_DIRECTORIES "${PORTBLAS_INCLUDE};${PORTBLAS_INSTALL_SRC}")
-  include(CheckCXXCompilerFlag)
-  check_cxx_compiler_flag("-fsycl" is_dpcpp)
-  if(is_dpcpp)
-    target_compile_definitions(portblas INTERFACE "SB_ENABLE_USM")
-    check_cxx_compiler_flag("-mllvm=-enable-global-offset=false" support_disable_global_offset)
-    if (${support_disable_global_offset})
-      if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "IntelLLVM"
-             AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 2024.1)
-           OR NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL "IntelLLVM")
-         # Apply only for oneAPI releases >= 2024.1 OR for intel/llvm.
-         target_link_options(portblas INTERFACE "-mllvm=-enable-global-offset=false")
-         target_compile_options(portblas INTERFACE "-mllvm=-enable-global-offset=false")
-         message(STATUS "Adding -mllvm=-enable-global-offset=false to portblas")
-       endif()
-    endif()
+add_library(portblas INTERFACE)
+set_target_properties(portblas PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES "${PORTBLAS_INCLUDE};${PORTBLAS_INSTALL_SRC}")
+include(CheckCXXCompilerFlag)
+check_cxx_compiler_flag("-fsycl" is_dpcpp)
+if(is_dpcpp)
+  target_compile_definitions(portblas INTERFACE "SB_ENABLE_USM")
+  check_cxx_compiler_flag("-mllvm=-enable-global-offset=false" support_disable_global_offset)
+  if (${support_disable_global_offset})
+    if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "IntelLLVM"
+           AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 2024.1)
+         OR NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL "IntelLLVM")
+       # Apply only for oneAPI releases >= 2024.1 OR for intel/llvm.
+       target_link_options(portblas INTERFACE "-mllvm=-enable-global-offset=false")
+       target_compile_options(portblas INTERFACE "-mllvm=-enable-global-offset=false")
+       message(STATUS "Adding -mllvm=-enable-global-offset=false to portblas")
+     endif()
   endif()
-  if(${BLAS_ENABLE_COMPLEX})
-    target_compile_definitions(portblas INTERFACE "BLAS_ENABLE_COMPLEX")
-  endif()
-  target_compile_definitions(portblas INTERFACE ${TUNING_TARGET})
-  target_compile_options(portblas INTERFACE -Wno-deprecated-declarations)
-  target_compile_options(portblas INTERFACE -Wno-deprecated-copy-with-user-provided-copy)
-  if((${CMAKE_CXX_COMPILER_ID} STREQUAL "IntelLLVM") AND NOT
-    (${TUNING_TARGET} STREQUAL "INTEL_GPU") )
-      target_compile_options(portblas INTERFACE -fno-fast-math)
-      target_compile_options(portblas INTERFACE -mllvm=-loopopt=0)
-      target_link_options(portblas INTERFACE -mllvm=-loopopt=0)
-      message(STATUS "Adding -fno-fast-math -mllvm=-loopopt=0 to portblas")
-  endif()
-else()
-  add_subdirectory(src)
-  build_library(portblas ${BLAS_ENABLE_EXTENSIONS})
-  if (WIN32)
-    # On Windows, all symbols must be resolved at link time for DLLs.
-    # The portblas target is just a collection of other objects so
-    # the linked libraries are not going to be propagated to this target.
-    # This requires manual linking against SYCL on Windows.
-    if(is_dpcpp)
-      target_link_libraries(portblas PUBLIC DPCPP::DPCPP)
-    elseif(is_adaptivecpp)
-      target_link_libraries(portblas PUBLIC AdaptiveCpp::acpp-rt)
-    endif()
-  endif()
-  if(is_dpcpp)
-    set(sycl_impl DPCPP::DPCPP)
-    add_sycl_to_target(TARGET portblas SOURCES)
-  elseif(is_adaptivecpp)
-    set(sycl_impl AdaptiveCpp::acpp-rt)
-    add_sycl_to_target(TARGET portblas SOURCES)
-  endif()
-  set_target_properties(portblas PROPERTIES
-    INTERFACE_LINK_LIBRARIES ${sycl_impl}
-    INTERFACE_INCLUDE_DIRECTORIES "${PORTBLAS_INCLUDE}"
-  )
-  set_target_properties(portblas PROPERTIES
-    VERSION ${PROJECT_VERSION}
-  )
+endif()
+if(${BLAS_ENABLE_COMPLEX})
+  target_compile_definitions(portblas INTERFACE "BLAS_ENABLE_COMPLEX")
+endif()
+target_compile_definitions(portblas INTERFACE ${TUNING_TARGET})
+target_compile_options(portblas INTERFACE -Wno-deprecated-declarations)
+target_compile_options(portblas INTERFACE -Wno-deprecated-copy-with-user-provided-copy)
+if((${CMAKE_CXX_COMPILER_ID} STREQUAL "IntelLLVM") AND NOT
+  (${TUNING_TARGET} STREQUAL "INTEL_GPU") )
+    target_compile_options(portblas INTERFACE -fno-fast-math)
+    target_compile_options(portblas INTERFACE -mllvm=-loopopt=0)
+    target_link_options(portblas INTERFACE -mllvm=-loopopt=0)
+    message(STATUS "Adding -fno-fast-math -mllvm=-loopopt=0 to portblas")
 endif()
 
 include(CMakePackageConfigHelpers)
@@ -219,13 +148,11 @@ install(DIRECTORY ${PORTBLAS_INCLUDE}
   COMPONENT portblas
   FILES_MATCHING PATTERN "*.h"
 )
-if (INSTALL_HEADER_ONLY)
   install(DIRECTORY ${PORTBLAS_INSTALL_SRC}
     DESTINATION ${CMAKE_INSTALL_PREFIX}
     COMPONENT portblas
     FILES_MATCHING PATTERN "*.hpp"
   )
-endif()
 
 install(FILES ${version_file} DESTINATION ${CMAKE_INSTALL_PREFIX})
 install(EXPORT portblas
@@ -239,50 +166,4 @@ export(EXPORT portblas
   FILE portblas-config.cmake
 )
 
-option(BLAS_ENABLE_TESTING "Whether to enable testing" ON)
-option(ENABLE_EXPRESSION_TESTS "Whether to build expression tree fusion tests" OFF)
-option(ENABLE_JOINTMATRIX_TESTS "Whether to build joint_matrix GEMM tests" OFF)
-if (INSTALL_HEADER_ONLY AND BLAS_ENABLE_TESTING)
-  message(STATUS "Tests are disabled when installing portBLAS in header only mode")
-  set(BLAS_ENABLE_TESTING OFF)
-endif()
-
-if(${BLAS_ENABLE_TESTING})
-  enable_testing()
-  add_subdirectory(test)
-endif()
-
 option(BLAS_ENABLE_CONST_INPUT "Whether to enable kernel instantiation with const input buffer" ON)
-option(BLAS_ENABLE_BENCHMARK "Whether to enable benchmarking" ON)
-option(BLAS_VERIFY_BENCHMARK "Whether to verify the results of benchmarks" ON)
-option(BLAS_MEMPOOL_BENCHMARK "Whether to use the memory pool in benchmarks" OFF)
-option(BUILD_CLBLAST_BENCHMARKS "Whether to build clBLAST benchmarks" OFF)
-option(BUILD_CLBLAS_BENCHMARKS "Whether to build clBLAS benchmarks" OFF)
-option(BUILD_CUBLAS_BENCHMARKS "Whether to build cuBLAS benchmarks" OFF)
-option(BUILD_ROCBLAS_BENCHMARKS "Whether to build rocBLAS benchmarks" OFF)
-option(BUILD_ACL_BENCHMARKS "Whether to build ARM Compute Library benchmarks" OFF)
-option(BLAS_BUILD_SAMPLES "Whether to build portBLAS samples" ON)
-if (INSTALL_HEADER_ONLY AND BLAS_ENABLE_BENCHMARK)
-  message(STATUS "Benchmarks are disabled when installing portBLAS in header only mode")
-  set(BLAS_ENABLE_BENCHMARK OFF)
-endif()
-if (INSTALL_HEADER_ONLY AND BLAS_BUILD_SAMPLES)
-  message(STATUS "Samples are disabled when installing portBLAS in header only mode")
-  set(BLAS_BUILD_SAMPLES OFF)
-endif()
-
-if(${BLAS_ENABLE_BENCHMARK})
-  add_subdirectory(benchmark)
-endif()
-
-if (BLAS_BUILD_SAMPLES)
-  add_subdirectory(samples)
-endif()
-
-option(BLAS_ENABLE_AUTO_TUNERS "Whether to enable building GEMM auto tuners" OFF)
-option(BLAS_ENABLE_AUTO_TUNER_MEMPOOL "Whether to enable memory pool for GEMM auto tuners" OFF)
-if(${BLAS_ENABLE_AUTO_TUNERS})
-  # Note that the auto tuners are very slow to compile, so we avoid adding
-  # them to the ALL target.
-  add_subdirectory(tools/auto_tuner EXCLUDE_FROM_ALL)
-endif()
