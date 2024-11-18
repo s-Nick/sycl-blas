@@ -88,11 +88,6 @@ if (SYCL_COMPILER MATCHES "adaptivecpp")
             data type is disabled")
     set(BLAS_ENABLE_COMPLEX OFF)
   endif()
-  if(BLAS_MEMPOOL_BENCHMARK)
-    message(STATUS "Memory pool feature is not supported on AdaptiveCpp/hipSYCL. Corresponding
-            benchmarks are disabled")
-    set(BLAS_MEMPOOL_BENCHMARK OFF)
-  endif()
 endif()
 
 add_library(portblas INTERFACE)
