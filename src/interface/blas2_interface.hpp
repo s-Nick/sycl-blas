@@ -17,7 +17,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  portBLAS: BLAS implementation using SYCL
  *
  *  @filename blas2_interface.hpp
  *

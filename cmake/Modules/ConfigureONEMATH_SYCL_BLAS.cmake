@@ -18,7 +18,6 @@
 # *  See the License for the specific language governing permissions and
 # *  limitations under the License.
 # *
-# *  portBLAS: BLAS implementation using SYCL
 # *
 # *  @filename ConfigureONEMATH_SYCL_BLAS.cmake
 # *

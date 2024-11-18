@@ -17,13 +17,12 @@
 # *  See the License for the specific language governing permissions and
 # *  limitations under the License.
 # *
-# *  portBLAS: BLAS implementation using SYCL
 # *
 # *  @filename CMakeLists.txt
 # *
 # **************************************************************************/
 cmake_minimum_required(VERSION 3.4.3)
-project(portBLAS VERSION 0.1.0 LANGUAGES CXX)
+project(blas VERSION 0.1.0 LANGUAGES CXX)
 
 if(POLICY CMP0074)
   cmake_policy(SET CMP0074 NEW)
@@ -48,20 +47,12 @@ list(APPEND CMAKE_MODULE_PATH
 )
 
 # This turns the long file names that are generated into short versions using a hash
-# This is required to build portBLAS on Windows and on WSL since Windows doesn't
+# This is required to build blas kernels on Windows and on WSL since Windows doesn't
 # have good support for long file names
 if (WIN32)
   # On WIN32 we can force this option to be true, but when building on WSL this
   # must be set in the command line
   set(ONEMATH_SYCL_BLAS_USE_SHORT_NAMES ON CACHE BOOL "Enable short names for generated files in Windows" FORCE)
-endif()
-
-if (MSVC)
-  # The device compiler needs C++14 to parse the Windows headers
-  set(BUILD_SHARED_LIBS FALSE CACHE BOOL
-    "Force portBLAS to be built as a static library on Windows"
-    FORCE
-  )
 endif()
 
 # By default, tall and skinny Gemm is enabled (for better performance)
