@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS3_TREES_H
-#define PORTBLAS_BLAS3_TREES_H
+#ifndef ONEMATH_SYCL_BLAS_BLAS3_TREES_H
+#define ONEMATH_SYCL_BLAS_BLAS3_TREES_H
 
 #include <sycl/sycl.hpp>
 
@@ -337,4 +337,4 @@ make_diag_blocks_inverter(rhs_t A, lhs_t invA) {
 
 }  // namespace blas
 
-#endif  // PORTBLAS_BLAS3_TREES_H
+#endif  // ONEMATH_SYCL_BLAS_BLAS3_TREES_H

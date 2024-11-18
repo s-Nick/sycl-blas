@@ -32,7 +32,7 @@ namespace blas {
 
 template <bool Single, bool isUpper, typename lhs_t, typename rhs_1_t,
           typename rhs_2_t>
-PORTBLAS_INLINE Spr<Single, isUpper, lhs_t, rhs_1_t, rhs_2_t>::Spr(
+ONEMATH_SYCL_BLAS_INLINE Spr<Single, isUpper, lhs_t, rhs_1_t, rhs_2_t>::Spr(
     lhs_t& _l, typename rhs_1_t::index_t _N, value_t _alpha, rhs_1_t& _r1,
     rhs_2_t& _r2)
     : lhs_(_l), N_(_N), alpha_(_alpha), rhs_1_(_r1), rhs_2_(_r2) {}
@@ -43,7 +43,7 @@ PORTBLAS_INLINE Spr<Single, isUpper, lhs_t, rhs_1_t, rhs_2_t>::Spr(
  */
 template <bool Single, bool isUpper, typename lhs_t, typename rhs_1_t,
           typename rhs_2_t>
-PORTBLAS_ALWAYS_INLINE typename rhs_1_t::index_t
+ONEMATH_SYCL_BLAS_ALWAYS_INLINE typename rhs_1_t::index_t
 Spr<Single, isUpper, lhs_t, rhs_1_t, rhs_2_t>::int_sqrt(int64_t val) {
   using index_t = typename rhs_1_t::index_t;
 
@@ -72,7 +72,7 @@ Spr<Single, isUpper, lhs_t, rhs_1_t, rhs_2_t>::int_sqrt(int64_t val) {
  */
 template <bool Single, bool isUpper, typename lhs_t, typename rhs_1_t,
           typename rhs_2_t>
-PORTBLAS_ALWAYS_INLINE void
+ONEMATH_SYCL_BLAS_ALWAYS_INLINE void
 Spr<Single, isUpper, lhs_t, rhs_1_t, rhs_2_t>::compute_row_col(
     const int64_t id, const typename rhs_1_t::index_t size,
     typename rhs_1_t::index_t& row, typename rhs_1_t::index_t& col) {
@@ -151,7 +151,7 @@ typename rhs_1_t::value_t Spr<Single, isUpper, lhs_t, rhs_1_t, rhs_2_t>::eval(
 }
 template <bool Single, bool isUpper, typename lhs_t, typename rhs_1_t,
           typename rhs_2_t>
-PORTBLAS_INLINE void Spr<Single, isUpper, lhs_t, rhs_1_t, rhs_2_t>::bind(
+ONEMATH_SYCL_BLAS_INLINE void Spr<Single, isUpper, lhs_t, rhs_1_t, rhs_2_t>::bind(
     sycl::handler& h) {
   lhs_.bind(h);
   rhs_1_.bind(h);
@@ -160,7 +160,7 @@ PORTBLAS_INLINE void Spr<Single, isUpper, lhs_t, rhs_1_t, rhs_2_t>::bind(
 
 template <bool Single, bool isUpper, typename lhs_t, typename rhs_1_t,
           typename rhs_2_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Spr<Single, isUpper, lhs_t, rhs_1_t, rhs_2_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   rhs_1_.adjust_access_displacement();
@@ -169,13 +169,13 @@ Spr<Single, isUpper, lhs_t, rhs_1_t, rhs_2_t>::adjust_access_displacement() {
 
 template <bool Single, bool isUpper, typename lhs_t, typename rhs_1_t,
           typename rhs_2_t>
-PORTBLAS_INLINE typename Spr<Single, isUpper, lhs_t, rhs_1_t, rhs_2_t>::index_t
+ONEMATH_SYCL_BLAS_INLINE typename Spr<Single, isUpper, lhs_t, rhs_1_t, rhs_2_t>::index_t
 Spr<Single, isUpper, lhs_t, rhs_1_t, rhs_2_t>::get_size() const {
   return rhs_1_.get_size();
 }
 template <bool Single, bool isUpper, typename lhs_t, typename rhs_1_t,
           typename rhs_2_t>
-PORTBLAS_INLINE bool Spr<Single, isUpper, lhs_t, rhs_1_t,
+ONEMATH_SYCL_BLAS_INLINE bool Spr<Single, isUpper, lhs_t, rhs_1_t,
                          rhs_2_t>::valid_thread(sycl::nd_item<1> ndItem) const {
   return true;
 }

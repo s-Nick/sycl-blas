@@ -19,12 +19,12 @@
  *
  *  portBLAS: BLAS implementation using SYCL
  *
- *  @filename portblas_handle.hpp
+ *  @filename handle.hpp
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_HANDLE_HPP
-#define PORTBLAS_HANDLE_HPP
+#ifndef ONEMATH_SYCL_BLAS_HANDLE_HPP
+#define ONEMATH_SYCL_BLAS_HANDLE_HPP
 
 #include <algorithm>
 
@@ -32,9 +32,9 @@
 #include "operations/blas1_trees.hpp"
 #include "operations/blas2_trees.hpp"
 #include "operations/blas_operators.hpp"
-#include "portblas_helper.h"
+#include "helper.h"
 #include "sb_handle/kernel_constructor.h"
-#include "sb_handle/portblas_handle.h"
+#include "sb_handle/handle.h"
 #include "sb_handle/temp_memory_pool.hpp"
 #include "views/view.h"
 namespace blas {
@@ -437,4 +437,4 @@ inline typename SB_Handle::event_t SB_Handle::execute(
 
 }  // namespace blas
 
-#endif  // PORTBLAS_HANDLE_HPP
+#endif  // ONEMATH_SYCL_BLAS_HANDLE_HPP

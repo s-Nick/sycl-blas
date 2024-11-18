@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS3_GEMM_LOAD_STORE_JOINT_MATRIX_HPP
-#define PORTBLAS_BLAS3_GEMM_LOAD_STORE_JOINT_MATRIX_HPP
+#ifndef ONEMATH_SYCL_BLAS_BLAS3_GEMM_LOAD_STORE_JOINT_MATRIX_HPP
+#define ONEMATH_SYCL_BLAS_BLAS3_GEMM_LOAD_STORE_JOINT_MATRIX_HPP
 
 namespace blas {
 
@@ -42,7 +42,7 @@ struct PacketizeJointMatrix {
   using PacketType = sycl::vec<value_t, vector_size>;
   static constexpr int packet_size = vector_size;
   template <index_t dimension>
-  PORTBLAS_INLINE static constexpr bool check_size() {
+  ONEMATH_SYCL_BLAS_INLINE static constexpr bool check_size() {
     return packet_size == 1 || dimension == packet_size;
   }
 #else
@@ -50,7 +50,7 @@ struct PacketizeJointMatrix {
   using PacketType = sycl::vec<value_t, 1>;
   static constexpr int packet_size = 1;
   template <index_t dimension>
-  PORTBLAS_INLINE static constexpr bool check_size() {
+  ONEMATH_SYCL_BLAS_INLINE static constexpr bool check_size() {
     return true;
   }
 #endif
@@ -63,7 +63,7 @@ struct PacketizeJointMatrix {
 
   template <bool internal, typename SrcPointerType, typename DestPointerType,
             typename EdgePredicate>
-  static PORTBLAS_INLINE typename std::enable_if<!internal>::type load(
+  static ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!internal>::type load(
       const bool in_range, SrcPointerType src, DestPointerType dest,
       EdgePredicate) {
     value_t val = in_range ? *src : value_t{0};
@@ -94,7 +94,7 @@ struct PacketizeJointMatrix {
    */
   template <bool internal, typename SrcPointerType, typename DestPointerType,
             typename EdgePredicate>
-  static PORTBLAS_INLINE typename std::enable_if<internal>::type load(
+  static ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<internal>::type load(
       const bool in_range, SrcPointerType src, DestPointerType dest,
       EdgePredicate edge_in_range) {
     PacketType packet{};
@@ -133,7 +133,7 @@ struct PacketizeJointMatrix {
    *  sycl::vec::store function.
    */
   template <typename DestPointerType>
-  static PORTBLAS_INLINE void store(PacketType &packet, DestPointerType dest) {
+  static ONEMATH_SYCL_BLAS_INLINE void store(PacketType &packet, DestPointerType dest) {
     using address_t = sycl::access::address_space;
     if constexpr (std::is_same<
                       sycl::multi_ptr<sycl::half, address_t::local_space>,
@@ -172,4 +172,4 @@ struct PacketizeJointMatrix {
 };
 
 }  // namespace blas
-#endif  // PORTBLAS_BLAS3_GEMM_LOAD_STORE_JOINT_MATRIX_HPP
+#endif  // ONEMATH_SYCL_BLAS_BLAS3_GEMM_LOAD_STORE_JOINT_MATRIX_HPP

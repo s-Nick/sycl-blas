@@ -23,12 +23,12 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_EXTENSION_INTERFACE_H
-#define PORTBLAS_EXTENSION_INTERFACE_H
+#ifndef ONEMATH_SYCL_BLAS_EXTENSION_INTERFACE_H
+#define ONEMATH_SYCL_BLAS_EXTENSION_INTERFACE_H
 
 #include "operations/extension/reduction.h"
 #include "operations/extension/transpose.h"
-#include "sb_handle/portblas_handle.h"
+#include "sb_handle/handle.h"
 
 namespace blas {
 
@@ -464,4 +464,4 @@ typename sb_handle_t::event_t _reduction(
 }  // namespace extension
 }  // namespace blas
 
-#endif  // PORTBLAS_EXTENSION_INTERFACE_H
+#endif  // ONEMATH_SYCL_BLAS_EXTENSION_INTERFACE_H

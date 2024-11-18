@@ -187,11 +187,11 @@ compile `blas::internal::_trsm`, for this particular example, this file looks li
 
 ```c++
 #include "container/sycl_iterator.hpp"
-#include "sb_handle/portblas_handle.hpp"
+#include "sb_handle/handle.hpp"
 #include "sb_handle/kernel_constructor.hpp"
 #include "operations/blas_constants.hpp"
 #include "views/view_sycl.hpp"
-#include "portblas_helper.h"
+#include "helper.h"
 #include "interface/blas1_interface.hpp"
 #include "interface/trsm_interface.hpp"
 #include "operations/blas3/trsm.hpp"

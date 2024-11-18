@@ -22,8 +22,8 @@
  *  @filename blas1_interface.h
  *
  **************************************************************************/
-#ifndef PORTBLAS_BLAS1_INTERFACE_H
-#define PORTBLAS_BLAS1_INTERFACE_H
+#ifndef ONEMATH_SYCL_BLAS_BLAS1_INTERFACE_H
+#define ONEMATH_SYCL_BLAS_BLAS1_INTERFACE_H
 #include "blas_meta.h"
 
 namespace blas {
@@ -1001,4 +1001,4 @@ typename ValueType<container_t>::type _nrm2(
 }
 
 }  // end namespace blas
-#endif  // PORTBLAS_BLAS1_INTERFACE
+#endif  // ONEMATH_SYCL_BLAS_BLAS1_INTERFACE

@@ -23,8 +23,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_EXTENSION_INTERFACE_HPP
-#define PORTBLAS_EXTENSION_INTERFACE_HPP
+#ifndef ONEMATH_SYCL_BLAS_EXTENSION_INTERFACE_HPP
+#define ONEMATH_SYCL_BLAS_EXTENSION_INTERFACE_HPP
 
 #include "blas_meta.h"
 #include "interface/extension/backend/backend.hpp"
@@ -35,8 +35,8 @@
 #include "operations/extension/matcopy_batch.h"
 #include "operations/extension/reduction.h"
 #include "operations/extension/transpose.h"
-#include "portblas_helper.h"
-#include "sb_handle/portblas_handle.h"
+#include "helper.h"
+#include "sb_handle/handle.h"
 #include "views/view.h"
 
 namespace blas {
@@ -645,4 +645,4 @@ typename sb_handle_t::event_t _axpy_batch_impl(
 }  // namespace internal
 }  // namespace blas
 
-#endif  // PORTBLAS_EXTENSION_INTERFACE_HPP
+#endif  // ONEMATH_SYCL_BLAS_EXTENSION_INTERFACE_HPP

@@ -36,7 +36,7 @@ template <typename vector_t, typename matrix_t, typename sync_t,
           matrix_format_t matrix_format, uint32_t subgroup_size,
           uint32_t subgroups, bool is_upper, bool is_transposed,
           bool is_unitdiag>
-PORTBLAS_INLINE Txsv<vector_t, matrix_t, sync_t, matrix_format, subgroup_size,
+ONEMATH_SYCL_BLAS_INLINE Txsv<vector_t, matrix_t, sync_t, matrix_format, subgroup_size,
                       subgroups, is_upper, is_transposed, is_unitdiag>::
     Txsv(vector_t &_l, matrix_t &_matrix,
          typename Txsv<vector_t, matrix_t, sync_t, matrix_format, subgroup_size,
@@ -49,7 +49,7 @@ template <typename vector_t, typename matrix_t, typename sync_t,
           matrix_format_t matrix_format, uint32_t subgroup_size,
           uint32_t subgroups, bool is_upper, bool is_transposed,
           bool is_unitdiag>
-PORTBLAS_INLINE
+ONEMATH_SYCL_BLAS_INLINE
     typename Txsv<vector_t, matrix_t, sync_t, matrix_format, subgroup_size,
                   subgroups, is_upper, is_transposed, is_unitdiag>::value_t
     Txsv<vector_t, matrix_t, sync_t, matrix_format, subgroup_size, subgroups,
@@ -93,7 +93,7 @@ template <typename vector_t, typename matrix_t, typename sync_t,
           uint32_t subgroups, bool is_upper, bool is_transposed,
           bool is_unitdiag>
 template <typename local_memory_t>
-PORTBLAS_INLINE
+ONEMATH_SYCL_BLAS_INLINE
     typename Txsv<vector_t, matrix_t, sync_t, matrix_format, subgroup_size,
                   subgroups, is_upper, is_transposed, is_unitdiag>::value_t
     Txsv<vector_t, matrix_t, sync_t, matrix_format, subgroup_size, subgroups,
@@ -301,7 +301,7 @@ template <typename vector_t, typename matrix_t, typename sync_t,
           matrix_format_t matrix_format, uint32_t subgroup_size,
           uint32_t subgroups, bool is_upper, bool is_transposed,
           bool is_unitdiag>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Txsv<vector_t, matrix_t, sync_t, matrix_format, subgroup_size, subgroups,
      is_upper, is_transposed, is_unitdiag>::bind(sycl::handler &h) {
   lhs_.bind(h);
@@ -312,7 +312,7 @@ template <typename vector_t, typename matrix_t, typename sync_t,
           matrix_format_t matrix_format, uint32_t subgroup_size,
           uint32_t subgroups, bool is_upper, bool is_transposed,
           bool is_unitdiag>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Txsv<vector_t, matrix_t, sync_t, matrix_format, subgroup_size, subgroups,
      is_upper, is_transposed, is_unitdiag>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();

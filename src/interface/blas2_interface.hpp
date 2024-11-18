@@ -23,8 +23,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS2_INTERFACE_HPP
-#define PORTBLAS_BLAS2_INTERFACE_HPP
+#ifndef ONEMATH_SYCL_BLAS_BLAS2_INTERFACE_HPP
+#define ONEMATH_SYCL_BLAS_BLAS2_INTERFACE_HPP
 
 #include "blas_meta.h"
 #include "container/sycl_iterator.h"
@@ -33,8 +33,8 @@
 #include "operations/blas2_trees.h"
 #include "operations/blas_constants.h"
 #include "operations/blas_operators.hpp"
-#include "portblas_helper.h"
-#include "sb_handle/portblas_handle.h"
+#include "helper.h"
+#include "sb_handle/handle.h"
 #include "views/view.h"
 #include <cmath>
 #include <iostream>
@@ -1447,4 +1447,4 @@ typename sb_handle_t::event_t _tpsv(
 }  // namespace internal
 }  // namespace blas
 
-#endif  // PORTBLAS_BLAS2_INTERFACE_HPP
+#endif  // ONEMATH_SYCL_BLAS_BLAS2_INTERFACE_HPP

@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_EXTENSION_TRANSPOSE_HPP
-#define PORTBLAS_EXTENSION_TRANSPOSE_HPP
+#ifndef ONEMATH_SYCL_BLAS_EXTENSION_TRANSPOSE_HPP
+#define ONEMATH_SYCL_BLAS_EXTENSION_TRANSPOSE_HPP
 
 #include "operations/extension/transpose.h"
 
@@ -32,7 +32,7 @@ namespace blas {
 // Transpose
 template <bool in_place, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in_t, typename out_t, typename element_t>
-PORTBLAS_INLINE bool
+ONEMATH_SYCL_BLAS_INLINE bool
 Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
           element_t>::valid_thread(sycl::nd_item<1> item) const {
   index_t idx = item.get_global_linear_id();
@@ -41,7 +41,7 @@ Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
 
 template <bool in_place, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in_t, typename out_t, typename element_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
           element_t>::bind(sycl::handler &cgh) {
   A_.bind(cgh);
@@ -50,7 +50,7 @@ Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
 
 template <bool in_place, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in_t, typename out_t, typename element_t>
-PORTBLAS_INLINE typename in_t::index_t
+ONEMATH_SYCL_BLAS_INLINE typename in_t::index_t
 Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
           element_t>::get_size() const {
   // Smallest TileSize square-multiple containing input/output matrices times
@@ -60,7 +60,7 @@ Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
 
 template <bool in_place, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in_t, typename out_t, typename element_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
           element_t>::adjust_access_displacement() {
   A_.adjust_access_displacement();
@@ -79,7 +79,7 @@ Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
  */
 template <bool in_place, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in_t, typename out_t, typename element_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
           element_t>::get_indices(sycl::nd_item<1> id, index_t &in_idx,
                                   index_t &out_idx, index_t &i, index_t &j) {
@@ -112,7 +112,7 @@ Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
 
 template <bool in_place, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in_t, typename out_t, typename element_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
           element_t>::eval(sycl::nd_item<1> id) {
   index_t idx = id.get_global_linear_id();
@@ -150,7 +150,7 @@ Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
  */
 template <bool in_place, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in_t, typename out_t, typename element_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
           element_t>::get_indices(sycl::nd_item<1> id, index_t &in_idx,
                                   index_t &in_local_idx, index_t &out_idx,
@@ -191,7 +191,7 @@ Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
 template <bool in_place, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in_t, typename out_t, typename element_t>
 template <typename local_memory_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
           element_t>::eval(local_memory_t local_mem, sycl::nd_item<1> id) {
   value_t *local = local_mem.localAcc.get_pointer();
@@ -229,7 +229,7 @@ Transpose<in_place, Tile_size, wg_size, cl_size, local_memory, in_t, out_t,
 template <bool both_trans, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in1_t, typename in2_t, typename out_t,
           typename element_t>
-PORTBLAS_INLINE bool TransposeAdd<
+ONEMATH_SYCL_BLAS_INLINE bool TransposeAdd<
     both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t, in2_t, out_t,
     element_t>::valid_thread(sycl::nd_item<1> item) const {
   auto idx = item.get_global_linear_id();
@@ -239,7 +239,7 @@ PORTBLAS_INLINE bool TransposeAdd<
 template <bool both_trans, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in1_t, typename in2_t, typename out_t,
           typename element_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t,
              in2_t, out_t, element_t>::bind(sycl::handler &cgh) {
   A_.bind(cgh);
@@ -250,7 +250,7 @@ TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t,
 template <bool both_trans, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in1_t, typename in2_t, typename out_t,
           typename element_t>
-PORTBLAS_INLINE typename in1_t::index_t
+ONEMATH_SYCL_BLAS_INLINE typename in1_t::index_t
 TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t,
              in2_t, out_t, element_t>::get_size() const {
   // Smallest TileSize square-multiple containing input/output matrices
@@ -260,7 +260,7 @@ TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t,
 template <bool both_trans, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in1_t, typename in2_t, typename out_t,
           typename element_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t,
              in2_t, out_t, element_t>::adjust_access_displacement() {
   A_.adjust_access_displacement();
@@ -284,7 +284,7 @@ TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t,
 template <bool both_trans, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in1_t, typename in2_t, typename out_t,
           typename element_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t,
              in2_t, out_t, element_t>::get_indices(sycl::nd_item<1> id,
                                                    index_t &in_a_idx,
@@ -333,7 +333,7 @@ TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t,
 template <bool both_trans, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in1_t, typename in2_t, typename out_t,
           typename element_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t,
              in2_t, out_t, element_t>::eval(sycl::nd_item<1> id) {
   auto A = A_.get_pointer();
@@ -385,7 +385,7 @@ TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t,
 template <bool both_trans, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in1_t, typename in2_t, typename out_t,
           typename element_t>
-PORTBLAS_INLINE void TransposeAdd<
+ONEMATH_SYCL_BLAS_INLINE void TransposeAdd<
     both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t, in2_t, out_t,
     element_t>::get_indices(sycl::nd_item<1> id, index_t &in_a_idx,
                             index_t &in_b_idx, index_t &in_local_idx,
@@ -439,7 +439,7 @@ template <bool both_trans, int Tile_size, int wg_size, int cl_size,
           bool local_memory, typename in1_t, typename in2_t, typename out_t,
           typename element_t>
 template <typename local_memory_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t,
              in2_t, out_t, element_t>::eval(local_memory_t local_mem,
                                             sycl::nd_item<1> id) {
@@ -519,4 +519,4 @@ TransposeAdd<both_trans, Tile_size, wg_size, cl_size, local_memory, in1_t,
 
 }  // namespace blas
 
-#endif  // PORTBLAS_EXTENSION_TRANSPOSE_HPP
+#endif  // ONEMATH_SYCL_BLAS_EXTENSION_TRANSPOSE_HPP

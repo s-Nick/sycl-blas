@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS3_LOCAL_GEMM_JOINT_MATRIX_HPP
-#define PORTBLAS_BLAS3_LOCAL_GEMM_JOINT_MATRIX_HPP
+#ifndef ONEMATH_SYCL_BLAS_BLAS3_LOCAL_GEMM_JOINT_MATRIX_HPP
+#define ONEMATH_SYCL_BLAS_BLAS3_LOCAL_GEMM_JOINT_MATRIX_HPP
 
 #ifdef SB_ENABLE_JOINT_MATRIX
 
@@ -191,7 +191,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
   index_t strideb_;
   index_t stridec_;
 
-  PORTBLAS_INLINE Gemm(input_t A, input_t B, output_t C, element_t alpha,
+  ONEMATH_SYCL_BLAS_INLINE Gemm(input_t A, input_t B, output_t C, element_t alpha,
                        element_t beta, index_t batch_size, index_t stride_a,
                        index_t stride_b, index_t stride_c)
       : a_(A),
@@ -207,7 +207,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
   /*!
    * @brief Get the type of this GemmFactory as a human readable string.
    */
-  static PORTBLAS_INLINE std::string get_type_string() noexcept {
+  static ONEMATH_SYCL_BLAS_INLINE std::string get_type_string() noexcept {
     std::ostringstream str{};
     str << "Gemm <" << double_buffer << ", " << nbc_a << ", " << nbc_b << ", "
         << cl_elems * sizeof(element_t) << ", " << tile_type::get_type_string()
@@ -224,11 +224,11 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
    *number of work_group required to execute each GEMM.
    *
    */
-  PORTBLAS_INLINE index_t get_wg_x_cluster() const noexcept {
+  ONEMATH_SYCL_BLAS_INLINE index_t get_wg_x_cluster() const noexcept {
     return ((a_.get_size_row() - 1) / tile_type::joint_matrix_M + 1);
   }
 
-  PORTBLAS_INLINE index_t get_wg_y_cluster() const noexcept {
+  ONEMATH_SYCL_BLAS_INLINE index_t get_wg_y_cluster() const noexcept {
     return ((b_.get_size_col() - 1) / tile_type::joint_matrix_N + 1);
   }
 
@@ -244,7 +244,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
    * group to multiple work groups with size as expected by GemmFactory::run().
    * (This is done by manipulating wg_id and item_id parameters.)
    */
-  PORTBLAS_INLINE sycl::nd_range<1> get_nd_range(index_t) const noexcept {
+  ONEMATH_SYCL_BLAS_INLINE sycl::nd_range<1> get_nd_range(index_t) const noexcept {
     size_t x_groups =
         static_cast<size_t>((get_wg_x_cluster() - 1) / jm_row_frags + 1);
     size_t y_groups =
@@ -260,7 +260,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
                              wg_size};
   }
 
-  PORTBLAS_INLINE index_t get_size() const {
+  ONEMATH_SYCL_BLAS_INLINE index_t get_size() const {
     return a_.get_size_row() * b_.get_size_col();
   }
 
@@ -271,7 +271,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
    * @param scratch local memory
    */
   template <typename local_memory_t>
-  PORTBLAS_INLINE void eval(local_memory_t scratch_acc,
+  ONEMATH_SYCL_BLAS_INLINE void eval(local_memory_t scratch_acc,
                             const sycl::nd_item<1> &id) noexcept {
     index_t m = a_.get_size_row();
     index_t n = b_.get_size_col();
@@ -404,7 +404,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
     b_.adjust_access_displacement();
     c_.adjust_access_displacement();
   }
-  PORTBLAS_INLINE bool valid_thread(const sycl::nd_item<1> &ndItem) const {
+  ONEMATH_SYCL_BLAS_INLINE bool valid_thread(const sycl::nd_item<1> &ndItem) const {
     return true;
   }
 
@@ -425,7 +425,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
   template <bool double_buffer, bool check_m_limit, bool check_n_limit,
             typename InputPointerType, typename OutputPointerType,
             typename OutputScratchPointerType, typename InputScratchPointerType>
-  PORTBLAS_INLINE void compute_panel_gemm(
+  ONEMATH_SYCL_BLAS_INLINE void compute_panel_gemm(
       const sycl::nd_item<1> &id, const index_t &item_id, const index_t &m,
       const index_t &n, const index_t &orig_k, const index_t &mc,
       const index_t &nc, InputPointerType orig_A, const index_t &lda,
@@ -508,7 +508,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
 
   template <bool check_m_limit, bool check_n_limit, typename OutputPointerType,
             typename ScratchPointerType, typename CType>
-  PORTBLAS_INLINE void store_output_block(sycl::nd_item<1> id, index_t mc,
+  ONEMATH_SYCL_BLAS_INLINE void store_output_block(sycl::nd_item<1> id, index_t mc,
                                           index_t nc, OutputPointerType C,
                                           ScratchPointerType scratch,
                                           index_t ldc,
@@ -665,7 +665,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
    */
   template <bool check_m_limit, bool check_n_limit, bool check_k_limit,
             typename InputPointerType, typename ScratchPointerType>
-  PORTBLAS_INLINE void extract_input_blocks(
+  ONEMATH_SYCL_BLAS_INLINE void extract_input_blocks(
       index_t item_id, index_t m, index_t n, index_t k, InputPointerType A,
       index_t lda, InputPointerType B, index_t ldb, ScratchPointerType sB,
       ScratchPointerType sA, const bool out_of_range) noexcept {
@@ -676,15 +676,15 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
     extract_block<!check_m_limit && !check_n_limit, check_m_limit,
                   check_k_limit, trans_a, block_rows, cl_elems, ldsa>(
         item_id, A, lda, sA,
-        [&](index_t, index_t cr) PORTBLAS_ALWAYS_INLINE { return cr < m; },
+        [&](index_t, index_t cr) ONEMATH_SYCL_BLAS_ALWAYS_INLINE { return cr < m; },
         [&](index_t ic, index_t cc)
-            PORTBLAS_ALWAYS_INLINE { return cc < k - ic; });
+            ONEMATH_SYCL_BLAS_ALWAYS_INLINE { return cc < k - ic; });
     extract_block<!check_m_limit && !check_n_limit, check_k_limit,
                   check_n_limit, trans_b, cl_elems, block_cols, ldsb>(
         item_id, B, ldb, sB,
         [&](index_t ir, index_t cr)
-            PORTBLAS_ALWAYS_INLINE { return cr < k - ir; },
-        [&](index_t, index_t cc) PORTBLAS_ALWAYS_INLINE { return cc < n; });
+            ONEMATH_SYCL_BLAS_ALWAYS_INLINE { return cr < k - ir; },
+        [&](index_t, index_t cc) ONEMATH_SYCL_BLAS_ALWAYS_INLINE { return cc < n; });
   }
 
   /*!
@@ -722,7 +722,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
             bool trans, index_t rows, index_t cols, index_t lds,
             typename InputPointerType, typename ScratchPointerType,
             typename RowPredicate, typename ColPredicate>
-  PORTBLAS_INLINE typename std::enable_if<!trans>::type extract_block(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!trans>::type extract_block(
       index_t item_id, InputPointerType ptr, index_t ld,
       ScratchPointerType scratch, RowPredicate in_row, ColPredicate in_col) {
     constexpr index_t bs = rows * cols;
@@ -748,7 +748,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
             bool trans, index_t rows, index_t cols, index_t lds,
             typename InputPointerType, typename ScratchPointerType,
             typename RowPredicate, typename ColPredicate>
-  PORTBLAS_INLINE typename std::enable_if<trans>::type extract_block(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<trans>::type extract_block(
       index_t item_id, InputPointerType ptr, index_t ld,
       ScratchPointerType scratch, RowPredicate in_row, ColPredicate in_col) {
     constexpr index_t bs = rows * cols;
@@ -764,7 +764,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
 
       packetize_t::template load<internal>(
           in_range, ptr + row_ofs * ld, scratch + row_ofs * lds,
-          [&](const index_t &ofs) PORTBLAS_ALWAYS_INLINE {
+          [&](const index_t &ofs) ONEMATH_SYCL_BLAS_ALWAYS_INLINE {
             return in_col(item_id % cols, ofs) &&
                    in_row(item_id / cols, row_ofs);
           });
@@ -783,7 +783,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
    *           see GemmFactory::run() for details
    */
   template <typename InputPointerType, typename CType>
-  PORTBLAS_INLINE void compute_block_gemm(
+  ONEMATH_SYCL_BLAS_INLINE void compute_block_gemm(
       const sycl::nd_item<1> &id, InputPointerType s2, InputPointerType s4,
       CType (&reg_res)[frags_per_sg]) noexcept {
     using namespace sycl::ext::oneapi::experimental::matrix;
@@ -846,20 +846,20 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
    * @param ss  pointers to other memory blocks
    */
   template <bool db, index_t o, index_t... os, typename P, typename... Ps>
-  static PORTBLAS_INLINE typename std::enable_if<db>::type sync_smem(
+  static ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<db>::type sync_smem(
       const sycl::nd_item<1> &id, index_t &ofs_sign, P &s, Ps &...ss) noexcept {
     s += ofs_sign * o;
     sync_smem<db, os...>(id, ofs_sign, ss...);
   }
 
   template <bool db>
-  static PORTBLAS_INLINE typename std::enable_if<db>::type sync_smem(
+  static ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<db>::type sync_smem(
       const sycl::nd_item<1> &, index_t &ofs_sign) noexcept {
     ofs_sign = -ofs_sign;
   }
 
   template <bool db, index_t..., typename... Ps>
-  static PORTBLAS_INLINE typename std::enable_if<!db>::type sync_smem(
+  static ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!db>::type sync_smem(
       const sycl::nd_item<1> &id, index_t &, Ps &...) noexcept {
     id.barrier(sycl::access::fence_space::local_space);
   }
@@ -869,4 +869,4 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, TileType,
 }  // namespace blas
 
 #endif  // SB_ENABLE_JOINT_MATRIX
-#endif  // PORTBLAS_BLAS3_LOCAL_GEMM_JOINT_MATRIX_HPP
+#endif  // ONEMATH_SYCL_BLAS_BLAS3_LOCAL_GEMM_JOINT_MATRIX_HPP

@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS3_GEMM_INTERLEAVED_HPP
-#define PORTBLAS_BLAS3_GEMM_INTERLEAVED_HPP
+#ifndef ONEMATH_SYCL_BLAS_BLAS3_GEMM_INTERLEAVED_HPP
+#define ONEMATH_SYCL_BLAS_BLAS3_GEMM_INTERLEAVED_HPP
 
 #include "gemm_common.hpp"
 
@@ -47,7 +47,7 @@ using address_t = sycl::access::address_space;
  * @brief Load a packet of size 1.
  */
 template <address_t Address = address_t::global_space, class T, class PtrT>
-PORTBLAS_INLINE void load(T &packet, PtrT ptr) {
+ONEMATH_SYCL_BLAS_INLINE void load(T &packet, PtrT ptr) {
   packet = *ptr;
 }
 
@@ -55,7 +55,7 @@ PORTBLAS_INLINE void load(T &packet, PtrT ptr) {
  * @brief Store a packet of size 1.
  */
 template <address_t Address = address_t::global_space, class T, class PtrT>
-PORTBLAS_INLINE void store(T packet, PtrT ptr) {
+ONEMATH_SYCL_BLAS_INLINE void store(T packet, PtrT ptr) {
   *ptr = packet;
 }
 
@@ -64,7 +64,7 @@ PORTBLAS_INLINE void store(T packet, PtrT ptr) {
  */
 template <address_t Address = address_t::global_space, class T, int Dim,
           class PtrT>
-PORTBLAS_INLINE void load(sycl::vec<T, Dim> &packet, PtrT ptr) {
+ONEMATH_SYCL_BLAS_INLINE void load(sycl::vec<T, Dim> &packet, PtrT ptr) {
   packet.template load<Address>(0, sycl::multi_ptr<const T, Address>(ptr));
 }
 
@@ -73,7 +73,7 @@ PORTBLAS_INLINE void load(sycl::vec<T, Dim> &packet, PtrT ptr) {
  */
 template <address_t Address = address_t::global_space, class T, int Dim,
           class PtrT>
-PORTBLAS_INLINE void store(const sycl::vec<T, Dim> &packet, PtrT ptr) {
+ONEMATH_SYCL_BLAS_INLINE void store(const sycl::vec<T, Dim> &packet, PtrT ptr) {
   packet.template store<Address>(0, sycl::multi_ptr<T, Address>(ptr));
 }
 
@@ -166,7 +166,7 @@ class Gemm<input_t, output_t, /* DoubleBuffer = */ false, /* NbcA = */ false,
   const index_t ldb_;
   const index_t ldc_;
   const index_t batch_size_;
-  PORTBLAS_INLINE Gemm(input_t A, input_t B, output_t C, element_t alpha,
+  ONEMATH_SYCL_BLAS_INLINE Gemm(input_t A, input_t B, output_t C, element_t alpha,
                        element_t beta, index_t batch_size,
                        index_t /*unused stride_a*/, index_t /*unused stride_b*/,
                        index_t /*unused stride_c*/)
@@ -186,7 +186,7 @@ class Gemm<input_t, output_t, /* DoubleBuffer = */ false, /* NbcA = */ false,
   /*!
    * @brief Get the type of this Gemm as a human readable string.
    */
-  static PORTBLAS_INLINE std::string get_type_string() noexcept {
+  static ONEMATH_SYCL_BLAS_INLINE std::string get_type_string() noexcept {
     std::ostringstream str{};
     str << "Gemm <" << false << ", " << false << ", " << false << ", " << ClSize
         << ", " << tile_type::get_type_string() << ", "
@@ -197,7 +197,7 @@ class Gemm<input_t, output_t, /* DoubleBuffer = */ false, /* NbcA = */ false,
     return str.str();
   }
 
-  PORTBLAS_INLINE sycl::nd_range<1> get_nd_range(index_t) const noexcept {
+  ONEMATH_SYCL_BLAS_INLINE sycl::nd_range<1> get_nd_range(index_t) const noexcept {
     const index_t number_of_block_per_row = ((m_ - 1) / block_rows) + 1;
     const index_t number_of_block_per_cols = ((n_ - 1) / block_cols) + 1;
 
@@ -212,11 +212,11 @@ class Gemm<input_t, output_t, /* DoubleBuffer = */ false, /* NbcA = */ false,
     return sycl::nd_range<1>(nwg * wgs, wgs);
   }
 
-  PORTBLAS_INLINE bool valid_thread(const sycl::nd_item<1> &) const {
+  ONEMATH_SYCL_BLAS_INLINE bool valid_thread(const sycl::nd_item<1> &) const {
     return true;
   }
 
-  PORTBLAS_INLINE void eval(sycl::nd_item<1> id) noexcept {
+  ONEMATH_SYCL_BLAS_INLINE void eval(sycl::nd_item<1> id) noexcept {
     auto A = a_.get_pointer();
     auto B = b_.get_pointer();
     auto C = c_.get_pointer();
@@ -273,7 +273,7 @@ class Gemm<input_t, output_t, /* DoubleBuffer = */ false, /* NbcA = */ false,
     // boundary check
     const auto boundary_check =
         [&](const index_t &m_index, const index_t &sz)
-            PORTBLAS_ALWAYS_INLINE { return m_index < sz; };
+            ONEMATH_SYCL_BLAS_ALWAYS_INLINE { return m_index < sz; };
 
     if (is_internal_block) {
       compute_panel<false>(boundary_check, m_stride, n_stride, mb_start,
@@ -286,7 +286,7 @@ class Gemm<input_t, output_t, /* DoubleBuffer = */ false, /* NbcA = */ false,
 
   template <bool need_check_boundary, typename check_t, typename in_ptr_t,
             typename out_ptr_t>
-  PORTBLAS_INLINE void compute_panel(check_t boundary_check, index_t m_stride,
+  ONEMATH_SYCL_BLAS_INLINE void compute_panel(check_t boundary_check, index_t m_stride,
                                      index_t n_stride, index_t mb_start,
                                      index_t m_start, index_t n_start,
                                      in_ptr_t A, in_ptr_t B, out_ptr_t C) {
@@ -313,7 +313,7 @@ class Gemm<input_t, output_t, /* DoubleBuffer = */ false, /* NbcA = */ false,
 
   template <index_t item_size, bool need_check_boundary, typename check_t,
             typename ptr_t>
-  PORTBLAS_INLINE typename std::enable_if<!need_check_boundary>::type load(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!need_check_boundary>::type load(
       check_t, index_t, index_t, index_t, packet_type *reg_res, ptr_t input,
       index_t stride) {
 #pragma unroll
@@ -329,7 +329,7 @@ class Gemm<input_t, output_t, /* DoubleBuffer = */ false, /* NbcA = */ false,
 
   template <index_t item_size, bool need_check_boundary, typename check_t,
             typename ptr_t>
-  PORTBLAS_INLINE typename std::enable_if<need_check_boundary>::type load(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<need_check_boundary>::type load(
       check_t boundary_check, index_t index_start, index_t mb_start,
       index_t dim_size, packet_type *reg_res, ptr_t input, index_t stride) {
 #pragma unroll
@@ -368,7 +368,7 @@ class Gemm<input_t, output_t, /* DoubleBuffer = */ false, /* NbcA = */ false,
   // separating the boundary check from the internal one by using enable_if
   // instead of do_check to have more readability
   template <bool need_check_boundary, typename check_t, typename ptr_t>
-  PORTBLAS_INLINE typename std::enable_if<need_check_boundary>::type store(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<need_check_boundary>::type store(
       check_t boundary_check, index_t m_start, index_t n_start,
       index_t mb_start, packet_out_type *reg_res, ptr_t C) {
 #pragma unroll
@@ -410,7 +410,7 @@ class Gemm<input_t, output_t, /* DoubleBuffer = */ false, /* NbcA = */ false,
   }
   // The internal block that does not need any boundary check
   template <bool need_check_boundary, typename check_t, typename ptr_t>
-  PORTBLAS_INLINE typename std::enable_if<!need_check_boundary>::type store(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!need_check_boundary>::type store(
       check_t, index_t, index_t, index_t, packet_out_type *reg_res, ptr_t C) {
 #pragma unroll
     for (int i = 0; i < item_cols; ++i) {
@@ -431,7 +431,7 @@ class Gemm<input_t, output_t, /* DoubleBuffer = */ false, /* NbcA = */ false,
 
   template <bool need_check_boundary, typename check_t, typename ptr_t,
             bool beta_zero = is_beta_zero>
-  PORTBLAS_INLINE typename std::enable_if<!beta_zero>::type scaling_c(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!beta_zero>::type scaling_c(
       check_t boundary_check, index_t m_start, index_t n_start,
       index_t mb_start, packet_out_type *reg_res, ptr_t C) {
 #pragma unroll
@@ -472,7 +472,7 @@ class Gemm<input_t, output_t, /* DoubleBuffer = */ false, /* NbcA = */ false,
 
   template <bool need_check_boundary, typename check_t, typename ptr_t,
             bool beta_zero = is_beta_zero>
-  PORTBLAS_INLINE typename std::enable_if<beta_zero>::type scaling_c(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<beta_zero>::type scaling_c(
       check_t, index_t, index_t, index_t, packet_out_type *reg_res, ptr_t) {
 #pragma unroll
     for (int i = 0; i < item_rows * item_cols * (item_batchs / VectorSize);
@@ -488,7 +488,7 @@ class Gemm<input_t, output_t, /* DoubleBuffer = */ false, /* NbcA = */ false,
    * @param reg_b  temporary register used to prefetch elements of B
    * @param reg_res  2D register array used to store the result C
    */
-  PORTBLAS_INLINE void compute_block(packet_type *reg_a, packet_type *reg_b,
+  ONEMATH_SYCL_BLAS_INLINE void compute_block(packet_type *reg_a, packet_type *reg_b,
                                      packet_out_type *reg_res) noexcept {
 #pragma unroll
     for (int i = 0; i < item_cols; ++i) {
@@ -538,4 +538,4 @@ class Gemm<input_t, output_t, /* DoubleBuffer = */ false, /* NbcA = */ false,
 
 }  // namespace blas
 
-#endif  // PORTBLAS_BLAS3_GEMM_INTERLEAVED_HPP
+#endif  // ONEMATH_SYCL_BLAS_BLAS3_GEMM_INTERLEAVED_HPP

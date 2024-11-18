@@ -43,7 +43,7 @@ WGAtomicReduction<operator_t, usmManagedMem, lhs_t, rhs_t>::WGAtomicReduction(
 
 template <typename operator_t, bool usmManagedMem, typename lhs_t,
           typename rhs_t>
-PORTBLAS_INLINE
+ONEMATH_SYCL_BLAS_INLINE
     typename WGAtomicReduction<operator_t, usmManagedMem, lhs_t, rhs_t>::index_t
     WGAtomicReduction<operator_t, usmManagedMem, lhs_t, rhs_t>::get_size()
         const {
@@ -52,7 +52,7 @@ PORTBLAS_INLINE
 
 template <typename operator_t, bool usmManagedMem, typename lhs_t,
           typename rhs_t>
-PORTBLAS_INLINE bool
+ONEMATH_SYCL_BLAS_INLINE bool
 WGAtomicReduction<operator_t, usmManagedMem, lhs_t, rhs_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return true;
@@ -60,7 +60,7 @@ WGAtomicReduction<operator_t, usmManagedMem, lhs_t, rhs_t>::valid_thread(
 
 template <typename operator_t, bool usmManagedMem, typename lhs_t,
           typename rhs_t>
-PORTBLAS_INLINE
+ONEMATH_SYCL_BLAS_INLINE
     typename WGAtomicReduction<operator_t, usmManagedMem, lhs_t, rhs_t>::value_t
     WGAtomicReduction<operator_t, usmManagedMem, lhs_t, rhs_t>::eval(
         sycl::nd_item<1> ndItem) {
@@ -92,7 +92,7 @@ PORTBLAS_INLINE
 template <typename operator_t, bool usmManagedMem, typename lhs_t,
           typename rhs_t>
 template <typename sharedT>
-PORTBLAS_INLINE
+ONEMATH_SYCL_BLAS_INLINE
     typename WGAtomicReduction<operator_t, usmManagedMem, lhs_t, rhs_t>::value_t
     WGAtomicReduction<operator_t, usmManagedMem, lhs_t, rhs_t>::eval(
         sharedT scratch, sycl::nd_item<1> ndItem) {
@@ -139,7 +139,7 @@ PORTBLAS_INLINE
 
 template <typename operator_t, bool usmManagedMem, typename lhs_t,
           typename rhs_t>
-PORTBLAS_INLINE void WGAtomicReduction<operator_t, usmManagedMem, lhs_t,
+ONEMATH_SYCL_BLAS_INLINE void WGAtomicReduction<operator_t, usmManagedMem, lhs_t,
                                        rhs_t>::bind(sycl::handler& h) {
   lhs_.bind(h);
   rhs_.bind(h);
@@ -147,7 +147,7 @@ PORTBLAS_INLINE void WGAtomicReduction<operator_t, usmManagedMem, lhs_t,
 
 template <typename operator_t, bool usmManagedMem, typename lhs_t,
           typename rhs_t>
-PORTBLAS_INLINE void WGAtomicReduction<operator_t, usmManagedMem, lhs_t,
+ONEMATH_SYCL_BLAS_INLINE void WGAtomicReduction<operator_t, usmManagedMem, lhs_t,
                                        rhs_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   rhs_.adjust_access_displacement();

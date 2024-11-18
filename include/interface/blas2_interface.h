@@ -23,8 +23,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS2_INTERFACE_H
-#define PORTBLAS_BLAS2_INTERFACE_H
+#ifndef ONEMATH_SYCL_BLAS_BLAS2_INTERFACE_H
+#define ONEMATH_SYCL_BLAS_BLAS2_INTERFACE_H
 
 #include "operations/blas2_trees.h"
 namespace blas {
@@ -1169,4 +1169,4 @@ typename sb_handle_t::event_t _tpsv(sb_handle_t& sb_handle, char _Uplo,
 }
 }  // namespace blas
 
-#endif  // PORTBLAS_BLAS2_INTERFACE
+#endif  // ONEMATH_SYCL_BLAS_BLAS2_INTERFACE

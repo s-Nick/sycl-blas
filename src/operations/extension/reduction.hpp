@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_EXTENSION_REDUCTION_HPP
-#define PORTBLAS_EXTENSION_REDUCTION_HPP
+#ifndef ONEMATH_SYCL_BLAS_EXTENSION_REDUCTION_HPP
+#define ONEMATH_SYCL_BLAS_EXTENSION_REDUCTION_HPP
 
 #include "blas_meta.h"
 #include "operations/extension/reduction.h"
@@ -34,7 +34,7 @@ namespace blas {
 
 template <typename operator_t, typename params_t, typename input_t,
           typename output_t>
-PORTBLAS_INLINE Reduction<operator_t, params_t, input_t, output_t>::Reduction(
+ONEMATH_SYCL_BLAS_INLINE Reduction<operator_t, params_t, input_t, output_t>::Reduction(
     input_t in, output_t out)
     : in_(in),
       out_(out),
@@ -64,7 +64,7 @@ PORTBLAS_INLINE Reduction<operator_t, params_t, input_t, output_t>::Reduction(
  */
 template <typename operator_t, typename params_t, typename input_t,
           typename output_t>
-PORTBLAS_INLINE bool
+ONEMATH_SYCL_BLAS_INLINE bool
 Reduction<operator_t, params_t, input_t, output_t>::valid_thread(
     sycl::nd_item<1> id) const {
   return true;
@@ -72,7 +72,7 @@ Reduction<operator_t, params_t, input_t, output_t>::valid_thread(
 
 template <typename operator_t, typename params_t, typename input_t,
           typename output_t>
-PORTBLAS_INLINE void Reduction<operator_t, params_t, input_t, output_t>::bind(
+ONEMATH_SYCL_BLAS_INLINE void Reduction<operator_t, params_t, input_t, output_t>::bind(
     sycl::handler& h) {
   in_.bind(h);
   out_.bind(h);
@@ -80,7 +80,7 @@ PORTBLAS_INLINE void Reduction<operator_t, params_t, input_t, output_t>::bind(
 
 template <typename operator_t, typename params_t, typename input_t,
           typename output_t>
-PORTBLAS_INLINE void Reduction<operator_t, params_t, input_t,
+ONEMATH_SYCL_BLAS_INLINE void Reduction<operator_t, params_t, input_t,
                                 output_t>::adjust_access_displacement() {
   in_.adjust_access_displacement();
   out_.adjust_access_displacement();
@@ -92,7 +92,7 @@ PORTBLAS_INLINE void Reduction<operator_t, params_t, input_t,
  */
 template <typename operator_t, typename params_t, typename input_t,
           typename output_t>
-PORTBLAS_INLINE sycl::nd_range<1>
+ONEMATH_SYCL_BLAS_INLINE sycl::nd_range<1>
 Reduction<operator_t, params_t, input_t, output_t>::get_nd_range(
     index_t compute_units) noexcept {
   constexpr index_t local_range = params_t::get_local_thread_size_preserve() *
@@ -116,7 +116,7 @@ Reduction<operator_t, params_t, input_t, output_t>::get_nd_range(
  */
 template <typename operator_t, typename params_t, typename input_t,
           typename output_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Reduction<operator_t, params_t, input_t, output_t>::reduce(
     index_t global_reduce_id, index_t global_preserve_id,
     element_t& accumulator) noexcept {
@@ -152,7 +152,7 @@ Reduction<operator_t, params_t, input_t, output_t>::reduce(
 template <typename operator_t, typename params_t, typename input_t,
           typename output_t>
 template <typename local_memory_t>
-PORTBLAS_INLINE void Reduction<operator_t, params_t, input_t, output_t>::eval(
+ONEMATH_SYCL_BLAS_INLINE void Reduction<operator_t, params_t, input_t, output_t>::eval(
     local_memory_t scratch, sycl::nd_item<1> id) noexcept {
   const index_t local_id = id.get_local_id(0);
   const index_t group_id = id.get_group(0);
@@ -237,4 +237,4 @@ const typename params_t::element_t
 
 }  // namespace blas
 
-#endif  // PORTBLAS_EXTENSION_REDUCTION_HPP
+#endif  // ONEMATH_SYCL_BLAS_EXTENSION_REDUCTION_HPP

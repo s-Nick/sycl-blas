@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_EXTENSION_AXPY_BATCH_H
-#define PORTBLAS_EXTENSION_AXPY_BATCH_H
+#ifndef ONEMATH_SYCL_BLAS_EXTENSION_AXPY_BATCH_H
+#define ONEMATH_SYCL_BLAS_EXTENSION_AXPY_BATCH_H
 
 namespace blas {
 
@@ -87,4 +87,4 @@ Axpy_batch<sameSign, localSize, maxBlockPerBatch, lhs_t, rhs_t> make_axpy_batch(
 
 }  // namespace blas
 
-#endif  // PORTBLAS_EXTENSION_AXPY_BATCH_H
+#endif  // ONEMATH_SYCL_BLAS_EXTENSION_AXPY_BATCH_H

@@ -21,16 +21,16 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS3_GEMM_INTERFACE_HPP
-#define PORTBLAS_BLAS3_GEMM_INTERFACE_HPP
+#ifndef ONEMATH_SYCL_BLAS_BLAS3_GEMM_INTERFACE_HPP
+#define ONEMATH_SYCL_BLAS_BLAS3_GEMM_INTERFACE_HPP
 
 #include "blas_meta.h"
 #include "interface/blas1_interface.h"
 #include "interface/blas3/backend/backend.hpp"
 #include "interface/blas3_interface.h"
 #include "operations/blas3_trees.h"
-#include "portblas_helper.h"
-#include "sb_handle/portblas_handle.h"
+#include "helper.h"
+#include "sb_handle/handle.h"
 
 #include <algorithm>
 #include <cctype>
@@ -242,4 +242,4 @@ typename sb_handle_t::event_t _gemm_strided_batched(
 }  // namespace internal
 }  // namespace blas
 
-#endif  // PORTBLAS_BLAS3_GEMM_INTERFACE_HPP
+#endif  // ONEMATH_SYCL_BLAS_BLAS3_GEMM_INTERFACE_HPP

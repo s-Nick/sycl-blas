@@ -22,8 +22,8 @@
  *  @filename kernel_constructor.hpp
  *
  **************************************************************************/
-#ifndef PORTBLAS_KERNEL_CONSTRUCTOR_HPP
-#define PORTBLAS_KERNEL_CONSTRUCTOR_HPP
+#ifndef ONEMATH_SYCL_BLAS_KERNEL_CONSTRUCTOR_HPP
+#define ONEMATH_SYCL_BLAS_KERNEL_CONSTRUCTOR_HPP
 
 #include "sb_handle/kernel_constructor.h"
 #include <iostream>
@@ -45,7 +45,7 @@ struct LocalMemory {
   @param size Size in elements of the local accessor.
   @param cgh SYCL command group handler.
   */
-  PORTBLAS_INLINE LocalMemory(size_t size, sycl::handler &cgh)
+  ONEMATH_SYCL_BLAS_INLINE LocalMemory(size_t size, sycl::handler &cgh)
       : localAcc(sycl::range<1>(size), cgh) {}
 
   /*!
@@ -54,7 +54,7 @@ struct LocalMemory {
   @param id SYCL id.
   @return Reference to an element of the local accessor.
   */
-  PORTBLAS_INLINE value_t &operator[](sycl::id<1> id) { return localAcc[id]; }
+  ONEMATH_SYCL_BLAS_INLINE value_t &operator[](sycl::id<1> id) { return localAcc[id]; }
 
   /*!
   @brief Local accessor.
@@ -75,7 +75,7 @@ struct LocalMemory<value_t, using_local_memory::disabled> {
   @param size Size in elements of the local accessor.
   @param cgh SYCL command group handler.
   */
-  PORTBLAS_INLINE LocalMemory(size_t, sycl::handler &) {}
+  ONEMATH_SYCL_BLAS_INLINE LocalMemory(size_t, sycl::handler &) {}
 };
 
 /*!
@@ -97,7 +97,7 @@ struct ExpressionTreeEvaluator {
   @param scratch Shared memory object.
   @param index SYCL nd_item.
   */
-  static PORTBLAS_INLINE void eval(
+  static ONEMATH_SYCL_BLAS_INLINE void eval(
       expression_tree_t &tree,
       LocalMemory<local_memory_t, using_local_memory> scratch,
       sycl::nd_item<1> index) {
@@ -122,7 +122,7 @@ struct ExpressionTreeEvaluator<using_local_memory::disabled, expression_tree_t,
   @param tree Tree object.
   @param index SYCL nd_item.
   */
-  static PORTBLAS_INLINE void eval(
+  static ONEMATH_SYCL_BLAS_INLINE void eval(
       expression_tree_t &tree,
       LocalMemory<local_memory_t, using_local_memory::disabled>,
       sycl::nd_item<1> index) {
@@ -150,7 +150,7 @@ index.
 @param scratch subgroup memory object.
 @param index SYCL nd_item.
 */
-  static PORTBLAS_INLINE void eval(
+  static ONEMATH_SYCL_BLAS_INLINE void eval(
       expression_tree_t &tree,
       LocalMemory<subgroup_memory_t, using_local_memory::subgroup> scratch,
       sycl::nd_item<1> index) {
@@ -172,10 +172,10 @@ template <int using_local_memory, typename expression_tree_t,
 struct ExpressionTreeFunctor {
   local_memory_t scratch_;
   expression_tree_t t_;
-  PORTBLAS_INLINE ExpressionTreeFunctor(local_memory_t scratch,
+  ONEMATH_SYCL_BLAS_INLINE ExpressionTreeFunctor(local_memory_t scratch,
                                          expression_tree_t t)
       : scratch_(scratch), t_(t) {}
-  PORTBLAS_INLINE void operator()(sycl::nd_item<1> i) const {
+  ONEMATH_SYCL_BLAS_INLINE void operator()(sycl::nd_item<1> i) const {
     expression_tree_t &non_const_t = *const_cast<expression_tree_t *>(&t_);
     non_const_t.adjust_access_displacement();
     ExpressionTreeEvaluator<using_local_memory, expression_tree_t,
@@ -184,7 +184,7 @@ struct ExpressionTreeFunctor {
 };
 
 template <int using_local_memory, typename queue_t, typename expression_tree_t>
-static PORTBLAS_INLINE sycl::event execute_tree(
+static ONEMATH_SYCL_BLAS_INLINE sycl::event execute_tree(
     queue_t q_, expression_tree_t t, size_t _localSize, size_t _globalSize,
     size_t _shMem, std::vector<sycl::event> dependencies) {
   using value_t =

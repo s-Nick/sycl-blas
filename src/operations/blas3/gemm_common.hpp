@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS3_GEMM_COMMON_HPP
-#define PORTBLAS_BLAS3_GEMM_COMMON_HPP
+#ifndef ONEMATH_SYCL_BLAS_BLAS3_GEMM_COMMON_HPP
+#define ONEMATH_SYCL_BLAS_BLAS3_GEMM_COMMON_HPP
 
 #include "operations/blas3_trees.h"
 #include "views/view.h"
@@ -35,7 +35,7 @@ namespace blas {
 
 #ifdef BLAS_ENABLE_COMPLEX
 template <typename T>
-static PORTBLAS_INLINE T
+static ONEMATH_SYCL_BLAS_INLINE T
 mul_add(T a, T b, T c,
         typename std::enable_if<is_complex_sycl<T>::value>::type * = 0) {
   return (a * b + c);
@@ -43,7 +43,7 @@ mul_add(T a, T b, T c,
 #endif
 
 template <typename Tin, typename Tout>
-static PORTBLAS_INLINE Tout
+static ONEMATH_SYCL_BLAS_INLINE Tout
 mul_add(Tin a, Tin b, Tout c,
         typename std::enable_if<std::is_same<Tin, Tout>::value &&
                                 is_sycl_scalar<Tin>::value>::type * = 0) {
@@ -51,7 +51,7 @@ mul_add(Tin a, Tin b, Tout c,
 }
 
 template <typename Tin, typename Tout>
-static PORTBLAS_INLINE Tout
+static ONEMATH_SYCL_BLAS_INLINE Tout
 mul_add(Tin a, Tin b, Tout c,
         typename std::enable_if<!std::is_same<Tin, Tout>::value &&
                                 is_sycl_scalar<Tin>::value>::type * = 0) {
@@ -85,7 +85,7 @@ ENABLE_TYPE_STRING(double)
 template <int ItemRows, int ItemCols, int WgRows, int WgCols, int SgRows,
           int SgCols, int TlRows, int TlCols, int ItemBatchs, int WgBatchs,
           int jm_M, int jm_N, int jm_K, typename inp_jmT, typename out_jmT>
-PORTBLAS_INLINE std::string
+ONEMATH_SYCL_BLAS_INLINE std::string
 Tile<ItemRows, ItemCols, WgRows, WgCols, SgRows, SgCols, TlRows, TlCols,
      ItemBatchs, WgBatchs, jm_M, jm_N, jm_K, inp_jmT,
      out_jmT>::get_type_string() noexcept {
@@ -106,14 +106,14 @@ Tile<ItemRows, ItemCols, WgRows, WgCols, SgRows, SgCols, TlRows, TlCols,
  *       expression does not have to be evaluated in certain situations.
  */
 template <bool>
-PORTBLAS_INLINE bool do_check(bool cond) {
+ONEMATH_SYCL_BLAS_INLINE bool do_check(bool cond) {
   return cond;
 }
 template <>
-PORTBLAS_INLINE bool do_check<false>(bool) {
+ONEMATH_SYCL_BLAS_INLINE bool do_check<false>(bool) {
   return true;
 }
 
 }  // namespace blas
 
-#endif  // PORTBLAS_BLAS3_GEMM_COMMON_HPP
+#endif  // ONEMATH_SYCL_BLAS_BLAS3_GEMM_COMMON_HPP

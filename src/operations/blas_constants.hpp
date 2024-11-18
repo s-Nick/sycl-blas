@@ -23,7 +23,7 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_CONSTANTS_HPP
-#define PORTBLAS_CONSTANTS_HPP
+#ifndef ONEMATH_SYCL_BLAS_CONSTANTS_HPP
+#define ONEMATH_SYCL_BLAS_CONSTANTS_HPP
 #include "operations/blas_constants.h"
 #endif  // BLAS_CONSTANTS_HPP

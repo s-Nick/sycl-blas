@@ -29,7 +29,7 @@
 
 #include "container/sycl_iterator.h"
 
-#include "sb_handle/portblas_handle.h"
+#include "sb_handle/handle.h"
 
 #include "sb_handle/kernel_constructor.h"
 
@@ -61,6 +61,6 @@
 
 #include "operations/blas_operators.h"
 
-#include "portblas_helper.h"
+#include "helper.h"
 
 #include "views/view.h"

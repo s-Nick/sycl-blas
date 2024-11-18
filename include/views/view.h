@@ -23,8 +23,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_VIEW_H
-#define PORTBLAS_VIEW_H
+#ifndef ONEMATH_SYCL_BLAS_VIEW_H
+#define ONEMATH_SYCL_BLAS_VIEW_H
 
 #include "blas_meta.h"
 #include <stdexcept>
@@ -67,12 +67,12 @@ struct VectorView {
   /*!
    * @brief Returns a reference to the container
    */
-  PORTBLAS_INLINE container_t get_data() const;
+  ONEMATH_SYCL_BLAS_INLINE container_t get_data() const;
 
   /*!
    * @brief Returns a pointer containing the raw data of the container
    */
-  PORTBLAS_INLINE container_t get_pointer() const;
+  ONEMATH_SYCL_BLAS_INLINE container_t get_pointer() const;
 
   /*! adjust_access_displacement.
    * @brief this method adjust the position of the data access to point to the
@@ -82,49 +82,49 @@ struct VectorView {
    * For USM case, this method is not going to do anything as the library
    * doesn't allow pointer manipulation.
    */
-  PORTBLAS_INLINE void adjust_access_displacement() const;
+  ONEMATH_SYCL_BLAS_INLINE void adjust_access_displacement() const;
 
   /*!
    @brief Returns the size of the view
    */
-  PORTBLAS_INLINE index_t get_size() const;
+  ONEMATH_SYCL_BLAS_INLINE index_t get_size() const;
 
   /*!
    @brief Returns the stride of the view.
   */
-  PORTBLAS_INLINE increment_t get_stride();
+  ONEMATH_SYCL_BLAS_INLINE increment_t get_stride();
 
-  PORTBLAS_INLINE void bind(sycl::handler &h) const {}
+  ONEMATH_SYCL_BLAS_INLINE void bind(sycl::handler &h) const {}
 
   /**** EVALUATING ****/
   template <bool use_as_ptr = false>
-  PORTBLAS_INLINE typename std::enable_if<!use_as_ptr, value_t &>::type eval(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!use_as_ptr, value_t &>::type eval(
       index_t i) {
     return (strd_ == 1) ? *(ptr_ + i) : *(ptr_ + i * strd_);
   }
 
   template <bool use_as_ptr = false>
-  PORTBLAS_INLINE typename std::enable_if<!use_as_ptr, value_t>::type eval(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!use_as_ptr, value_t>::type eval(
       index_t i) const {
     return (strd_ == 1) ? *(ptr_ + i) : *(ptr_ + i * strd_);
   }
 
-  PORTBLAS_INLINE value_t &eval(sycl::nd_item<1> ndItem) {
+  ONEMATH_SYCL_BLAS_INLINE value_t &eval(sycl::nd_item<1> ndItem) {
     return eval(ndItem.get_global_id(0));
   }
 
-  PORTBLAS_INLINE value_t eval(sycl::nd_item<1> ndItem) const {
+  ONEMATH_SYCL_BLAS_INLINE value_t eval(sycl::nd_item<1> ndItem) const {
     return eval(ndItem.get_global_id(0));
   }
 
   template <bool use_as_ptr = false>
-  PORTBLAS_INLINE typename std::enable_if<use_as_ptr, value_t &>::type eval(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<use_as_ptr, value_t &>::type eval(
       index_t indx) {
     return *(ptr_ + indx);
   }
 
   template <bool use_as_ptr = false>
-  PORTBLAS_INLINE typename std::enable_if<use_as_ptr, value_t>::type eval(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<use_as_ptr, value_t>::type eval(
       index_t indx) const noexcept {
     return *(ptr_ + indx);
   }
@@ -163,36 +163,36 @@ struct MatrixView {
   /*!
    * @brief Returns the container
    */
-  PORTBLAS_INLINE container_t get_data() const;
+  ONEMATH_SYCL_BLAS_INLINE container_t get_data() const;
 
   /*!
    * @brief Returns the container
    */
-  PORTBLAS_INLINE container_t get_pointer() const;
+  ONEMATH_SYCL_BLAS_INLINE container_t get_pointer() const;
 
   /*!
    * @brief Returns the size of the view.
    */
-  PORTBLAS_INLINE index_t get_size() const;
+  ONEMATH_SYCL_BLAS_INLINE index_t get_size() const;
 
   /*!
    * @brief Returns the leading dimension.
    */
-  PORTBLAS_INLINE const index_t getSizeL() const;
+  ONEMATH_SYCL_BLAS_INLINE const index_t getSizeL() const;
 
   /*! get_size_row.
    * @brief Return the number of columns.
    * @bug This value should change depending on the access mode, but
    * is currently set to Rows.
    */
-  PORTBLAS_INLINE index_t get_size_row() const;
+  ONEMATH_SYCL_BLAS_INLINE index_t get_size_row() const;
 
   /*! get_size_col.
    * @brief Return the number of columns.
    * @bug This value should change depending on the access mode, but
    * is currently set to Rows.
    */
-  PORTBLAS_INLINE index_t get_size_col() const;
+  ONEMATH_SYCL_BLAS_INLINE index_t get_size_col() const;
 
   /*! adjust_access_displacement.
    * @brief set displacement from the origin.
@@ -202,14 +202,14 @@ struct MatrixView {
    * In the case of USM, this method does nothing since the pointer
    * arithmetic is performed implicitly.
    */
-  PORTBLAS_INLINE void adjust_access_displacement() const;
+  ONEMATH_SYCL_BLAS_INLINE void adjust_access_displacement() const;
 
-  PORTBLAS_INLINE void bind(sycl::handler &h) const {}
+  ONEMATH_SYCL_BLAS_INLINE void bind(sycl::handler &h) const {}
 
   /*! eval.
    * @brief Evaluation for the pair of row/col.
    */
-  PORTBLAS_INLINE value_t &eval(index_t i, index_t j) {
+  ONEMATH_SYCL_BLAS_INLINE value_t &eval(index_t i, index_t j) {
     if constexpr (has_inc) {
       if constexpr (layout::is_col_major()) {
         return *(data_ + i * inc_ + sizeL_ * j);
@@ -225,7 +225,7 @@ struct MatrixView {
     }
   }
 
-  PORTBLAS_INLINE value_t eval(index_t i, index_t j) const noexcept {
+  ONEMATH_SYCL_BLAS_INLINE value_t eval(index_t i, index_t j) const noexcept {
     if constexpr (has_inc) {
       if constexpr (layout::is_col_major()) {
         return *(data_ + i * inc_ + sizeL_ * j);
@@ -242,7 +242,7 @@ struct MatrixView {
   }
 
   template <bool use_as_ptr = false>
-  PORTBLAS_INLINE typename std::enable_if<!use_as_ptr, value_t &>::type eval(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!use_as_ptr, value_t &>::type eval(
       index_t indx) {
     const index_t j = indx / sizeR_;
     const index_t i = indx - sizeR_ * j;
@@ -250,29 +250,29 @@ struct MatrixView {
   }
 
   template <bool use_as_ptr = false>
-  PORTBLAS_INLINE typename std::enable_if<!use_as_ptr, value_t>::type eval(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!use_as_ptr, value_t>::type eval(
       index_t indx) const noexcept {
     const index_t j = indx / sizeR_;
     const index_t i = indx - sizeR_ * j;
     return eval(i, j);
   }
 
-  PORTBLAS_INLINE value_t &eval(sycl::nd_item<1> ndItem) {
+  ONEMATH_SYCL_BLAS_INLINE value_t &eval(sycl::nd_item<1> ndItem) {
     return eval(ndItem.get_global_id(0));
   }
 
-  PORTBLAS_INLINE value_t eval(sycl::nd_item<1> ndItem) const noexcept {
+  ONEMATH_SYCL_BLAS_INLINE value_t eval(sycl::nd_item<1> ndItem) const noexcept {
     return eval(ndItem.get_global_id(0));
   }
 
   template <bool use_as_ptr = false>
-  PORTBLAS_INLINE typename std::enable_if<use_as_ptr, value_t &>::type eval(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<use_as_ptr, value_t &>::type eval(
       index_t indx) {
     return *(data_ + indx);
   }
 
   template <bool use_as_ptr = false>
-  PORTBLAS_INLINE typename std::enable_if<use_as_ptr, value_t>::type eval(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<use_as_ptr, value_t>::type eval(
       index_t indx) const noexcept {
     return *(data_ + indx);
   }
@@ -327,7 +327,7 @@ struct MatrixViewType<const value_t *, index_t, access_layout_t, has_inc> {
 };
 
 template <typename value_t, typename increment_t, typename index_t>
-static PORTBLAS_INLINE auto make_vector_view(BufferIterator<value_t> buff,
+static ONEMATH_SYCL_BLAS_INLINE auto make_vector_view(BufferIterator<value_t> buff,
                                               increment_t inc, index_t sz) {
   static constexpr sycl::access_mode access_mode_t =
       Choose<std::is_const<value_t>::value, sycl::access_mode,
@@ -342,7 +342,7 @@ static PORTBLAS_INLINE auto make_vector_view(BufferIterator<value_t> buff,
 
 template <typename access_layout_t, typename value_t, typename index_t,
           bool has_inc = false>
-static PORTBLAS_INLINE auto make_matrix_view(BufferIterator<value_t> buff,
+static ONEMATH_SYCL_BLAS_INLINE auto make_matrix_view(BufferIterator<value_t> buff,
                                               index_t m, index_t n,
                                               index_t lda, index_t inc = 1) {
   static constexpr sycl::access_mode access_mode_t =
@@ -357,7 +357,7 @@ static PORTBLAS_INLINE auto make_matrix_view(BufferIterator<value_t> buff,
 }
 
 template <typename value_t, typename increment_t, typename index_t>
-static PORTBLAS_INLINE auto make_vector_view(value_t *usm_ptr, increment_t inc,
+static ONEMATH_SYCL_BLAS_INLINE auto make_vector_view(value_t *usm_ptr, increment_t inc,
                                               index_t sz) {
   using leaf_node_t = VectorView<value_t *, index_t, increment_t>;
   return leaf_node_t{usm_ptr, inc, sz};
@@ -365,7 +365,7 @@ static PORTBLAS_INLINE auto make_vector_view(value_t *usm_ptr, increment_t inc,
 
 template <typename access_layout_t, typename value_t, typename index_t,
           bool has_inc = false>
-static PORTBLAS_INLINE auto make_matrix_view(value_t *usm_ptr, index_t m,
+static ONEMATH_SYCL_BLAS_INLINE auto make_matrix_view(value_t *usm_ptr, index_t m,
                                               index_t n, index_t lda,
                                               index_t inc = 1) {
   using leaf_node_t = MatrixView<value_t *, index_t, access_layout_t, has_inc>;
@@ -373,7 +373,7 @@ static PORTBLAS_INLINE auto make_matrix_view(value_t *usm_ptr, index_t m,
 }
 
 template <typename value_t, typename increment_t, typename index_t>
-static PORTBLAS_INLINE auto make_vector_view(const value_t *usm_ptr,
+static ONEMATH_SYCL_BLAS_INLINE auto make_vector_view(const value_t *usm_ptr,
                                               increment_t inc, index_t sz) {
   using leaf_node_t = VectorView<const value_t *, index_t, increment_t>;
   return leaf_node_t{usm_ptr, inc, sz};
@@ -382,7 +382,7 @@ static PORTBLAS_INLINE auto make_vector_view(const value_t *usm_ptr,
 
 template <typename access_layout_t, typename value_t, typename index_t,
           bool has_inc = false>
-static PORTBLAS_INLINE auto make_matrix_view(const value_t *usm_ptr, index_t m,
+static ONEMATH_SYCL_BLAS_INLINE auto make_matrix_view(const value_t *usm_ptr, index_t m,
                                               index_t n, index_t lda,
                                               index_t inc = 1) {
   using leaf_node_t = MatrixView<const value_t *, index_t, access_layout_t, has_inc>;

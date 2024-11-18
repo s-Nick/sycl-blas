@@ -22,7 +22,7 @@
  *  @filename sycl_iterator.hpp
  *
  **************************************************************************/
-#ifndef PORTBLAS_BUFFER_ITERATOR_HPP
-#define PORTBLAS_BUFFER_ITERATOR_HPP
+#ifndef ONEMATH_SYCL_BLAS_BUFFER_ITERATOR_HPP
+#define ONEMATH_SYCL_BLAS_BUFFER_ITERATOR_HPP
 #include "container/sycl_iterator.h"
 #endif  // BLAS_SYCL_ITERATOR_HPP

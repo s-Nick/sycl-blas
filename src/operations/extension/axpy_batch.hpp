@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_EXTENSION_AXPY_BATCH_HPP
-#define PORTBLAS_EXTENSION_AXPY_BATCH_HPP
+#ifndef ONEMATH_SYCL_BLAS_EXTENSION_AXPY_BATCH_HPP
+#define ONEMATH_SYCL_BLAS_EXTENSION_AXPY_BATCH_HPP
 
 #include "blas_meta.h"
 #include "operations/extension/axpy_batch.h"
@@ -51,7 +51,7 @@ Axpy_batch<sameSign, localSize, maxBlockPerBatch, lhs_t, rhs_t>::Axpy_batch(
 
 template <bool sameSign, int localSize, int maxBlockPerBatch, typename lhs_t,
           typename rhs_t>
-PORTBLAS_INLINE typename lhs_t::value_t
+ONEMATH_SYCL_BLAS_INLINE typename lhs_t::value_t
 Axpy_batch<sameSign, localSize, maxBlockPerBatch, lhs_t, rhs_t>::eval(
     sycl::nd_item<1> ndItem) {
   const index_t n{n_};
@@ -108,7 +108,7 @@ Axpy_batch<sameSign, localSize, maxBlockPerBatch, lhs_t, rhs_t>::eval(
 
 template <bool sameSign, int localSize, int maxBlockPerBatch, typename lhs_t,
           typename rhs_t>
-PORTBLAS_INLINE void Axpy_batch<sameSign, localSize, maxBlockPerBatch, lhs_t,
+ONEMATH_SYCL_BLAS_INLINE void Axpy_batch<sameSign, localSize, maxBlockPerBatch, lhs_t,
                                 rhs_t>::bind(sycl::handler& h) {
   lhs_.bind(h);
   rhs_.bind(h);
@@ -116,7 +116,7 @@ PORTBLAS_INLINE void Axpy_batch<sameSign, localSize, maxBlockPerBatch, lhs_t,
 
 template <bool sameSign, int localSize, int maxBlockPerBatch, typename lhs_t,
           typename rhs_t>
-PORTBLAS_INLINE void Axpy_batch<sameSign, localSize, maxBlockPerBatch, lhs_t,
+ONEMATH_SYCL_BLAS_INLINE void Axpy_batch<sameSign, localSize, maxBlockPerBatch, lhs_t,
                                 rhs_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   rhs_.adjust_access_displacement();
@@ -124,14 +124,14 @@ PORTBLAS_INLINE void Axpy_batch<sameSign, localSize, maxBlockPerBatch, lhs_t,
 
 template <bool sameSign, int localSize, int maxBlockPerBatch, typename lhs_t,
           typename rhs_t>
-PORTBLAS_INLINE typename rhs_t::index_t Axpy_batch<
+ONEMATH_SYCL_BLAS_INLINE typename rhs_t::index_t Axpy_batch<
     sameSign, localSize, maxBlockPerBatch, lhs_t, rhs_t>::get_size() const {
   return n_ * batch_size_;
 }
 
 template <bool sameSign, int localSize, int maxBlockPerBatch, typename lhs_t,
           typename rhs_t>
-PORTBLAS_INLINE bool
+ONEMATH_SYCL_BLAS_INLINE bool
 Axpy_batch<sameSign, localSize, maxBlockPerBatch, lhs_t, rhs_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return true;

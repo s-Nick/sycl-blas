@@ -1,7 +1,7 @@
 #ifndef TEMP_MEMORY_POOL_HPP
 #define TEMP_MEMORY_POOL_HPP
 #ifndef __ADAPTIVECPP__
-#include "portblas_helper.h"
+#include "helper.h"
 
 namespace blas {
 template <typename value_t>

@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef PORTBLAS_BENCHMARK_NAMES_HPP
-#define PORTBLAS_BENCHMARK_NAMES_HPP
+#ifndef ONEMATH_SYCL_BLAS_BENCHMARK_NAMES_HPP
+#define ONEMATH_SYCL_BLAS_BENCHMARK_NAMES_HPP
 
 #include <common/common_utils.hpp>
 
@@ -308,4 +308,4 @@ get_name(index_t n, scalar_t alpha, index_t inc_x, index_t inc_y,
 }  // namespace utils
 }  // namespace blas_benchmark
 
-#endif  // PORTBLAS_BENCHMARK_NAMES_HPP
+#endif  // ONEMATH_SYCL_BLAS_BENCHMARK_NAMES_HPP

@@ -21,14 +21,14 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS3_TRSM_INTERFACE_HPP
-#define PORTBLAS_BLAS3_TRSM_INTERFACE_HPP
+#ifndef ONEMATH_SYCL_BLAS_BLAS3_TRSM_INTERFACE_HPP
+#define ONEMATH_SYCL_BLAS_BLAS3_TRSM_INTERFACE_HPP
 
 #include "blas_meta.h"
 #include "interface/gemm_interface.hpp"
 #include "operations/blas3_trees.h"
-#include "sb_handle/portblas_handle.h"
-#include "portblas_helper.h"
+#include "sb_handle/handle.h"
+#include "helper.h"
 #include "views/view.h"
 
 namespace blas {
@@ -398,4 +398,4 @@ typename sb_handle_t::event_t _trsm(
 }  // namespace internal
 }  // namespace blas
 
-#endif  // PORTBLAS_BLAS3_TRSM_INTERFACE_HPP
+#endif  // ONEMATH_SYCL_BLAS_BLAS3_TRSM_INTERFACE_HPP

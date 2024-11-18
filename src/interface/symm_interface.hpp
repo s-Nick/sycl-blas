@@ -23,8 +23,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_SYMM_INTERFACE_HPP
-#define PORTBLAS_SYMM_INTERFACE_HPP
+#ifndef ONEMATH_SYCL_BLAS_SYMM_INTERFACE_HPP
+#define ONEMATH_SYCL_BLAS_SYMM_INTERFACE_HPP
 
 #include "interface/gemm_interface.hpp"
 
@@ -75,4 +75,4 @@ typename sb_handle_t::event_t _symm(
 }  // namespace internal
 }  // namespace blas
 
-#endif  // PORTBLAS_SYMM_INTERFACE_HPP
+#endif  // ONEMATH_SYCL_BLAS_SYMM_INTERFACE_HPP

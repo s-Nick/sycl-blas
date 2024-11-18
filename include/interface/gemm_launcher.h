@@ -23,11 +23,11 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS3_GEMM_LAUNCHER_H
-#define PORTBLAS_BLAS3_GEMM_LAUNCHER_H
+#ifndef ONEMATH_SYCL_BLAS_BLAS3_GEMM_LAUNCHER_H
+#define ONEMATH_SYCL_BLAS_BLAS3_GEMM_LAUNCHER_H
 
 #include "operations/blas3_trees.h"
-#include "sb_handle/portblas_handle.h"
+#include "sb_handle/handle.h"
 
 namespace blas {
 
@@ -53,4 +53,4 @@ struct Gemm_Launcher {
 
 }  // namespace blas
 
-#endif  // PORTBLAS_BLAS3_GEMM_LAUNCHER_H
+#endif  // ONEMATH_SYCL_BLAS_BLAS3_GEMM_LAUNCHER_H

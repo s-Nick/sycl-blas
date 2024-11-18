@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS3_GEMM_LOAD_STORE_CPLX_HPP
-#define PORTBLAS_BLAS3_GEMM_LOAD_STORE_CPLX_HPP
+#ifndef ONEMATH_SYCL_BLAS_BLAS3_GEMM_LOAD_STORE_CPLX_HPP
+#define ONEMATH_SYCL_BLAS_BLAS3_GEMM_LOAD_STORE_CPLX_HPP
 
 namespace blas {
 #ifdef BLAS_ENABLE_COMPLEX
@@ -140,7 +140,7 @@ struct Packetize<vector_size, complex_sycl<T>, index_t> {
   using PacketType = vec_complex<value_t, 1>;
   static constexpr int packet_size = 1;
   template <index_t dimension>
-  static PORTBLAS_INLINE constexpr bool check_size() {
+  static ONEMATH_SYCL_BLAS_INLINE constexpr bool check_size() {
     return true;
   }
 
@@ -153,7 +153,7 @@ struct Packetize<vector_size, complex_sycl<T>, index_t> {
    * @tparam ld The leading dimension of the destination memory. */
   template <bool trans, bool internal, index_t ld, typename SrcPointerType,
             typename DestPointerType, typename EdgePredicate>
-  static PORTBLAS_INLINE void load(const bool in_range, SrcPointerType src,
+  static ONEMATH_SYCL_BLAS_INLINE void load(const bool in_range, SrcPointerType src,
                                    DestPointerType dest,
                                    EdgePredicate edge_in_range) {
     *(dest) = in_range ? *(src) : value_t{(T)0, (T)0};
@@ -164,11 +164,11 @@ struct Packetize<vector_size, complex_sycl<T>, index_t> {
    * @tparam trans Whether the source matrix is transposed or not.
    * @tparam ld The leading dimension of the destination memory.*/
   template <bool trans, index_t ld, typename DestPointerType>
-  static PORTBLAS_INLINE void store(PacketType &packet, DestPointerType dest) {
+  static ONEMATH_SYCL_BLAS_INLINE void store(PacketType &packet, DestPointerType dest) {
     *dest = packet[0];
   }
 };
 #endif
 }  // namespace blas
 
-#endif  // PORTBLAS_BLAS3_GEMM_LOAD_STORE_CPLX_HPP
+#endif  // ONEMATH_SYCL_BLAS_BLAS3_GEMM_LOAD_STORE_CPLX_HPP

@@ -18,12 +18,12 @@
  *
  *  portBLAS: BLAS implementation using SYCL
  *
- *  @filename portblas_helper.h
+ *  @filename helper.h
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_HELPER_H
-#define PORTBLAS_HELPER_H
+#ifndef ONEMATH_SYCL_BLAS_HELPER_H
+#define ONEMATH_SYCL_BLAS_HELPER_H
 
 #include "blas_meta.h"
 #include "container/sycl_iterator.h"
@@ -252,4 +252,4 @@ inline void throw_unsupported_intel_dGPU(const sb_handle_t &sb_handle,
 
 }  // end namespace helper
 }  // end namespace blas
-#endif  // PORTBLAS_HELPER_H
+#endif  // ONEMATH_SYCL_BLAS_HELPER_H

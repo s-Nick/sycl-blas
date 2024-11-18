@@ -23,8 +23,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_KERNEL_CONSTRUCTOR_H
-#define PORTBLAS_KERNEL_CONSTRUCTOR_H
+#ifndef ONEMATH_SYCL_BLAS_KERNEL_CONSTRUCTOR_H
+#define ONEMATH_SYCL_BLAS_KERNEL_CONSTRUCTOR_H
 
 #include <sycl/sycl.hpp>
 
@@ -125,4 +125,4 @@ static sycl::event execute_tree(queue_t q, expression_tree_t t,
 
 }  // namespace blas
 
-#endif  // PORTBLAS_KERNEL_CONSTRUCTOR_H
+#endif  // ONEMATH_SYCL_BLAS_KERNEL_CONSTRUCTOR_H

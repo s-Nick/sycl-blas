@@ -23,8 +23,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_VIEW_SYCL_HPP
-#define PORTBLAS_VIEW_SYCL_HPP
+#ifndef ONEMATH_SYCL_BLAS_VIEW_SYCL_HPP
+#define ONEMATH_SYCL_BLAS_VIEW_SYCL_HPP
 
 #include <sycl/sycl.hpp>
 #include <type_traits>
@@ -75,14 +75,14 @@ struct VectorView<
   sycl::global_ptr<scalar_t> ptr_;
 
   // Round up the ration num / den, i.e. compute ceil(num / den)
-  static PORTBLAS_INLINE index_t round_up_ratio(index_t num, index_t den) {
+  static ONEMATH_SYCL_BLAS_INLINE index_t round_up_ratio(index_t num, index_t den) {
     return (num + den - 1) / den;
   }
 
   // Compute the number of elements to read from data. This is useful when a
   // VectorView is created without an explicit size, so that only the necessary
   // number of threads are launched.
-  static PORTBLAS_INLINE index_t calculate_input_data_size(
+  static ONEMATH_SYCL_BLAS_INLINE index_t calculate_input_data_size(
       container_t &data, index_t, increment_t stride, index_t size) noexcept {
     increment_t const positive_stride = stride < 0 ? -stride : stride;
     index_t const calc_size = round_up_ratio(data.size(), positive_stride);
@@ -92,7 +92,7 @@ struct VectorView<
   /*!
    * @brief See VectorView.
    */
-  PORTBLAS_INLINE VectorView(container_t data, index_t disp, increment_t strd,
+  ONEMATH_SYCL_BLAS_INLINE VectorView(container_t data, index_t disp, increment_t strd,
                               index_t size)
       : data_{data},
         size_(calculate_input_data_size(data, disp, strd, size)),
@@ -102,82 +102,82 @@ struct VectorView<
   /*!
    * @brief See VectorView.
    */
-  PORTBLAS_INLINE VectorView(container_t data)
+  ONEMATH_SYCL_BLAS_INLINE VectorView(container_t data)
       : VectorView(data, 0, 1, data_.get_size()) {}
 
   /*!
    * @brief See VectorView.
    */
-  PORTBLAS_INLINE VectorView(container_t data, index_t disp)
+  ONEMATH_SYCL_BLAS_INLINE VectorView(container_t data, index_t disp)
       : VectorView(data, disp, 1, data_.get_size()) {}
 
   /*!
    * @brief See VectorView.
    */
-  PORTBLAS_INLINE VectorView(self_t &opV, index_t disp, increment_t strd,
+  ONEMATH_SYCL_BLAS_INLINE VectorView(self_t &opV, index_t disp, increment_t strd,
                               index_t size)
       : VectorView(opV.get_data(), disp, strd, size) {}
 
   /*!
    * @brief See VectorView.
    */
-  PORTBLAS_INLINE container_t &get_data() { return data_; }
+  ONEMATH_SYCL_BLAS_INLINE container_t &get_data() { return data_; }
   /*!
    * @brief See VectorView.
    */
-  PORTBLAS_INLINE scalar_t *get_pointer() const { return ptr_; }
+  ONEMATH_SYCL_BLAS_INLINE scalar_t *get_pointer() const { return ptr_; }
 
   /*!
    * @brief See VectorView.
    */
-  PORTBLAS_INLINE index_t get_data_size() const { return data_.get_size(); }
+  ONEMATH_SYCL_BLAS_INLINE index_t get_data_size() const { return data_.get_size(); }
 
   /*!
    * @brief See VectorView.
    */
-  PORTBLAS_INLINE index_t get_size() const { return size_; }
+  ONEMATH_SYCL_BLAS_INLINE index_t get_size() const { return size_; }
 
   /*!
    * @brief See VectorView.
    */
-  PORTBLAS_INLINE increment_t get_stride() const { return stride_; }
+  ONEMATH_SYCL_BLAS_INLINE increment_t get_stride() const { return stride_; }
 
   /**** EVALUATING ****/
   template <bool use_as_ptr = false>
-  PORTBLAS_INLINE typename std::enable_if<!use_as_ptr, scalar_t &>::type eval(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!use_as_ptr, scalar_t &>::type eval(
       index_t i) {
     return (stride_ == 1) ? *(ptr_ + i) : *(ptr_ + i * stride_);
   }
 
   template <bool use_as_ptr = false>
-  PORTBLAS_INLINE typename std::enable_if<
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<
       !use_as_ptr, scalar_t&>::type
   eval(index_t i) const {
     return (stride_ == 1) ? *(ptr_ + i) : *(ptr_ + i * stride_);
   }
 
-  PORTBLAS_INLINE scalar_t &eval(sycl::nd_item<1> ndItem) {
+  ONEMATH_SYCL_BLAS_INLINE scalar_t &eval(sycl::nd_item<1> ndItem) {
     return eval(ndItem.get_global_id(0));
   }
 
-  PORTBLAS_INLINE scalar_t eval(sycl::nd_item<1> ndItem) const {
+  ONEMATH_SYCL_BLAS_INLINE scalar_t eval(sycl::nd_item<1> ndItem) const {
     return eval(ndItem.get_global_id(0));
   }
 
   template <bool use_as_ptr = false>
-  PORTBLAS_INLINE typename std::enable_if<use_as_ptr, scalar_t &>::type eval(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<use_as_ptr, scalar_t &>::type eval(
       index_t indx) {
     return *(ptr_ + indx);
   }
 
   template <bool use_as_ptr = false>
-  PORTBLAS_INLINE typename std::enable_if<use_as_ptr, scalar_t>::type eval(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<use_as_ptr, scalar_t>::type eval(
       index_t indx) const noexcept {
     return *(ptr_ + indx);
   }
 
-  PORTBLAS_INLINE void bind(sycl::handler &h) { h.require(data_); }
-  PORTBLAS_INLINE void adjust_access_displacement() {
+  ONEMATH_SYCL_BLAS_INLINE void bind(sycl::handler &h) { h.require(data_); }
+  ONEMATH_SYCL_BLAS_INLINE void adjust_access_displacement() {
     ptr_ = data_.get_pointer() + disp_;
   }
 };
@@ -217,7 +217,7 @@ struct MatrixView<
   sycl::global_ptr<scalar_t> ptr_;  // global pointer access inside the kernel
 
   /**** CONSTRUCTORS ****/
-  PORTBLAS_INLINE MatrixView(container_t data, index_t sizeR, index_t sizeC,
+  ONEMATH_SYCL_BLAS_INLINE MatrixView(container_t data, index_t sizeR, index_t sizeC,
                               index_t sizeL, index_t disp)
       : data_{data},
         sizeR_(sizeR),
@@ -228,19 +228,19 @@ struct MatrixView<
     static_assert(has_inc);
   }
 
-  PORTBLAS_INLINE MatrixView(container_t data, index_t sizeR, index_t sizeC)
+  ONEMATH_SYCL_BLAS_INLINE MatrixView(container_t data, index_t sizeR, index_t sizeC)
       : MatrixView(data, sizeR, sizeC,
                    (layout::is_col_major() ? sizeR_ : sizeC_), 0) {
     static_assert(has_inc);
   }
 
-  PORTBLAS_INLINE MatrixView(self_t opM, index_t sizeR, index_t sizeC,
+  ONEMATH_SYCL_BLAS_INLINE MatrixView(self_t opM, index_t sizeR, index_t sizeC,
                               index_t sizeL, index_t disp)
       : MatrixView(opM.data_, sizeR, sizeC, sizeL, disp) {
     static_assert(has_inc);
   }
 
-  PORTBLAS_INLINE MatrixView(container_t data, index_t sizeR, index_t sizeC,
+  ONEMATH_SYCL_BLAS_INLINE MatrixView(container_t data, index_t sizeR, index_t sizeC,
                               index_t sizeL, index_t inc, index_t disp)
       : data_{data},
         sizeR_(sizeR),
@@ -252,23 +252,23 @@ struct MatrixView<
   }
 
   /**** RETRIEVING DATA ****/
-  PORTBLAS_INLINE container_t &get_data() { return data_; }
+  ONEMATH_SYCL_BLAS_INLINE container_t &get_data() { return data_; }
 
-  PORTBLAS_INLINE const index_t get_size() const { return sizeR_ * sizeC_; }
+  ONEMATH_SYCL_BLAS_INLINE const index_t get_size() const { return sizeR_ * sizeC_; }
 
-  PORTBLAS_INLINE index_t get_data_size() const { return data_.get_size(); }
+  ONEMATH_SYCL_BLAS_INLINE index_t get_data_size() const { return data_.get_size(); }
 
-  PORTBLAS_INLINE const index_t getSizeL() const { return sizeL_; }
+  ONEMATH_SYCL_BLAS_INLINE const index_t getSizeL() const { return sizeL_; }
 
-  PORTBLAS_INLINE const index_t get_size_row() const { return sizeR_; }
+  ONEMATH_SYCL_BLAS_INLINE const index_t get_size_row() const { return sizeR_; }
 
-  PORTBLAS_INLINE const index_t get_size_col() const { return sizeC_; }
+  ONEMATH_SYCL_BLAS_INLINE const index_t get_size_col() const { return sizeC_; }
 
-  PORTBLAS_INLINE scalar_t *get_pointer() const { return ptr_; }
+  ONEMATH_SYCL_BLAS_INLINE scalar_t *get_pointer() const { return ptr_; }
 
   /**** EVALUATING ***/
 
-  PORTBLAS_INLINE scalar_t &eval(index_t i, index_t j) {
+  ONEMATH_SYCL_BLAS_INLINE scalar_t &eval(index_t i, index_t j) {
     if constexpr (has_inc) {
       if constexpr (layout::is_col_major()) {
         return *(ptr_ + i * inc_ + sizeL_ * j);
@@ -284,7 +284,7 @@ struct MatrixView<
     }
   }
 
-  PORTBLAS_INLINE scalar_t &eval(index_t i, index_t j) const noexcept {
+  ONEMATH_SYCL_BLAS_INLINE scalar_t &eval(index_t i, index_t j) const noexcept {
     if constexpr (has_inc) {
       if constexpr (layout::is_col_major()) {
         return *(ptr_ + i * inc_ + sizeL_ * j);
@@ -301,7 +301,7 @@ struct MatrixView<
   }
 
   template <bool use_as_ptr = false>
-  PORTBLAS_INLINE typename std::enable_if<!use_as_ptr, scalar_t &>::type eval(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!use_as_ptr, scalar_t &>::type eval(
       index_t indx) {
     const index_t j = indx / sizeR_;
     const index_t i = indx - sizeR_ * j;
@@ -309,36 +309,36 @@ struct MatrixView<
   }
 
   template <bool use_as_ptr = false>
-  PORTBLAS_INLINE typename std::enable_if<!use_as_ptr, scalar_t>::type eval(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!use_as_ptr, scalar_t>::type eval(
       index_t indx) const noexcept {
     const index_t j = indx / sizeR_;
     const index_t i = indx - sizeR_ * j;
     return eval(i, j);
   }
 
-  PORTBLAS_INLINE scalar_t &eval(sycl::nd_item<1> ndItem) {
+  ONEMATH_SYCL_BLAS_INLINE scalar_t &eval(sycl::nd_item<1> ndItem) {
     return eval(ndItem.get_global_id(0));
   }
 
-  PORTBLAS_INLINE scalar_t eval(sycl::nd_item<1> ndItem) const noexcept {
+  ONEMATH_SYCL_BLAS_INLINE scalar_t eval(sycl::nd_item<1> ndItem) const noexcept {
     return eval(ndItem.get_global_id(0));
   }
 
   template <bool use_as_ptr = false>
-  PORTBLAS_INLINE typename std::enable_if<use_as_ptr, scalar_t &>::type eval(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<use_as_ptr, scalar_t &>::type eval(
       index_t indx) {
     return *(ptr_ + indx);
   }
 
   template <bool use_as_ptr = false>
-  PORTBLAS_INLINE typename std::enable_if<use_as_ptr, scalar_t>::type eval(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<use_as_ptr, scalar_t>::type eval(
       index_t indx) const noexcept {
     return *(ptr_ + indx);
   }
 
-  PORTBLAS_INLINE void bind(sycl::handler &h) { h.require(data_); }
+  ONEMATH_SYCL_BLAS_INLINE void bind(sycl::handler &h) { h.require(data_); }
 
-  PORTBLAS_INLINE void adjust_access_displacement() {
+  ONEMATH_SYCL_BLAS_INLINE void adjust_access_displacement() {
     ptr_ = data_.get_pointer() + disp_;
   }
 };

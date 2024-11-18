@@ -20,7 +20,7 @@
 # *
 # *  portBLAS: BLAS implementation using SYCL
 # *
-# *  @filename ConfigurePORTBLAS.cmake
+# *  @filename ConfigureONEMATH_SYCL_BLAS.cmake
 # *
 # **************************************************************************/
 

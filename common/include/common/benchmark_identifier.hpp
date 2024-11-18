@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef PORTBLAS_BENCHMARK_IDENTIFIER_HPP
-#define PORTBLAS_BENCHMARK_IDENTIFIER_HPP
+#ifndef ONEMATH_SYCL_BLAS_BENCHMARK_IDENTIFIER_HPP
+#define ONEMATH_SYCL_BLAS_BENCHMARK_IDENTIFIER_HPP
 
 namespace blas_benchmark {
 namespace utils {
@@ -205,4 +205,4 @@ std::string get_operator_name() {
 }  // namespace utils
 }  // namespace blas_benchmark
 
-#endif  // PORTBLAS_BENCHMARK_IDENTIFIER_HPP
+#endif  // ONEMATH_SYCL_BLAS_BENCHMARK_IDENTIFIER_HPP

@@ -23,8 +23,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_META_H
-#define PORTBLAS_META_H
+#ifndef ONEMATH_SYCL_BLAS_META_H
+#define ONEMATH_SYCL_BLAS_META_H
 
 #include <sycl/sycl.hpp>
 #include <type_traits>
@@ -144,16 +144,16 @@ static inline index_t get_power_of_two(index_t wGSize, bool rounUp) {
 }
 
 #ifdef __SYCL_DEVICE_ONLY__
-#define PORTBLAS_ALWAYS_INLINE \
+#define ONEMATH_SYCL_BLAS_ALWAYS_INLINE \
   __attribute__((flatten)) __attribute__((always_inline))
 #else
-#define PORTBLAS_ALWAYS_INLINE
+#define ONEMATH_SYCL_BLAS_ALWAYS_INLINE
 #endif
 
-#define PORTBLAS_INLINE PORTBLAS_ALWAYS_INLINE inline
+#define ONEMATH_SYCL_BLAS_INLINE ONEMATH_SYCL_BLAS_ALWAYS_INLINE inline
 
 template <typename index_t>
-static PORTBLAS_INLINE index_t roundUp(index_t x, index_t y) {
+static ONEMATH_SYCL_BLAS_INLINE index_t roundUp(index_t x, index_t y) {
   return ((x + y - 1) / y) * y;
 }
 

@@ -19,14 +19,13 @@
  *
  *  portBLAS: BLAS implementation using SYCL
  *
- *  @filename portblas.hpp
  *
  **************************************************************************/
-#include "portblas.h"
+#include "onemath_sycl_blas.h"
 
 #include "container/sycl_iterator.hpp"
 
-#include "sb_handle/portblas_handle.hpp"
+#include "sb_handle/handle.hpp"
 
 #include "sb_handle/kernel_constructor.hpp"
 

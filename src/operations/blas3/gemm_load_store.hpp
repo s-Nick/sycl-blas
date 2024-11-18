@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS3_GEMM_LOAD_STORE_HPP
-#define PORTBLAS_BLAS3_GEMM_LOAD_STORE_HPP
+#ifndef ONEMATH_SYCL_BLAS_BLAS3_GEMM_LOAD_STORE_HPP
+#define ONEMATH_SYCL_BLAS_BLAS3_GEMM_LOAD_STORE_HPP
 
 namespace blas {
 
@@ -42,7 +42,7 @@ struct Packetize {
   using PacketType = sycl::vec<value_t, vector_size>;
   static constexpr int packet_size = vector_size;
   template <index_t dimension>
-  PORTBLAS_INLINE static constexpr bool check_size() {
+  ONEMATH_SYCL_BLAS_INLINE static constexpr bool check_size() {
     return packet_size == 1 || dimension == packet_size;
   }
 #else
@@ -50,7 +50,7 @@ struct Packetize {
   using PacketType = sycl::vec<value_t, 1>;
   static constexpr int packet_size = 1;
   template <index_t dimension>
-  PORTBLAS_INLINE static constexpr bool check_size() {
+  ONEMATH_SYCL_BLAS_INLINE static constexpr bool check_size() {
     return true;
   }
 #endif
@@ -65,7 +65,7 @@ struct Packetize {
 
   template <bool trans, bool internal, int ld, typename SrcPointerType,
             typename DestPointerType, typename EdgePredicate>
-  static PORTBLAS_INLINE typename std::enable_if<!internal>::type load(
+  static ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!internal>::type load(
       const bool in_range, SrcPointerType src, DestPointerType dest,
       EdgePredicate) {
     *(dest) = in_range ? *(src) : value_t{0};
@@ -80,7 +80,7 @@ struct Packetize {
    * @tparam ld The leading dimension of the destination memory. */
   template <bool trans, bool internal, index_t ld, typename SrcPointerType,
             typename DestPointerType, typename EdgePredicate>
-  static PORTBLAS_INLINE typename std::enable_if<internal>::type load(
+  static ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<internal>::type load(
       const bool in_range, SrcPointerType src, DestPointerType dest,
       EdgePredicate edge_in_range) {
     PacketType packet{};
@@ -104,7 +104,7 @@ struct Packetize {
    * @tparam trans Whether the source matrix is transposed or not.
    * @tparam ld The leading dimension of the destination memory.*/
   template <bool trans, index_t ld, typename DestPointerType>
-  static PORTBLAS_INLINE typename std::enable_if<trans>::type store(
+  static ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<trans>::type store(
       PacketType &packet, DestPointerType dest) {
 #pragma unroll
     for (index_t i = 0; i < packet_size; i++) {
@@ -117,7 +117,7 @@ struct Packetize {
    * @tparam trans Whether the source matrix is transposed or not.
    * @tparam ld The leading dimension of the destination memory.*/
   template <bool trans, int ld, typename DestPointerType>
-  static PORTBLAS_INLINE typename std::enable_if<!trans>::type store(
+  static ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!trans>::type store(
       PacketType &packet, DestPointerType dest) {
     using address_t = sycl::access::address_space;
     packet.template store<address_t::local_space>(
@@ -126,4 +126,4 @@ struct Packetize {
 };
 
 }  // namespace blas
-#endif  // PORTBLAS_BLAS3_GEMM_LOAD_STORE_HPP
+#endif  // ONEMATH_SYCL_BLAS_BLAS3_GEMM_LOAD_STORE_HPP

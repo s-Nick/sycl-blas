@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS3_REF_GEMM_HPP
-#define PORTBLAS_BLAS3_REF_GEMM_HPP
+#ifndef ONEMATH_SYCL_BLAS_BLAS3_REF_GEMM_HPP
+#define ONEMATH_SYCL_BLAS_BLAS3_REF_GEMM_HPP
 
 #include "gemm_common.hpp"
 
@@ -49,7 +49,7 @@ template <typename input_t, typename output_t, bool DoubleBuffer, bool NbcA,
           bool SymmA, bool SymmB, typename element_t, bool is_beta_zero,
           int GemmMemoryType, int GemmAlgorithm, int GemmVectorization,
           int VectorSize, int BatchType, bool UseJointMatrix>
-PORTBLAS_INLINE
+ONEMATH_SYCL_BLAS_INLINE
 Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type, TransA,
      TransB, SymmA, SymmB, element_t, is_beta_zero, GemmMemoryType,
      GemmAlgorithm, GemmVectorization, VectorSize, BatchType, UseJointMatrix>::
@@ -76,7 +76,7 @@ template <typename input_t, typename output_t, bool DoubleBuffer, bool NbcA,
           bool SymmA, bool SymmB, typename element_t, bool is_beta_zero,
           int GemmMemoryType, int GemmAlgorithm, int GemmVectorization,
           int VectorSize, int BatchType, bool UseJointMatrix>
-PORTBLAS_INLINE std::string
+ONEMATH_SYCL_BLAS_INLINE std::string
 Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type, TransA,
      TransB, SymmA, SymmB, element_t, is_beta_zero, GemmMemoryType,
      GemmAlgorithm, GemmVectorization, VectorSize, BatchType,
@@ -96,7 +96,7 @@ template <typename input_t, typename output_t, bool DoubleBuffer, bool NbcA,
           bool SymmA, bool SymmB, typename element_t, bool is_beta_zero,
           int GemmMemoryType, int GemmAlgorithm, int GemmVectorization,
           int VectorSize, int BatchType, bool UseJointMatrix>
-PORTBLAS_INLINE typename Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB,
+ONEMATH_SYCL_BLAS_INLINE typename Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB,
                               ClSize, tile_type, TransA, TransB, SymmA, SymmB,
                               element_t, is_beta_zero, GemmMemoryType,
                               GemmAlgorithm, GemmVectorization, VectorSize,
@@ -119,7 +119,7 @@ template <typename input_t, typename output_t, bool DoubleBuffer, bool NbcA,
           bool SymmA, bool SymmB, typename element_t, bool is_beta_zero,
           int GemmMemoryType, int GemmAlgorithm, int GemmVectorization,
           int VectorSize, int BatchType, bool UseJointMatrix>
-PORTBLAS_INLINE typename Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB,
+ONEMATH_SYCL_BLAS_INLINE typename Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB,
                               ClSize, tile_type, TransA, TransB, SymmA, SymmB,
                               element_t, is_beta_zero, GemmMemoryType,
                               GemmAlgorithm, GemmVectorization, VectorSize,
@@ -144,7 +144,7 @@ template <typename input_t, typename output_t, bool DoubleBuffer, bool NbcA,
           bool SymmA, bool SymmB, typename element_t, bool is_beta_zero,
           int GemmMemoryType, int GemmAlgorithm, int GemmVectorization,
           int VectorSize, int BatchType, bool UseJointMatrix>
-PORTBLAS_INLINE sycl::nd_range<1>
+ONEMATH_SYCL_BLAS_INLINE sycl::nd_range<1>
 Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type, TransA,
      TransB, SymmA, SymmB, element_t, is_beta_zero, GemmMemoryType,
      GemmAlgorithm, GemmVectorization, VectorSize, BatchType,
@@ -167,7 +167,7 @@ template <typename input_t, typename output_t, bool DoubleBuffer, bool NbcA,
           bool SymmA, bool SymmB, typename element_t, bool is_beta_zero,
           int GemmMemoryType, int GemmAlgorithm, int GemmVectorization,
           int VectorSize, int BatchType, bool UseJointMatrix>
-PORTBLAS_INLINE typename Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB,
+ONEMATH_SYCL_BLAS_INLINE typename Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB,
                               ClSize, tile_type, TransA, TransB, SymmA, SymmB,
                               element_t, is_beta_zero, GemmMemoryType,
                               GemmAlgorithm, GemmVectorization, VectorSize,
@@ -184,7 +184,7 @@ template <typename input_t, typename output_t, bool DoubleBuffer, bool NbcA,
           bool SymmA, bool SymmB, typename element_t, bool is_beta_zero,
           int GemmMemoryType, int GemmAlgorithm, int GemmVectorization,
           int VectorSize, int BatchType, bool UseJointMatrix>
-PORTBLAS_INLINE bool
+ONEMATH_SYCL_BLAS_INLINE bool
 Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type, TransA,
      TransB, SymmA, SymmB, element_t, is_beta_zero, GemmMemoryType,
      GemmAlgorithm, GemmVectorization, VectorSize, BatchType,
@@ -197,7 +197,7 @@ template <typename input_t, typename output_t, bool DoubleBuffer, bool NbcA,
           bool SymmA, bool SymmB, typename element_t, bool is_beta_zero,
           int GemmMemoryType, int GemmAlgorithm, int GemmVectorization,
           int VectorSize, int BatchType, bool UseJointMatrix>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type, TransA,
      TransB, SymmA, SymmB, element_t, is_beta_zero, GemmMemoryType,
      GemmAlgorithm, GemmVectorization, VectorSize, BatchType,
@@ -264,7 +264,7 @@ template <typename input_t, typename output_t, bool DoubleBuffer, bool NbcA,
           bool SymmA, bool SymmB, typename element_t, bool is_beta_zero,
           int GemmMemoryType, int GemmAlgorithm, int GemmVectorization,
           int VectorSize, int BatchType, bool UseJointMatrix>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type, TransA,
      TransB, SymmA, SymmB, element_t, is_beta_zero, GemmMemoryType,
      GemmAlgorithm, GemmVectorization, VectorSize, BatchType,
@@ -279,7 +279,7 @@ template <typename input_t, typename output_t, bool DoubleBuffer, bool NbcA,
           bool SymmA, bool SymmB, typename element_t, bool is_beta_zero,
           int GemmMemoryType, int GemmAlgorithm, int GemmVectorization,
           int VectorSize, int BatchType, bool UseJointMatrix>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type, TransA,
      TransB, SymmA, SymmB, element_t, is_beta_zero, GemmMemoryType,
      GemmAlgorithm, GemmVectorization, VectorSize, BatchType,
@@ -291,4 +291,4 @@ Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type, TransA,
 
 }  // namespace blas
 
-#endif  // PORTBLAS_BLAS3_REF_GEMM_HPP
+#endif  // ONEMATH_SYCL_BLAS_BLAS3_REF_GEMM_HPP

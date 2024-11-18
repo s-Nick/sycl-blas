@@ -35,7 +35,7 @@
 namespace blas {
 
 template <typename lhs_t, typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE Ger<lhs_t, rhs_1_t, rhs_2_t>::Ger(
+ONEMATH_SYCL_BLAS_INLINE Ger<lhs_t, rhs_1_t, rhs_2_t>::Ger(
     lhs_t &_l, value_t _scl, rhs_1_t &_r1, rhs_2_t &_r2, index_t &_nRowsWG,
     index_t &_nColsWG, index_t &_nWG_row, index_t &_nWG_col)
     : lhs_(_l),
@@ -48,18 +48,18 @@ PORTBLAS_INLINE Ger<lhs_t, rhs_1_t, rhs_2_t>::Ger(
       nWG_col_(_nWG_col) {}
 
 template <typename lhs_t, typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE typename Ger<lhs_t, rhs_1_t, rhs_2_t>::index_t
+ONEMATH_SYCL_BLAS_INLINE typename Ger<lhs_t, rhs_1_t, rhs_2_t>::index_t
 Ger<lhs_t, rhs_1_t, rhs_2_t>::get_size() const {
   return rhs_1_.get_size();
 }
 template <typename lhs_t, typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE bool Ger<lhs_t, rhs_1_t, rhs_2_t>::valid_thread(
+ONEMATH_SYCL_BLAS_INLINE bool Ger<lhs_t, rhs_1_t, rhs_2_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return true;
 }
 
 template <typename lhs_t, typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE typename Ger<lhs_t, rhs_1_t, rhs_2_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename Ger<lhs_t, rhs_1_t, rhs_2_t>::value_t
 Ger<lhs_t, rhs_1_t, rhs_2_t>::eval(sycl::nd_item<1> ndItem) {
   using index_t = typename Ger<lhs_t, rhs_1_t, rhs_2_t>::index_t;
 
@@ -124,7 +124,7 @@ Ger<lhs_t, rhs_1_t, rhs_2_t>::eval(sycl::nd_item<1> ndItem) {
 
 template <typename lhs_t, typename rhs_1_t, typename rhs_2_t>
 template <typename sharedT>
-PORTBLAS_INLINE typename Ger<lhs_t, rhs_1_t, rhs_2_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename Ger<lhs_t, rhs_1_t, rhs_2_t>::value_t
 Ger<lhs_t, rhs_1_t, rhs_2_t>::eval(sharedT shrMem, sycl::nd_item<1> ndItem) {
   using index_t = typename Ger<lhs_t, rhs_1_t, rhs_2_t>::index_t;
 
@@ -187,13 +187,13 @@ Ger<lhs_t, rhs_1_t, rhs_2_t>::eval(sharedT shrMem, sycl::nd_item<1> ndItem) {
 }
 
 template <typename lhs_t, typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE void Ger<lhs_t, rhs_1_t, rhs_2_t>::bind(sycl::handler &h) {
+ONEMATH_SYCL_BLAS_INLINE void Ger<lhs_t, rhs_1_t, rhs_2_t>::bind(sycl::handler &h) {
   lhs_.bind(h);
   rhs_1_.bind(h);
   rhs_2_.bind(h);
 }
 template <typename lhs_t, typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Ger<lhs_t, rhs_1_t, rhs_2_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   rhs_1_.adjust_access_displacement();
@@ -204,7 +204,7 @@ Ger<lhs_t, rhs_1_t, rhs_2_t>::adjust_access_displacement() {
 // template <typename lhs_t,  typename rhs_1_t, typename  rhs_2_t>
 template <bool Single, bool Lower, bool Diag, bool Upper, typename lhs_t,
           typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
+ONEMATH_SYCL_BLAS_INLINE GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
                         rhs_2_t>::GerRow(lhs_t &_l, value_t _scl, rhs_1_t &_r1,
                                          rhs_2_t &_r2, index_t &_nWG_row,
                                          index_t &_nWG_col,
@@ -219,14 +219,14 @@ PORTBLAS_INLINE GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
 
 template <bool Single, bool Lower, bool Diag, bool Upper, typename lhs_t,
           typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE typename GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
+ONEMATH_SYCL_BLAS_INLINE typename GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
                                  rhs_2_t>::index_t
 GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::get_size() const {
   return rhs_1_.get_size();
 }
 template <bool Single, bool Lower, bool Diag, bool Upper, typename lhs_t,
           typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE bool
+ONEMATH_SYCL_BLAS_INLINE bool
 GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return true;
@@ -234,7 +234,7 @@ GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::valid_thread(
 
 template <bool Single, bool Lower, bool Diag, bool Upper, typename lhs_t,
           typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE typename GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
+ONEMATH_SYCL_BLAS_INLINE typename GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
                                  rhs_2_t>::value_t
 GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::eval(
     typename GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
@@ -251,7 +251,7 @@ GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::eval(
 
 template <bool Single, bool Lower, bool Diag, bool Upper, typename lhs_t,
           typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE typename GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
+ONEMATH_SYCL_BLAS_INLINE typename GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
                                 rhs_2_t>::value_t
 GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::eval(
     sycl::nd_item<1> ndItem) {
@@ -324,7 +324,7 @@ GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::eval(
 template <bool Single, bool Lower, bool Diag, bool Upper, typename lhs_t,
           typename rhs_1_t, typename rhs_2_t>
 template <typename sharedT>
-PORTBLAS_INLINE typename GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
+ONEMATH_SYCL_BLAS_INLINE typename GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
                                 rhs_2_t>::value_t
 GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::eval(
     sharedT shrMem, sycl::nd_item<1> ndItem) {
@@ -425,7 +425,7 @@ GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::eval(
 }
 template <bool Single, bool Lower, bool Diag, bool Upper, typename lhs_t,
           typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE void GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
+ONEMATH_SYCL_BLAS_INLINE void GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
                             rhs_2_t>::bind(sycl::handler &h) {
   lhs_.bind(h);
   rhs_1_.bind(h);
@@ -433,7 +433,7 @@ PORTBLAS_INLINE void GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
 }
 template <bool Single, bool Lower, bool Diag, bool Upper, typename lhs_t,
           typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE void GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
+ONEMATH_SYCL_BLAS_INLINE void GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
                              rhs_2_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   rhs_1_.adjust_access_displacement();
@@ -444,7 +444,7 @@ PORTBLAS_INLINE void GerRow<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
 // template <typename lhs_t,  typename rhs_1_t, typename  rhs_2_t>
 template <bool Single, bool Lower, bool Diag, bool Upper, typename lhs_t,
           typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
+ONEMATH_SYCL_BLAS_INLINE GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
                         rhs_2_t>::GerCol(lhs_t &_l, value_t _scl, rhs_1_t &_r1,
                                          rhs_2_t &_r2, index_t &_nWG_row,
                                          index_t &_nWG_col,
@@ -459,21 +459,21 @@ PORTBLAS_INLINE GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
 
 template <bool Single, bool Lower, bool Diag, bool Upper, typename lhs_t,
           typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE typename GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
+ONEMATH_SYCL_BLAS_INLINE typename GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
                                  rhs_2_t>::index_t
 GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::get_size() const {
   return rhs_1_.get_size();
 }
 template <bool Single, bool Lower, bool Diag, bool Upper, typename lhs_t,
           typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE bool
+ONEMATH_SYCL_BLAS_INLINE bool
 GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return true;
 }
 template <bool Single, bool Lower, bool Diag, bool Upper, typename lhs_t,
           typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE typename GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
+ONEMATH_SYCL_BLAS_INLINE typename GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
                                  rhs_2_t>::value_t
 GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::eval(
     typename GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
@@ -490,7 +490,7 @@ GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::eval(
 
 template <bool Single, bool Lower, bool Diag, bool Upper, typename lhs_t,
           typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE typename GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
+ONEMATH_SYCL_BLAS_INLINE typename GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
                                 rhs_2_t>::value_t
 GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::eval(
     sycl::nd_item<1> ndItem) {
@@ -552,7 +552,7 @@ GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::eval(
 template <bool Single, bool Lower, bool Diag, bool Upper, typename lhs_t,
           typename rhs_1_t, typename rhs_2_t>
 template <typename sharedT>
-PORTBLAS_INLINE typename GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
+ONEMATH_SYCL_BLAS_INLINE typename GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
                                 rhs_2_t>::value_t
 GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::eval(
     sharedT shrMem, sycl::nd_item<1> ndItem) {
@@ -656,7 +656,7 @@ GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t, rhs_2_t>::eval(
 }
 template <bool Single, bool Lower, bool Diag, bool Upper, typename lhs_t,
           typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE void GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
+ONEMATH_SYCL_BLAS_INLINE void GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
                             rhs_2_t>::bind(sycl::handler &h) {
   lhs_.bind(h);
   rhs_1_.bind(h);
@@ -665,7 +665,7 @@ PORTBLAS_INLINE void GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
 
 template <bool Single, bool Lower, bool Diag, bool Upper, typename lhs_t,
           typename rhs_1_t, typename rhs_2_t>
-PORTBLAS_INLINE void GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
+ONEMATH_SYCL_BLAS_INLINE void GerCol<Single, Lower, Diag, Upper, lhs_t, rhs_1_t,
                              rhs_2_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   rhs_1_.adjust_access_displacement();

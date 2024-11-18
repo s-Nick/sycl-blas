@@ -23,8 +23,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS3_INTERFACE_H
-#define PORTBLAS_BLAS3_INTERFACE_H
+#ifndef ONEMATH_SYCL_BLAS_BLAS3_INTERFACE_H
+#define ONEMATH_SYCL_BLAS_BLAS3_INTERFACE_H
 
 #include "operations/blas3_trees.h"
 
@@ -145,4 +145,4 @@ typename sb_handle_t::event_t _symm(
 }
 
 }  // namespace blas
-#endif  // PORTBLAS_BLAS3_INTERFACE
+#endif  // ONEMATH_SYCL_BLAS_BLAS3_INTERFACE

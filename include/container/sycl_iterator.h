@@ -22,8 +22,8 @@
  *  @filename sycl_iterator.h
  *
  **************************************************************************/
-#ifndef PORTBLAS_BUFFER_ITERATOR_H
-#define PORTBLAS_BUFFER_ITERATOR_H
+#ifndef ONEMATH_SYCL_BLAS_BUFFER_ITERATOR_H
+#define ONEMATH_SYCL_BLAS_BUFFER_ITERATOR_H
 #include "blas_meta.h"
 #include <sycl/sycl.hpp>
 namespace blas {
@@ -368,4 +368,4 @@ struct RebindType<element_t, BufferIterator<U>> {
 
 }  // end namespace blas
 
-#endif  // PORTBLAS_BUFFER_ITERATOR_H
+#endif  // ONEMATH_SYCL_BLAS_BUFFER_ITERATOR_H

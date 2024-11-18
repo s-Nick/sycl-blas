@@ -23,8 +23,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS2_TREES_H
-#define PORTBLAS_BLAS2_TREES_H
+#ifndef ONEMATH_SYCL_BLAS_BLAS2_TREES_H
+#define ONEMATH_SYCL_BLAS_BLAS2_TREES_H
 namespace blas {
 
 /*!

@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_EXTENSION_MATCOPY_BATCH_H
-#define PORTBLAS_EXTENSION_MATCOPY_BATCH_H
+#ifndef ONEMATH_SYCL_BLAS_EXTENSION_MATCOPY_BATCH_H
+#define ONEMATH_SYCL_BLAS_EXTENSION_MATCOPY_BATCH_H
 
 namespace blas {
 
@@ -76,4 +76,4 @@ make_matcopy_batch(
 
 }  // namespace blas
 
-#endif  // PORTBLAS_EXTENSION_MATCOPY_BATCH_H
+#endif  // ONEMATH_SYCL_BLAS_EXTENSION_MATCOPY_BATCH_H

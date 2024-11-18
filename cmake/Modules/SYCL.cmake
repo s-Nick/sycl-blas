@@ -23,7 +23,7 @@
 # *
 # **************************************************************************/
 include(CheckCXXCompilerFlag)
-include(ConfigurePORTBLAS)
+include(ConfigureONEMATH_SYCL_BLAS)
 
 # find_package(AdaptiveCpp) requires ACPP_TARGETS to be set, so set it to a default value before find_package(AdaptiveCpp)
 if(SYCL_COMPILER MATCHES "adaptivecpp")

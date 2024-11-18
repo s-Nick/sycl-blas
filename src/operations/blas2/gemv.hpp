@@ -41,19 +41,19 @@ template <typename rhs_t>
 SumMatrixColumns<rhs_t>::SumMatrixColumns(rhs_t &_r) : rhs_(_r) {}
 
 template <typename rhs_t>
-PORTBLAS_INLINE typename SumMatrixColumns<rhs_t>::index_t
+ONEMATH_SYCL_BLAS_INLINE typename SumMatrixColumns<rhs_t>::index_t
 SumMatrixColumns<rhs_t>::get_size() const {
   return rhs_.get_size_row();
 }
 
 template <typename rhs_t>
-PORTBLAS_INLINE bool SumMatrixColumns<rhs_t>::valid_thread(
+ONEMATH_SYCL_BLAS_INLINE bool SumMatrixColumns<rhs_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return ((ndItem.get_global_id(0) < get_size()));
 }
 
 template <typename rhs_t>
-PORTBLAS_INLINE typename SumMatrixColumns<rhs_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename SumMatrixColumns<rhs_t>::value_t
 SumMatrixColumns<rhs_t>::eval(typename SumMatrixColumns<rhs_t>::index_t i) {
   auto dimR = rhs_.get_size_row();
   auto dimC = rhs_.get_size_col();
@@ -68,18 +68,18 @@ SumMatrixColumns<rhs_t>::eval(typename SumMatrixColumns<rhs_t>::index_t i) {
 }
 
 template <typename rhs_t>
-PORTBLAS_INLINE typename SumMatrixColumns<rhs_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename SumMatrixColumns<rhs_t>::value_t
 SumMatrixColumns<rhs_t>::eval(sycl::nd_item<1> ndItem) const {
   return eval(ndItem.get_global_id(0));
 }
 
 template <typename rhs_t>
-PORTBLAS_INLINE void SumMatrixColumns<rhs_t>::bind(sycl::handler &h) {
+ONEMATH_SYCL_BLAS_INLINE void SumMatrixColumns<rhs_t>::bind(sycl::handler &h) {
   rhs_.bind(h);
 }
 
 template <typename rhs_t>
-PORTBLAS_INLINE void SumMatrixColumns<rhs_t>::adjust_access_displacement() {
+ONEMATH_SYCL_BLAS_INLINE void SumMatrixColumns<rhs_t>::adjust_access_displacement() {
   rhs_.adjust_access_displacement();
 }
 
@@ -90,7 +90,7 @@ PORTBLAS_INLINE void SumMatrixColumns<rhs_t>::adjust_access_displacement() {
 template <typename lhs_t, typename matrix_t, typename vector_t,
           uint32_t local_range, bool is_transposed, int cache_line_size,
           int work_per_thread>
-PORTBLAS_INLINE
+ONEMATH_SYCL_BLAS_INLINE
 Gemv<lhs_t, matrix_t, vector_t, local_range, is_transposed, cache_line_size,
      work_per_thread>::Gemv(lhs_t &_l, matrix_t &_matrix_a, vector_t &_vector_x,
                             typename vector_t::index_t &_wgs_per_nc,
@@ -110,7 +110,7 @@ Gemv<lhs_t, matrix_t, vector_t, local_range, is_transposed, cache_line_size,
 template <typename lhs_t, typename matrix_t, typename vector_t,
           uint32_t local_range, bool is_transposed, int cache_line_size,
           int work_per_thread>
-PORTBLAS_INLINE bool
+ONEMATH_SYCL_BLAS_INLINE bool
 Gemv<lhs_t, matrix_t, vector_t, local_range, is_transposed, cache_line_size,
      work_per_thread>::valid_thread(sycl::nd_item<1>) const {
   return true;
@@ -126,7 +126,7 @@ Gemv<lhs_t, matrix_t, vector_t, local_range, is_transposed, cache_line_size,
 template <typename lhs_t, typename matrix_t, typename vector_t,
           uint32_t local_range, bool is_transposed, int cache_line_size,
           int work_per_thread>
-PORTBLAS_INLINE
+ONEMATH_SYCL_BLAS_INLINE
     typename Gemv<lhs_t, matrix_t, vector_t, local_range, is_transposed,
                   cache_line_size, work_per_thread>::value_t
     Gemv<lhs_t, matrix_t, vector_t, local_range, is_transposed, cache_line_size,
@@ -178,7 +178,7 @@ template <typename lhs_t, typename matrix_t, typename vector_t,
           uint32_t local_range, bool is_transposed, int cache_line_size,
           int work_per_thread>
 template <typename local_memory_t>
-PORTBLAS_INLINE
+ONEMATH_SYCL_BLAS_INLINE
     typename Gemv<lhs_t, matrix_t, vector_t, local_range, is_transposed,
                   cache_line_size, work_per_thread>::value_t
     Gemv<lhs_t, matrix_t, vector_t, local_range, is_transposed, cache_line_size,
@@ -285,7 +285,7 @@ template <typename lhs_t, typename matrix_t, typename vector_t,
           uint32_t local_range, bool is_transposed, int cache_line_size,
           int work_per_thread>
 template <typename ScratchPointerType>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Gemv<lhs_t, matrix_t, vector_t, local_range, is_transposed, cache_line_size,
      work_per_thread>::extract_input_block(ScratchPointerType matrix_scratch,
                                            const index_t &local_id,
@@ -351,7 +351,7 @@ Gemv<lhs_t, matrix_t, vector_t, local_range, is_transposed, cache_line_size,
 template <typename lhs_t, typename matrix_t, typename vector_t,
           uint32_t local_range, bool is_transposed, int cache_line_size,
           int work_per_thread>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Gemv<lhs_t, matrix_t, vector_t, local_range, is_transposed, cache_line_size,
      work_per_thread>::bind(sycl::handler &h) {
   lhs_.bind(h);
@@ -362,7 +362,7 @@ Gemv<lhs_t, matrix_t, vector_t, local_range, is_transposed, cache_line_size,
 template <typename lhs_t, typename matrix_t, typename vector_t,
           uint32_t local_range, bool is_transposed, int cache_line_size,
           int work_per_thread>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 Gemv<lhs_t, matrix_t, vector_t, local_range, is_transposed, cache_line_size,
      work_per_thread>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
@@ -378,7 +378,7 @@ Gemv<lhs_t, matrix_t, vector_t, local_range, is_transposed, cache_line_size,
  */
 template <int interLoop, bool Lower, bool Diag, bool Upper, bool Unit,
           typename lhs_t, typename matrix_t, typename vector_t>
-PORTBLAS_INLINE
+ONEMATH_SYCL_BLAS_INLINE
 GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::
     GemvRow(lhs_t &_l, matrix_t &_matrix, vector_t &_vector,
             typename GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t,
@@ -396,7 +396,7 @@ GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::
 
 template <int interLoop, bool Lower, bool Diag, bool Upper, bool Unit,
           typename lhs_t, typename matrix_t, typename vector_t>
-PORTBLAS_INLINE typename GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t,
+ONEMATH_SYCL_BLAS_INLINE typename GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t,
                                   matrix_t, vector_t>::index_t
 GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t, matrix_t,
         vector_t>::get_size() const {
@@ -404,7 +404,7 @@ GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t, matrix_t,
 }
 template <int interLoop, bool Lower, bool Diag, bool Upper, bool Unit,
           typename lhs_t, typename matrix_t, typename vector_t>
-PORTBLAS_INLINE bool
+ONEMATH_SYCL_BLAS_INLINE bool
 GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t, matrix_t,
         vector_t>::valid_thread(sycl::nd_item<1> ndItem) const {
   return true;
@@ -414,7 +414,7 @@ GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t, matrix_t,
 // it.
 template <int interLoop, bool Lower, bool Diag, bool Upper, bool Unit,
           typename lhs_t, typename matrix_t, typename vector_t>
-PORTBLAS_INLINE typename GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t,
+ONEMATH_SYCL_BLAS_INLINE typename GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t,
                                   matrix_t, vector_t>::value_t
 GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::eval(
     typename GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t, matrix_t,
@@ -433,7 +433,7 @@ GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::eval(
 
 template <int interLoop, bool Lower, bool Diag, bool Upper, bool Unit,
           typename lhs_t, typename matrix_t, typename vector_t>
-PORTBLAS_INLINE typename GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t,
+ONEMATH_SYCL_BLAS_INLINE typename GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t,
                                  matrix_t, vector_t>::value_t
 GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::eval(
     sycl::nd_item<1> ndItem) {
@@ -555,7 +555,7 @@ GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::eval(
 template <int interLoop, bool Lower, bool Diag, bool Upper, bool Unit,
           typename lhs_t, typename matrix_t, typename vector_t>
 template <typename local_memory_t>
-PORTBLAS_INLINE typename GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t,
+ONEMATH_SYCL_BLAS_INLINE typename GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t,
                                  matrix_t, vector_t>::value_t
 GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::eval(
     local_memory_t shrMem, sycl::nd_item<1> ndItem) {
@@ -684,7 +684,7 @@ GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::eval(
 }
 template <int interLoop, bool Lower, bool Diag, bool Upper, bool Unit,
           typename lhs_t, typename matrix_t, typename vector_t>
-PORTBLAS_INLINE void GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t,
+ONEMATH_SYCL_BLAS_INLINE void GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t,
                              matrix_t, vector_t>::bind(sycl::handler &h) {
   lhs_.bind(h);
   matrix_.bind(h);
@@ -692,7 +692,7 @@ PORTBLAS_INLINE void GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t,
 }
 template <int interLoop, bool Lower, bool Diag, bool Upper, bool Unit,
           typename lhs_t, typename matrix_t, typename vector_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t, matrix_t,
         vector_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
@@ -709,7 +709,7 @@ GemvRow<interLoop, Lower, Diag, Upper, Unit, lhs_t, matrix_t,
  */
 template <bool Lower, bool Diag, bool Upper, bool Unit, typename lhs_t,
           typename matrix_t, typename vector_t>
-PORTBLAS_INLINE
+ONEMATH_SYCL_BLAS_INLINE
 GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::GemvCol(
     lhs_t &_l, matrix_t &_matrix, vector_t &_vector,
     typename GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t,
@@ -726,14 +726,14 @@ GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::GemvCol(
       local_memory_size_(_shrMemSize){};
 template <bool Lower, bool Diag, bool Upper, bool Unit, typename lhs_t,
           typename matrix_t, typename vector_t>
-PORTBLAS_INLINE typename GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t,
+ONEMATH_SYCL_BLAS_INLINE typename GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t,
                                   vector_t>::index_t
 GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::get_size() const {
   return matrix_.get_size_row();
 }
 template <bool Lower, bool Diag, bool Upper, bool Unit, typename lhs_t,
           typename matrix_t, typename vector_t>
-PORTBLAS_INLINE bool
+ONEMATH_SYCL_BLAS_INLINE bool
 GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return true;
@@ -741,7 +741,7 @@ GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::valid_thread(
 
 template <bool Lower, bool Diag, bool Upper, bool Unit, typename lhs_t,
           typename matrix_t, typename vector_t>
-PORTBLAS_INLINE typename GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t,
+ONEMATH_SYCL_BLAS_INLINE typename GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t,
                                   vector_t>::value_t
 GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::eval(index_t i) {
   auto dim = vector_.get_size();
@@ -756,7 +756,7 @@ GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::eval(index_t i) {
 
 template <bool Lower, bool Diag, bool Upper, bool Unit, typename lhs_t,
           typename matrix_t, typename vector_t>
-PORTBLAS_INLINE typename GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t,
+ONEMATH_SYCL_BLAS_INLINE typename GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t,
                                  vector_t>::value_t
 GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::eval(
     sycl::nd_item<1> ndItem) {
@@ -820,7 +820,7 @@ GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::eval(
 template <bool Lower, bool Diag, bool Upper, bool Unit, typename lhs_t,
           typename matrix_t, typename vector_t>
 template <typename local_memory_t>
-PORTBLAS_INLINE typename GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t,
+ONEMATH_SYCL_BLAS_INLINE typename GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t,
                                  vector_t>::value_t
 GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::eval(
     local_memory_t shrMem, sycl::nd_item<1> ndItem) {
@@ -905,7 +905,7 @@ GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t, vector_t>::eval(
 }
 template <bool Lower, bool Diag, bool Upper, bool Unit, typename lhs_t,
           typename matrix_t, typename vector_t>
-PORTBLAS_INLINE void GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t,
+ONEMATH_SYCL_BLAS_INLINE void GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t,
                              vector_t>::bind(sycl::handler &h) {
   lhs_.bind(h);
   matrix_.bind(h);
@@ -914,7 +914,7 @@ PORTBLAS_INLINE void GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t,
 
 template <bool Lower, bool Diag, bool Upper, bool Unit, typename lhs_t,
           typename matrix_t, typename vector_t>
-PORTBLAS_INLINE void GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t,
+ONEMATH_SYCL_BLAS_INLINE void GemvCol<Lower, Diag, Upper, Unit, lhs_t, matrix_t,
                               vector_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   matrix_.adjust_access_displacement();

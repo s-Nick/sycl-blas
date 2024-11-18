@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS3_NO_LOCAL_PARTIAL_VEC_GEMM_HPP
-#define PORTBLAS_BLAS3_NO_LOCAL_PARTIAL_VEC_GEMM_HPP
+#ifndef ONEMATH_SYCL_BLAS_BLAS3_NO_LOCAL_PARTIAL_VEC_GEMM_HPP
+#define ONEMATH_SYCL_BLAS_BLAS3_NO_LOCAL_PARTIAL_VEC_GEMM_HPP
 
 #include "gemm_common.hpp"
 #include "gemm_load_store.hpp"
@@ -119,7 +119,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type,
   index_t strideb_;
   index_t stridec_;
 
-  PORTBLAS_INLINE Gemm(input_t A, input_t B, output_t C, element_t alpha,
+  ONEMATH_SYCL_BLAS_INLINE Gemm(input_t A, input_t B, output_t C, element_t alpha,
                        element_t beta, index_t batch_size, index_t stride_a,
                        index_t stride_b, index_t stride_c)
       : a_(A),
@@ -135,7 +135,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type,
   /*!
    * @brief Get the type of this NoLocalGemmFactory as a human readable string.
    */
-  static PORTBLAS_INLINE std::string get_type_string() noexcept {
+  static ONEMATH_SYCL_BLAS_INLINE std::string get_type_string() noexcept {
     std::ostringstream str{};
     str << "Gemm <" << DoubleBuffer << ", " << NbcA << ", " << NbcB << ", "
         << ClSize << ", " << tile_type::get_type_string() << ", "
@@ -150,7 +150,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type,
    *number of work_group required to execute each GEMM.
    *
    */
-  PORTBLAS_INLINE index_t get_workgroup_cluster() const noexcept {
+  ONEMATH_SYCL_BLAS_INLINE index_t get_workgroup_cluster() const noexcept {
     return (((a_.get_size_row() - 1) / (item_rows * wg_rows) + 1) *
             ((b_.get_size_col() - 1) / (item_cols * wg_cols) + 1));
   }
@@ -161,7 +161,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type,
    *research.
    *
    */
-  PORTBLAS_INLINE index_t
+  ONEMATH_SYCL_BLAS_INLINE index_t
   get_num_workgroup_cluster(index_t compute_units) const noexcept {
     constexpr index_t num_gemm_per_compute_units = 4;
     return ((num_gemm_per_compute_units * compute_units - 1) /
@@ -169,7 +169,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type,
             1);
   }
 
-  PORTBLAS_INLINE sycl::nd_range<1> get_nd_range(
+  ONEMATH_SYCL_BLAS_INLINE sycl::nd_range<1> get_nd_range(
       index_t compute_units) const noexcept {
     const sycl::range<1> nwg(get_workgroup_cluster() *
                              get_num_workgroup_cluster(compute_units));
@@ -178,15 +178,15 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type,
     return sycl::nd_range<1>(nwg * wgs, wgs);
   }
 
-  PORTBLAS_INLINE index_t get_size() const {
+  ONEMATH_SYCL_BLAS_INLINE index_t get_size() const {
     return a_.get_size_row() * b_.get_size_col();
   }
 
-  PORTBLAS_INLINE bool valid_thread(const sycl::nd_item<1> &) const {
+  ONEMATH_SYCL_BLAS_INLINE bool valid_thread(const sycl::nd_item<1> &) const {
     return true;
   }
 
-  PORTBLAS_INLINE void eval(sycl::nd_item<1> id) noexcept {
+  ONEMATH_SYCL_BLAS_INLINE void eval(sycl::nd_item<1> id) noexcept {
     index_t m = a_.get_size_row();
     index_t n = b_.get_size_col();
     const index_t k = a_.get_size_col();
@@ -268,13 +268,13 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type,
      */
     const auto boundary_check_m =
         [&](index_t dim_m_a_start)
-            PORTBLAS_ALWAYS_INLINE { return dim_m_a_start < m; };
+            ONEMATH_SYCL_BLAS_ALWAYS_INLINE { return dim_m_a_start < m; };
     const auto boundary_check_n =
         [&](index_t dim_n_b_start)
-            PORTBLAS_ALWAYS_INLINE { return dim_n_b_start < n; };
+            ONEMATH_SYCL_BLAS_ALWAYS_INLINE { return dim_n_b_start < n; };
     const auto boundary_check_c =
         [&](index_t dim_m_c_start, index_t dim_n_c_start)
-            PORTBLAS_ALWAYS_INLINE {
+            ONEMATH_SYCL_BLAS_ALWAYS_INLINE {
               return (dim_m_c_start < m && dim_n_c_start < n);
             };
 
@@ -310,7 +310,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type,
   template <bool need_check_boundary, index_t a_packet_size,
             index_t b_packet_size, typename InputPointerType,
             typename CheckBoundaryType, bool beta_zero = is_beta_zero>
-  PORTBLAS_INLINE typename std::enable_if<!beta_zero>::type scaling_c(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!beta_zero>::type scaling_c(
       element_t *reg_res, InputPointerType C, const index_t &ldc,
       const index_t &dim_m_c_start, const index_t &dim_n_c_start,
       CheckBoundaryType check_boundary, bool out_of_range) {
@@ -337,7 +337,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type,
   template <bool need_check_boundary, index_t, index_t,
             typename InputPointerType, typename CheckBoundaryType,
             bool beta_zero = is_beta_zero>
-  PORTBLAS_INLINE typename std::enable_if<beta_zero>::type scaling_c(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<beta_zero>::type scaling_c(
       element_t *reg_res, InputPointerType, const index_t &, const index_t &,
       const index_t &, CheckBoundaryType, bool) {
 #pragma unroll
@@ -350,7 +350,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type,
             index_t b_packet_size, typename A_t, typename B_t, typename C_t,
             typename check_boundary_m_t, typename check_boundary_n_t,
             typename check_boundary_c_t>
-  PORTBLAS_INLINE void compute_gemm_no_shared_pannel(
+  ONEMATH_SYCL_BLAS_INLINE void compute_gemm_no_shared_pannel(
       A_t orig_A, B_t orig_B, C_t orig_C, const index_t &a_size,
       const index_t &b_size, const index_t &c_size, index_t orig_k, index_t k,
       const index_t &dim_m_a_start, const index_t &dim_n_b_start,
@@ -454,7 +454,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type,
   template <index_t item_size, index_t next_element, bool check_block,
             index_t work_per_load, typename PointerType,
             typename check_boundary>
-  PORTBLAS_INLINE void load(PointerType ptr, value_t *reg, const index_t &ld,
+  ONEMATH_SYCL_BLAS_INLINE void load(PointerType ptr, value_t *reg, const index_t &ld,
                             index_t index, const check_boundary &chk_boundary,
                             const bool out_of_range) noexcept {
     if (out_of_range) {
@@ -492,7 +492,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type,
    * @param reg_b  temporary register used to prefetch elements of B
    * @param reg_res  2D register array used to store the result C
    */
-  PORTBLAS_INLINE void compute_block_gemm_no_shared(
+  ONEMATH_SYCL_BLAS_INLINE void compute_block_gemm_no_shared(
       value_t *reg_a, value_t *reg_b, element_t *reg_res) noexcept {
 #pragma unroll
     for (int i = 0; i < item_cols; i++) {
@@ -505,13 +505,13 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type,
   }
 
   template <bool internal, index_t work_per_load, typename OutputPointerType>
-  PORTBLAS_INLINE typename std::enable_if<!internal>::type store_packet(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<!internal>::type store_packet(
       element_t *reg, OutputPointerType out_ptr) {
     *out_ptr = alpha_ * (*reg);
   }
 
   template <bool internal, index_t work_per_load, typename OutputPointerType>
-  PORTBLAS_INLINE typename std::enable_if<internal>::type store_packet(
+  ONEMATH_SYCL_BLAS_INLINE typename std::enable_if<internal>::type store_packet(
       element_t *reg, OutputPointerType out_ptr) {
     using l_vector_t =
         typename Packetize<work_per_load, element_t, index_t>::PacketType;
@@ -543,7 +543,7 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type,
    */
   template <bool check_block, index_t a_packet_size, index_t b_packet_size,
             typename PointerType, typename check_boundary>
-  PORTBLAS_INLINE void store(PointerType C, element_t *reg_res,
+  ONEMATH_SYCL_BLAS_INLINE void store(PointerType C, element_t *reg_res,
                              const index_t &dim_m_c_start,
                              const index_t &dim_n_c_start,
                              const check_boundary &chk_boundary,
@@ -581,4 +581,4 @@ class Gemm<input_t, output_t, DoubleBuffer, NbcA, NbcB, ClSize, tile_type,
 
 }  // namespace blas
 
-#endif  // PORTBLAS_BLAS3_NO_LOCAL_PARTIAL_VEC_GEMM_HPP
+#endif  // ONEMATH_SYCL_BLAS_BLAS3_NO_LOCAL_PARTIAL_VEC_GEMM_HPP

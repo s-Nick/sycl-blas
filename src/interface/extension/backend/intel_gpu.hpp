@@ -22,8 +22,8 @@
  *  @filename intel_gpu.hpp
  *
  **************************************************************************/
-#ifndef PORTBLAS_TRANSPOSE_INTEL_GPU_BACKEND_HPP
-#define PORTBLAS_TRANSPOSE_INTEL_GPU_BACKEND_HPP
+#ifndef ONEMATH_SYCL_BLAS_TRANSPOSE_INTEL_GPU_BACKEND_HPP
+#define ONEMATH_SYCL_BLAS_TRANSPOSE_INTEL_GPU_BACKEND_HPP
 #include "interface/extension_interface.h"
 
 namespace blas {

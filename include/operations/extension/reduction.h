@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_EXTENSION_REDUCTION_H
-#define PORTBLAS_EXTENSION_REDUCTION_H
+#ifndef ONEMATH_SYCL_BLAS_EXTENSION_REDUCTION_H
+#define ONEMATH_SYCL_BLAS_EXTENSION_REDUCTION_H
 
 #include <sycl/sycl.hpp>
 
@@ -202,4 +202,4 @@ inline Reduction<operator_t, params_t, input_t, output_t> make_reduction(
 
 }  // namespace blas
 
-#endif  // PORTBLAS_EXTENSION_REDUCTION_H
+#endif  // ONEMATH_SYCL_BLAS_EXTENSION_REDUCTION_H

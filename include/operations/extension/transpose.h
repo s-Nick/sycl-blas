@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_EXTENSION_TRANSPOSE_H
-#define PORTBLAS_EXTENSION_TRANSPOSE_H
+#ifndef ONEMATH_SYCL_BLAS_EXTENSION_TRANSPOSE_H
+#define ONEMATH_SYCL_BLAS_EXTENSION_TRANSPOSE_H
 
 #include <sycl/sycl.hpp>
 
@@ -269,4 +269,4 @@ make_transpose_add(in1_t &A, index_t stride_a, in2_t &B, index_t stride_b,
 
 }  // namespace blas
 
-#endif  // PORTBLAS_EXTENSION_TRANSPOSE_H
+#endif  // ONEMATH_SYCL_BLAS_EXTENSION_TRANSPOSE_H

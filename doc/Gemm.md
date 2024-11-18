@@ -243,10 +243,10 @@ The template for `Gemm` looks like this:
 
 ```c++
 #include "container/sycl_iterator.hpp"
-#include "sb_handle/portblas_handle.hpp"
+#include "sb_handle/handle.hpp"
 #include "interface/gemm_interface.hpp"
 #include "operations/blas_constants.hpp"
-#include "portblas_helper.h"
+#include "helper.h"
 #include "views/view_sycl.hpp"
 
 namespace blas {

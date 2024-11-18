@@ -57,13 +57,13 @@ IndexMaxMin<is_max, is_step0, lhs_t, rhs_t>::IndexMaxMin(lhs_t& _l, rhs_t& _r)
     : lhs_(_l), rhs_(_r){};
 
 template <bool is_max, bool is_step0, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename IndexMaxMin<is_max, is_step0, lhs_t, rhs_t>::index_t
+ONEMATH_SYCL_BLAS_INLINE typename IndexMaxMin<is_max, is_step0, lhs_t, rhs_t>::index_t
 IndexMaxMin<is_max, is_step0, lhs_t, rhs_t>::get_size() const {
   return rhs_.get_size();
 }
 
 template <bool is_max, bool is_step0, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE bool IndexMaxMin<is_max, is_step0, lhs_t, rhs_t>::valid_thread(
+ONEMATH_SYCL_BLAS_INLINE bool IndexMaxMin<is_max, is_step0, lhs_t, rhs_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return true;
 }
@@ -72,7 +72,7 @@ PORTBLAS_INLINE bool IndexMaxMin<is_max, is_step0, lhs_t, rhs_t>::valid_thread(
  * eval() function without local memory.
  */
 template <bool is_max, bool is_step0, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE void IndexMaxMin<is_max, is_step0, lhs_t, rhs_t>::eval(
+ONEMATH_SYCL_BLAS_INLINE void IndexMaxMin<is_max, is_step0, lhs_t, rhs_t>::eval(
     sycl::nd_item<1> ndItem) {
   using op = typename SelectOperator<is_max>::op;
   const auto size = rhs_.get_size();
@@ -125,7 +125,7 @@ PORTBLAS_INLINE void IndexMaxMin<is_max, is_step0, lhs_t, rhs_t>::eval(
  */
 template <bool is_max, bool is_step0, typename lhs_t, typename rhs_t>
 template <typename sharedT>
-PORTBLAS_INLINE void IndexMaxMin<is_max, is_step0, lhs_t, rhs_t>::eval(
+ONEMATH_SYCL_BLAS_INLINE void IndexMaxMin<is_max, is_step0, lhs_t, rhs_t>::eval(
     sharedT scratch, sycl::nd_item<1> ndItem) {
   using op = typename SelectOperator<is_max>::op;
   const auto size = rhs_.get_size();
@@ -171,14 +171,14 @@ PORTBLAS_INLINE void IndexMaxMin<is_max, is_step0, lhs_t, rhs_t>::eval(
 }
 
 template <bool is_max, bool is_step0, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE void IndexMaxMin<is_max, is_step0, lhs_t, rhs_t>::bind(
+ONEMATH_SYCL_BLAS_INLINE void IndexMaxMin<is_max, is_step0, lhs_t, rhs_t>::bind(
     sycl::handler& h) {
   lhs_.bind(h);
   rhs_.bind(h);
 }
 
 template <bool is_max, bool is_step0, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 IndexMaxMin<is_max, is_step0, lhs_t, rhs_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   rhs_.adjust_access_displacement();

@@ -20,8 +20,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS3_TRSM_HPP
-#define PORTBLAS_BLAS3_TRSM_HPP
+#ifndef ONEMATH_SYCL_BLAS_BLAS3_TRSM_HPP
+#define ONEMATH_SYCL_BLAS_BLAS3_TRSM_HPP
 
 #include "operations/blas3_trees.h"
 #include "views/view.h"
@@ -32,14 +32,14 @@ namespace blas {
 
 template <bool UnitDiag, bool Upper, int BlockSize, typename lhs_t,
           typename rhs_t>
-PORTBLAS_INLINE
+ONEMATH_SYCL_BLAS_INLINE
 DiagonalBlocksInverter<UnitDiag, Upper, BlockSize, lhs_t,
                        rhs_t>::DiagonalBlocksInverter(rhs_t A, lhs_t invA)
     : A_(A), invA_(invA), N_(A_.get_size_col()), lda_(A_.getSizeL()) {}
 
 template <bool UnitDiag, bool Upper, int BlockSize, typename lhs_t,
           typename rhs_t>
-PORTBLAS_INLINE bool
+ONEMATH_SYCL_BLAS_INLINE bool
 DiagonalBlocksInverter<UnitDiag, Upper, BlockSize, lhs_t, rhs_t>::valid_thread(
     sycl::nd_item<1> id) const {
   return true;
@@ -47,7 +47,7 @@ DiagonalBlocksInverter<UnitDiag, Upper, BlockSize, lhs_t, rhs_t>::valid_thread(
 
 template <bool UnitDiag, bool Upper, int BlockSize, typename lhs_t,
           typename rhs_t>
-PORTBLAS_INLINE void DiagonalBlocksInverter<UnitDiag, Upper, BlockSize, lhs_t,
+ONEMATH_SYCL_BLAS_INLINE void DiagonalBlocksInverter<UnitDiag, Upper, BlockSize, lhs_t,
                                             rhs_t>::bind(sycl::handler& cgh) {
   A_.bind(cgh);
   invA_.bind(cgh);
@@ -55,7 +55,7 @@ PORTBLAS_INLINE void DiagonalBlocksInverter<UnitDiag, Upper, BlockSize, lhs_t,
 
 template <bool UnitDiag, bool Upper, int BlockSize, typename lhs_t,
           typename rhs_t>
-PORTBLAS_INLINE void DiagonalBlocksInverter<
+ONEMATH_SYCL_BLAS_INLINE void DiagonalBlocksInverter<
     UnitDiag, Upper, BlockSize, lhs_t, rhs_t>::adjust_access_displacement() {
   A_.adjust_access_displacement();
   invA_.adjust_access_displacement();
@@ -64,7 +64,7 @@ PORTBLAS_INLINE void DiagonalBlocksInverter<
 template <bool UnitDiag, bool Upper, int BlockSize, typename lhs_t,
           typename rhs_t>
 template <typename local_memory_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 DiagonalBlocksInverter<UnitDiag, Upper, BlockSize, lhs_t, rhs_t>::eval(
     local_memory_t localMem, sycl::nd_item<1> item) noexcept {
   auto A = A_.get_pointer();
@@ -155,4 +155,4 @@ DiagonalBlocksInverter<UnitDiag, Upper, BlockSize, lhs_t, rhs_t>::eval(
 
 }  // namespace blas
 
-#endif  // PORTBLAS_BLAS3_TRSM_HPP
+#endif  // ONEMATH_SYCL_BLAS_BLAS3_TRSM_HPP

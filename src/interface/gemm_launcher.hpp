@@ -23,8 +23,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS3_LAUNCHER_HPP
-#define PORTBLAS_BLAS3_LAUNCHER_HPP
+#ifndef ONEMATH_SYCL_BLAS_BLAS3_LAUNCHER_HPP
+#define ONEMATH_SYCL_BLAS_BLAS3_LAUNCHER_HPP
 
 #include "interface/gemm_launcher.h"
 #include "views/view.h"
@@ -70,4 +70,4 @@ typename sb_handle_t::event_t Gemm_Launcher<
 
 }  // namespace blas
 
-#endif  // PORTBLAS_BLAS3_LAUNCHER_HPP
+#endif  // ONEMATH_SYCL_BLAS_BLAS3_LAUNCHER_HPP

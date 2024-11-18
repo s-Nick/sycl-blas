@@ -19,18 +19,18 @@
  *
  *  portBLAS: BLAS implementation using SYCL
  *
- *  @filename portblas_handle.h
+ *  @filename handle.h
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_HANDLE_H
-#define PORTBLAS_HANDLE_H
+#ifndef ONEMATH_SYCL_BLAS_HANDLE_H
+#define ONEMATH_SYCL_BLAS_HANDLE_H
 #include "blas_meta.h"
 #include "operations/blas1_trees.h"
 #include "operations/blas2_trees.h"
 #include "operations/blas3_trees.h"
 #include "operations/extension/reduction.h"
-#include "portblas_helper.h"
+#include "helper.h"
 #include "temp_memory_pool.h"
 
 namespace blas {
@@ -201,4 +201,4 @@ class SB_Handle {
 
 }  // namespace blas
 
-#endif  // PORTBLAS_HANDLE_H
+#endif  // ONEMATH_SYCL_BLAS_HANDLE_H

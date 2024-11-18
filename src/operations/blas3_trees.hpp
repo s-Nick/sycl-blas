@@ -22,8 +22,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS3_TREES_HPP
-#define PORTBLAS_BLAS3_TREES_HPP
+#ifndef ONEMATH_SYCL_BLAS_BLAS3_TREES_HPP
+#define ONEMATH_SYCL_BLAS_BLAS3_TREES_HPP
 
 #include "blas3/gemm_interleaved.hpp"
 #include "blas3/gemm_local.hpp"
@@ -33,4 +33,4 @@
 #include "blas3/gemm_partial_local.hpp"
 #include "blas3/gemm_ref.hpp"
 #include "blas3/trsm.hpp"
-#endif  // PORTBLAS_BLAS3_TREES_HPP
+#endif  // ONEMATH_SYCL_BLAS_BLAS3_TREES_HPP

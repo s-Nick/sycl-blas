@@ -22,10 +22,10 @@
  *  @filename amd_gpu.hpp
  *
  **************************************************************************/
-#ifndef PORTBLAS_ASUM_AMD_GPU_BACKEND_HPP
-#define PORTBLAS_ASUM_AMD_GPU_BACKEND_HPP
+#ifndef ONEMATH_SYCL_BLAS_ASUM_AMD_GPU_BACKEND_HPP
+#define ONEMATH_SYCL_BLAS_ASUM_AMD_GPU_BACKEND_HPP
 #include "interface/blas1_interface.h"
-#include "portblas_helper.h"
+#include "helper.h"
 
 namespace blas {
 namespace asum {

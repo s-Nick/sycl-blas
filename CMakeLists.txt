@@ -53,7 +53,7 @@ list(APPEND CMAKE_MODULE_PATH
 if (WIN32)
   # On WIN32 we can force this option to be true, but when building on WSL this
   # must be set in the command line
-  set(PORTBLAS_USE_SHORT_NAMES ON CACHE BOOL "Enable short names for generated files in Windows" FORCE)
+  set(ONEMATH_SYCL_BLAS_USE_SHORT_NAMES ON CACHE BOOL "Enable short names for generated files in Windows" FORCE)
 endif()
 
 if (MSVC)
@@ -71,11 +71,11 @@ option(GEMM_VECTORIZATION_SUPPORT "Whether to enable vectorization in Gemm kerne
 
 add_definitions(-DCL_TARGET_OPENCL_VERSION=220)
 
-set(PORTBLAS_INCLUDE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+set(ONEMATH_SYCL_BLAS_INCLUDE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-set(PORTBLAS_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(ONEMATH_SYCL_BLAS_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 if(INSTALL_HEADER_ONLY)
-  set(PORTBLAS_INSTALL_SRC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src> $<INSTALL_INTERFACE:src>)
+  set(ONEMATH_SYCL_BLAS_INSTALL_SRC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src> $<INSTALL_INTERFACE:src>)
 endif()
 
 option(BLAS_ENABLE_EXTENSIONS "Whether to enable portBLAS extensions" ON)
@@ -90,75 +90,75 @@ if (SYCL_COMPILER MATCHES "adaptivecpp")
   endif()
 endif()
 
-add_library(portblas INTERFACE)
-set_target_properties(portblas PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "${PORTBLAS_INCLUDE};${PORTBLAS_INSTALL_SRC}")
+add_library(onemath_sycl_blas INTERFACE)
+set_target_properties(onemath_sycl_blas PROPERTIES
+  INTERFACE_INCLUDE_DIRECTORIES "${ONEMATH_SYCL_BLAS_INCLUDE};${ONEMATH_SYCL_BLAS_INSTALL_SRC}")
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-fsycl" is_dpcpp)
 if(is_dpcpp)
-  target_compile_definitions(portblas INTERFACE "SB_ENABLE_USM")
+  target_compile_definitions(onemath_sycl_blas INTERFACE "SB_ENABLE_USM")
   check_cxx_compiler_flag("-mllvm=-enable-global-offset=false" support_disable_global_offset)
   if (${support_disable_global_offset})
     if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "IntelLLVM"
            AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 2024.1)
          OR NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL "IntelLLVM")
        # Apply only for oneAPI releases >= 2024.1 OR for intel/llvm.
-       target_link_options(portblas INTERFACE "-mllvm=-enable-global-offset=false")
-       target_compile_options(portblas INTERFACE "-mllvm=-enable-global-offset=false")
-       message(STATUS "Adding -mllvm=-enable-global-offset=false to portblas")
+       target_link_options(onemath_sycl_blas INTERFACE "-mllvm=-enable-global-offset=false")
+       target_compile_options(onemath_sycl_blas INTERFACE "-mllvm=-enable-global-offset=false")
+       message(STATUS "Adding -mllvm=-enable-global-offset=false to onemath_sycl_blas")
      endif()
   endif()
 endif()
 if(${BLAS_ENABLE_COMPLEX})
-  target_compile_definitions(portblas INTERFACE "BLAS_ENABLE_COMPLEX")
+  target_compile_definitions(onemath_sycl_blas INTERFACE "BLAS_ENABLE_COMPLEX")
 endif()
-target_compile_definitions(portblas INTERFACE ${TUNING_TARGET})
-target_compile_options(portblas INTERFACE -Wno-deprecated-declarations)
-target_compile_options(portblas INTERFACE -Wno-deprecated-copy-with-user-provided-copy)
+target_compile_definitions(onemath_sycl_blas INTERFACE ${TUNING_TARGET})
+target_compile_options(onemath_sycl_blas INTERFACE -Wno-deprecated-declarations)
+target_compile_options(onemath_sycl_blas INTERFACE -Wno-deprecated-copy-with-user-provided-copy)
 if((${CMAKE_CXX_COMPILER_ID} STREQUAL "IntelLLVM") AND NOT
   (${TUNING_TARGET} STREQUAL "INTEL_GPU") )
-    target_compile_options(portblas INTERFACE -fno-fast-math)
-    target_compile_options(portblas INTERFACE -mllvm=-loopopt=0)
-    target_link_options(portblas INTERFACE -mllvm=-loopopt=0)
-    message(STATUS "Adding -fno-fast-math -mllvm=-loopopt=0 to portblas")
+    target_compile_options(onemath_sycl_blas INTERFACE -fno-fast-math)
+    target_compile_options(onemath_sycl_blas INTERFACE -mllvm=-loopopt=0)
+    target_link_options(onemath_sycl_blas INTERFACE -mllvm=-loopopt=0)
+    message(STATUS "Adding -fno-fast-math -mllvm=-loopopt=0 to onemath_sycl_blas")
 endif()
 
 include(CMakePackageConfigHelpers)
-set(version_file "${CMAKE_CURRENT_BINARY_DIR}/cmake/portblas-version.cmake")
+set(version_file "${CMAKE_CURRENT_BINARY_DIR}/cmake/onemath_sycl_blas-version.cmake")
 write_basic_package_version_file(${version_file}
   VERSION ${PROJECT_VERSION}
   COMPATIBILITY AnyNewerVersion
 )
 
 include(GNUInstallDirs)
-install(TARGETS portblas
-  EXPORT portblas
+install(TARGETS onemath_sycl_blas
+  EXPORT onemath_sycl_blas
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
-install(DIRECTORY ${PORTBLAS_INCLUDE}
+install(DIRECTORY ${ONEMATH_SYCL_BLAS_INCLUDE}
   DESTINATION ${CMAKE_INSTALL_PREFIX}
-  COMPONENT portblas
+  COMPONENT onemath_sycl_blas
   FILES_MATCHING PATTERN "*.h"
 )
-  install(DIRECTORY ${PORTBLAS_INSTALL_SRC}
+  install(DIRECTORY ${ONEMATH_SYCL_BLAS_INSTALL_SRC}
     DESTINATION ${CMAKE_INSTALL_PREFIX}
-    COMPONENT portblas
+    COMPONENT onemath_sycl_blas
     FILES_MATCHING PATTERN "*.hpp"
   )
 
 install(FILES ${version_file} DESTINATION ${CMAKE_INSTALL_PREFIX})
-install(EXPORT portblas
+install(EXPORT onemath_sycl_blas
   DESTINATION ${CMAKE_INSTALL_PREFIX}
-  NAMESPACE PORTBLAS::
-  FILE portblas-config.cmake
+  NAMESPACE ONEMATH_SYCL_BLAS::
+  FILE onemath_sycl_blas-config.cmake
 )
 
-export(EXPORT portblas
-  NAMESPACE PORTBLAS::
-  FILE portblas-config.cmake
+export(EXPORT onemath_sycl_blas
+  NAMESPACE ONEMATH_SYCL_BLAS::
+  FILE onemath_sycl_blas-config.cmake
 )
 
 option(BLAS_ENABLE_CONST_INPUT "Whether to enable kernel instantiation with const input buffer" ON)

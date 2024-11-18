@@ -38,7 +38,7 @@ namespace blas {
  */
 template <typename lhs_t, typename matrix_t, typename vector_t,
           uint32_t local_range, bool is_transposed>
-PORTBLAS_INLINE
+ONEMATH_SYCL_BLAS_INLINE
 Gbmv<lhs_t, matrix_t, vector_t, local_range, is_transposed>::Gbmv(
     lhs_t &_l, matrix_t &_matrix,
     typename Gbmv<lhs_t, matrix_t, vector_t, local_range,
@@ -60,14 +60,14 @@ Gbmv<lhs_t, matrix_t, vector_t, local_range, is_transposed>::Gbmv(
 
 template <typename lhs_t, typename matrix_t, typename vector_t,
           uint32_t local_range, bool is_transposed>
-PORTBLAS_INLINE typename Gbmv<lhs_t, matrix_t, vector_t, local_range,
+ONEMATH_SYCL_BLAS_INLINE typename Gbmv<lhs_t, matrix_t, vector_t, local_range,
                                is_transposed>::index_t
 Gbmv<lhs_t, matrix_t, vector_t, local_range, is_transposed>::get_size() const {
   return matrix_.get_size();
 }
 template <typename lhs_t, typename matrix_t, typename vector_t,
           uint32_t local_range, bool is_transposed>
-PORTBLAS_INLINE bool
+ONEMATH_SYCL_BLAS_INLINE bool
 Gbmv<lhs_t, matrix_t, vector_t, local_range, is_transposed>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   // Valid threads are established by ::eval.
@@ -76,7 +76,7 @@ Gbmv<lhs_t, matrix_t, vector_t, local_range, is_transposed>::valid_thread(
 
 template <typename lhs_t, typename matrix_t, typename vector_t,
           uint32_t local_range, bool is_transposed>
-PORTBLAS_INLINE typename Gbmv<lhs_t, matrix_t, vector_t, local_range,
+ONEMATH_SYCL_BLAS_INLINE typename Gbmv<lhs_t, matrix_t, vector_t, local_range,
                               is_transposed>::value_t
 Gbmv<lhs_t, matrix_t, vector_t, local_range, is_transposed>::eval(
     sycl::nd_item<1> ndItem) {
@@ -108,7 +108,7 @@ Gbmv<lhs_t, matrix_t, vector_t, local_range, is_transposed>::eval(
 
 template <typename lhs_t, typename matrix_t, typename vector_t,
           uint32_t local_range, bool is_transposed>
-PORTBLAS_INLINE void Gbmv<lhs_t, matrix_t, vector_t, local_range,
+ONEMATH_SYCL_BLAS_INLINE void Gbmv<lhs_t, matrix_t, vector_t, local_range,
                           is_transposed>::bind(sycl::handler &h) {
   lhs_.bind(h);
   matrix_.bind(h);
@@ -116,7 +116,7 @@ PORTBLAS_INLINE void Gbmv<lhs_t, matrix_t, vector_t, local_range,
 }
 template <typename lhs_t, typename matrix_t, typename vector_t,
           uint32_t local_range, bool is_transposed>
-PORTBLAS_INLINE void Gbmv<lhs_t, matrix_t, vector_t, local_range,
+ONEMATH_SYCL_BLAS_INLINE void Gbmv<lhs_t, matrix_t, vector_t, local_range,
                            is_transposed>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   matrix_.adjust_access_displacement();

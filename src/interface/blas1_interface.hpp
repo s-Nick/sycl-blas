@@ -23,8 +23,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS1_INTERFACE_HPP
-#define PORTBLAS_BLAS1_INTERFACE_HPP
+#ifndef ONEMATH_SYCL_BLAS_BLAS1_INTERFACE_HPP
+#define ONEMATH_SYCL_BLAS_BLAS1_INTERFACE_HPP
 
 #include <cmath>
 #include <stdexcept>
@@ -37,7 +37,7 @@
 #include "operations/blas1_trees.h"
 #include "operations/blas_constants.h"
 #include "operations/blas_operators.hpp"
-#include "sb_handle/portblas_handle.h"
+#include "sb_handle/handle.h"
 #include "views/view.h"
 
 namespace blas {

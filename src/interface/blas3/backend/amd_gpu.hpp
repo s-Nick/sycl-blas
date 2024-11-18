@@ -22,8 +22,8 @@
  *  @filename amd_gpu.hpp
  *
  **************************************************************************/
-#ifndef PORTBLAS_GEMM_AMD_GPU_BACKEND_HPP
-#define PORTBLAS_GEMM_AMD_GPU_BACKEND_HPP
+#ifndef ONEMATH_SYCL_BLAS_GEMM_AMD_GPU_BACKEND_HPP
+#define ONEMATH_SYCL_BLAS_GEMM_AMD_GPU_BACKEND_HPP
 #include "interface/gemm_launcher.h"
 
 namespace blas {

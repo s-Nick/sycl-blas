@@ -23,8 +23,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS1_TREES_HPP
-#define PORTBLAS_BLAS1_TREES_HPP
+#ifndef ONEMATH_SYCL_BLAS_BLAS1_TREES_HPP
+#define ONEMATH_SYCL_BLAS_BLAS1_TREES_HPP
 
 #include "blas1/IndexMaxMin.hpp"
 #include "blas1/WGAtomicReduction.hpp"
@@ -115,36 +115,36 @@ template <typename lhs_t, typename rhs_t>
 Join<lhs_t, rhs_t>::Join(lhs_t &_l, rhs_t _r) : lhs_(_l), rhs_(_r) {}
 
 template <typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename Join<lhs_t, rhs_t>::index_t
+ONEMATH_SYCL_BLAS_INLINE typename Join<lhs_t, rhs_t>::index_t
 Join<lhs_t, rhs_t>::get_size() const {
   return rhs_.get_size();
 }
 
 template <typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE bool Join<lhs_t, rhs_t>::valid_thread(
+ONEMATH_SYCL_BLAS_INLINE bool Join<lhs_t, rhs_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return ((ndItem.get_global_id(0) < Join<lhs_t, rhs_t>::get_size()));
 }
 
 template <typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename Join<lhs_t, rhs_t>::value_t Join<lhs_t, rhs_t>::eval(
+ONEMATH_SYCL_BLAS_INLINE typename Join<lhs_t, rhs_t>::value_t Join<lhs_t, rhs_t>::eval(
     typename Join<lhs_t, rhs_t>::index_t i) {
   lhs_.eval(i);
   return rhs_.eval(i);
 }
 
 template <typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename Join<lhs_t, rhs_t>::value_t Join<lhs_t, rhs_t>::eval(
+ONEMATH_SYCL_BLAS_INLINE typename Join<lhs_t, rhs_t>::value_t Join<lhs_t, rhs_t>::eval(
     sycl::nd_item<1> ndItem) {
   return Join<lhs_t, rhs_t>::eval(ndItem.get_global_id(0));
 }
 template <typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE void Join<lhs_t, rhs_t>::bind(sycl::handler &h) {
+ONEMATH_SYCL_BLAS_INLINE void Join<lhs_t, rhs_t>::bind(sycl::handler &h) {
   lhs_.bind(h);
   rhs_.bind(h);
 }
 template <typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE void Join<lhs_t, rhs_t>::adjust_access_displacement() {
+ONEMATH_SYCL_BLAS_INLINE void Join<lhs_t, rhs_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   rhs_.adjust_access_displacement();
 }
@@ -156,13 +156,13 @@ template <typename lhs_t, typename rhs_t>
 Assign<lhs_t, rhs_t>::Assign(lhs_t &_l, rhs_t _r) : lhs_(_l), rhs_(_r){};
 
 template <typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename Assign<lhs_t, rhs_t>::index_t
+ONEMATH_SYCL_BLAS_INLINE typename Assign<lhs_t, rhs_t>::index_t
 Assign<lhs_t, rhs_t>::get_size() const {
   return rhs_.get_size();
 }
 
 template <typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE bool Assign<lhs_t, rhs_t>::valid_thread(
+ONEMATH_SYCL_BLAS_INLINE bool Assign<lhs_t, rhs_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   using index_t = typename Assign<lhs_t, rhs_t>::index_t;
   return (static_cast<index_t>(ndItem.get_global_id(0)) <
@@ -170,25 +170,25 @@ PORTBLAS_INLINE bool Assign<lhs_t, rhs_t>::valid_thread(
 }
 
 template <typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename Assign<lhs_t, rhs_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename Assign<lhs_t, rhs_t>::value_t
 Assign<lhs_t, rhs_t>::eval(typename Assign<lhs_t, rhs_t>::index_t i) {
   auto val = lhs_.eval(i) = rhs_.eval(i);
   return val;
 }
 
 template <typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename Assign<lhs_t, rhs_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename Assign<lhs_t, rhs_t>::value_t
 Assign<lhs_t, rhs_t>::eval(sycl::nd_item<1> ndItem) {
   return Assign<lhs_t, rhs_t>::eval(ndItem.get_global_id(0));
 }
 
 template <typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE void Assign<lhs_t, rhs_t>::bind(sycl::handler &h) {
+ONEMATH_SYCL_BLAS_INLINE void Assign<lhs_t, rhs_t>::bind(sycl::handler &h) {
   lhs_.bind(h);
   rhs_.bind(h);
 }
 template <typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE void Assign<lhs_t, rhs_t>::adjust_access_displacement() {
+ONEMATH_SYCL_BLAS_INLINE void Assign<lhs_t, rhs_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   rhs_.adjust_access_displacement();
 }
@@ -197,13 +197,13 @@ PORTBLAS_INLINE void Assign<lhs_t, rhs_t>::adjust_access_displacement() {
  */
 template <typename lhs_1_t, typename lhs_2_t, typename rhs_1_t,
           typename rhs_2_t>
-PORTBLAS_INLINE DoubleAssign<lhs_1_t, lhs_2_t, rhs_1_t, rhs_2_t>::DoubleAssign(
+ONEMATH_SYCL_BLAS_INLINE DoubleAssign<lhs_1_t, lhs_2_t, rhs_1_t, rhs_2_t>::DoubleAssign(
     lhs_1_t &_l1, lhs_2_t &_l2, rhs_1_t _r1, rhs_2_t _r2)
     : lhs_1_(_l1), lhs_2_(_l2), rhs_1_(_r1), rhs_2_(_r2){};
 
 template <typename lhs_1_t, typename lhs_2_t, typename rhs_1_t,
           typename rhs_2_t>
-PORTBLAS_INLINE
+ONEMATH_SYCL_BLAS_INLINE
     typename DoubleAssign<lhs_1_t, lhs_2_t, rhs_1_t, rhs_2_t>::index_t
     DoubleAssign<lhs_1_t, lhs_2_t, rhs_1_t, rhs_2_t>::get_size() const {
   return rhs_2_.get_size();
@@ -211,7 +211,7 @@ PORTBLAS_INLINE
 
 template <typename lhs_1_t, typename lhs_2_t, typename rhs_1_t,
           typename rhs_2_t>
-PORTBLAS_INLINE bool
+ONEMATH_SYCL_BLAS_INLINE bool
 DoubleAssign<lhs_1_t, lhs_2_t, rhs_1_t, rhs_2_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return ((ndItem.get_global_id(0) < get_size()));
@@ -219,7 +219,7 @@ DoubleAssign<lhs_1_t, lhs_2_t, rhs_1_t, rhs_2_t>::valid_thread(
 
 template <typename lhs_1_t, typename lhs_2_t, typename rhs_1_t,
           typename rhs_2_t>
-PORTBLAS_INLINE
+ONEMATH_SYCL_BLAS_INLINE
     typename DoubleAssign<lhs_1_t, lhs_2_t, rhs_1_t, rhs_2_t>::value_t
     DoubleAssign<lhs_1_t, lhs_2_t, rhs_1_t, rhs_2_t>::eval(
         typename DoubleAssign<lhs_1_t, lhs_2_t, rhs_1_t, rhs_2_t>::index_t i) {
@@ -232,7 +232,7 @@ PORTBLAS_INLINE
 
 template <typename lhs_1_t, typename lhs_2_t, typename rhs_1_t,
           typename rhs_2_t>
-PORTBLAS_INLINE
+ONEMATH_SYCL_BLAS_INLINE
     typename DoubleAssign<lhs_1_t, lhs_2_t, rhs_1_t, rhs_2_t>::value_t
     DoubleAssign<lhs_1_t, lhs_2_t, rhs_1_t, rhs_2_t>::eval(
         sycl::nd_item<1> ndItem) {
@@ -241,7 +241,7 @@ PORTBLAS_INLINE
 }
 template <typename lhs_1_t, typename lhs_2_t, typename rhs_1_t,
           typename rhs_2_t>
-PORTBLAS_INLINE void DoubleAssign<lhs_1_t, lhs_2_t, rhs_1_t, rhs_2_t>::bind(
+ONEMATH_SYCL_BLAS_INLINE void DoubleAssign<lhs_1_t, lhs_2_t, rhs_1_t, rhs_2_t>::bind(
     sycl::handler &h) {
   lhs_1_.bind(h);
   rhs_1_.bind(h);
@@ -251,7 +251,7 @@ PORTBLAS_INLINE void DoubleAssign<lhs_1_t, lhs_2_t, rhs_1_t, rhs_2_t>::bind(
 
 template <typename lhs_1_t, typename lhs_2_t, typename rhs_1_t,
           typename rhs_2_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 DoubleAssign<lhs_1_t, lhs_2_t, rhs_1_t, rhs_2_t>::adjust_access_displacement() {
   lhs_1_.adjust_access_displacement();
   rhs_1_.adjust_access_displacement();
@@ -268,35 +268,35 @@ ScalarOp<operator_t, scalar_t, rhs_t>::ScalarOp(scalar_t _scl, rhs_t &_r)
     : scalar_(_scl), rhs_(_r) {}
 
 template <typename operator_t, typename scalar_t, typename rhs_t>
-PORTBLAS_INLINE typename ScalarOp<operator_t, scalar_t, rhs_t>::index_t
+ONEMATH_SYCL_BLAS_INLINE typename ScalarOp<operator_t, scalar_t, rhs_t>::index_t
 ScalarOp<operator_t, scalar_t, rhs_t>::get_size() const {
   return rhs_.get_size();
 }
 template <typename operator_t, typename scalar_t, typename rhs_t>
-PORTBLAS_INLINE bool ScalarOp<operator_t, scalar_t, rhs_t>::valid_thread(
+ONEMATH_SYCL_BLAS_INLINE bool ScalarOp<operator_t, scalar_t, rhs_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return ((ndItem.get_global_id(0) <
            ScalarOp<operator_t, scalar_t, rhs_t>::get_size()));
 }
 template <typename operator_t, typename scalar_t, typename rhs_t>
-PORTBLAS_INLINE typename ScalarOp<operator_t, scalar_t, rhs_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename ScalarOp<operator_t, scalar_t, rhs_t>::value_t
 ScalarOp<operator_t, scalar_t, rhs_t>::eval(
     typename ScalarOp<operator_t, scalar_t, rhs_t>::index_t i) {
   return operator_t::eval(internal::get_scalar(scalar_), rhs_.eval(i));
 }
 template <typename operator_t, typename scalar_t, typename rhs_t>
-PORTBLAS_INLINE typename ScalarOp<operator_t, scalar_t, rhs_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename ScalarOp<operator_t, scalar_t, rhs_t>::value_t
 ScalarOp<operator_t, scalar_t, rhs_t>::eval(sycl::nd_item<1> ndItem) {
   return ScalarOp<operator_t, scalar_t, rhs_t>::eval(ndItem.get_global_id(0));
 }
 template <typename operator_t, typename scalar_t, typename rhs_t>
-PORTBLAS_INLINE void ScalarOp<operator_t, scalar_t, rhs_t>::bind(
+ONEMATH_SYCL_BLAS_INLINE void ScalarOp<operator_t, scalar_t, rhs_t>::bind(
     sycl::handler &h) {
   rhs_.bind(h);
 }
 
 template <typename operator_t, typename scalar_t, typename rhs_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 ScalarOp<operator_t, scalar_t, rhs_t>::adjust_access_displacement() {
   rhs_.adjust_access_displacement();
 }
@@ -307,35 +307,35 @@ template <typename operator_t, typename rhs_t>
 UnaryOp<operator_t, rhs_t>::UnaryOp(rhs_t &_r) : rhs_(_r) {}
 
 template <typename operator_t, typename rhs_t>
-PORTBLAS_INLINE typename UnaryOp<operator_t, rhs_t>::index_t
+ONEMATH_SYCL_BLAS_INLINE typename UnaryOp<operator_t, rhs_t>::index_t
 UnaryOp<operator_t, rhs_t>::get_size() const {
   return rhs_.get_size();
 }
 
 template <typename operator_t, typename rhs_t>
-PORTBLAS_INLINE bool UnaryOp<operator_t, rhs_t>::valid_thread(
+ONEMATH_SYCL_BLAS_INLINE bool UnaryOp<operator_t, rhs_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return ((ndItem.get_global_id(0) < UnaryOp<operator_t, rhs_t>::get_size()));
 }
 
 template <typename operator_t, typename rhs_t>
-PORTBLAS_INLINE typename UnaryOp<operator_t, rhs_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename UnaryOp<operator_t, rhs_t>::value_t
 UnaryOp<operator_t, rhs_t>::eval(
     typename UnaryOp<operator_t, rhs_t>::index_t i) {
   return operator_t::eval(rhs_.eval(i));
 }
 
 template <typename operator_t, typename rhs_t>
-PORTBLAS_INLINE typename UnaryOp<operator_t, rhs_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename UnaryOp<operator_t, rhs_t>::value_t
 UnaryOp<operator_t, rhs_t>::eval(sycl::nd_item<1> ndItem) {
   return UnaryOp<operator_t, rhs_t>::eval(ndItem.get_global_id(0));
 }
 template <typename operator_t, typename rhs_t>
-PORTBLAS_INLINE void UnaryOp<operator_t, rhs_t>::bind(sycl::handler &h) {
+ONEMATH_SYCL_BLAS_INLINE void UnaryOp<operator_t, rhs_t>::bind(sycl::handler &h) {
   rhs_.bind(h);
 }
 template <typename operator_t, typename rhs_t>
-PORTBLAS_INLINE void UnaryOp<operator_t, rhs_t>::adjust_access_displacement() {
+ONEMATH_SYCL_BLAS_INLINE void UnaryOp<operator_t, rhs_t>::adjust_access_displacement() {
   rhs_.adjust_access_displacement();
 }
 
@@ -347,36 +347,36 @@ BinaryOp<operator_t, lhs_t, rhs_t>::BinaryOp(lhs_t &_l, rhs_t &_r)
     : lhs_(_l), rhs_(_r){};
 
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename BinaryOp<operator_t, lhs_t, rhs_t>::index_t
+ONEMATH_SYCL_BLAS_INLINE typename BinaryOp<operator_t, lhs_t, rhs_t>::index_t
 BinaryOp<operator_t, lhs_t, rhs_t>::get_size() const {
   return rhs_.get_size();
 }
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE bool BinaryOp<operator_t, lhs_t, rhs_t>::valid_thread(
+ONEMATH_SYCL_BLAS_INLINE bool BinaryOp<operator_t, lhs_t, rhs_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return ((ndItem.get_global_id(0) < get_size()));
 }
 
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename BinaryOp<operator_t, lhs_t, rhs_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename BinaryOp<operator_t, lhs_t, rhs_t>::value_t
 BinaryOp<operator_t, lhs_t, rhs_t>::eval(
     typename BinaryOp<operator_t, lhs_t, rhs_t>::index_t i) {
   return operator_t::eval(lhs_.eval(i), rhs_.eval(i));
 }
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename BinaryOp<operator_t, lhs_t, rhs_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename BinaryOp<operator_t, lhs_t, rhs_t>::value_t
 BinaryOp<operator_t, lhs_t, rhs_t>::eval(sycl::nd_item<1> ndItem) {
   return BinaryOp<operator_t, lhs_t, rhs_t>::eval(ndItem.get_global_id(0));
 }
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE void BinaryOp<operator_t, lhs_t, rhs_t>::bind(
+ONEMATH_SYCL_BLAS_INLINE void BinaryOp<operator_t, lhs_t, rhs_t>::bind(
     sycl::handler &h) {
   lhs_.bind(h);
   rhs_.bind(h);
 }
 
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 BinaryOp<operator_t, lhs_t, rhs_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   rhs_.adjust_access_displacement();
@@ -390,36 +390,36 @@ BinaryOpConst<operator_t, lhs_t, rhs_t>::BinaryOpConst(lhs_t &_l, rhs_t &_r)
     : lhs_(_l), rhs_(_r){};
 
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename BinaryOpConst<operator_t, lhs_t, rhs_t>::index_t
+ONEMATH_SYCL_BLAS_INLINE typename BinaryOpConst<operator_t, lhs_t, rhs_t>::index_t
 BinaryOpConst<operator_t, lhs_t, rhs_t>::get_size() const {
   return rhs_.get_size();
 }
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE bool BinaryOpConst<operator_t, lhs_t, rhs_t>::valid_thread(
+ONEMATH_SYCL_BLAS_INLINE bool BinaryOpConst<operator_t, lhs_t, rhs_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return ((ndItem.get_global_id(0) < get_size()));
 }
 
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename BinaryOpConst<operator_t, lhs_t, rhs_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename BinaryOpConst<operator_t, lhs_t, rhs_t>::value_t
 BinaryOpConst<operator_t, lhs_t, rhs_t>::eval(
     typename BinaryOpConst<operator_t, lhs_t, rhs_t>::index_t i) const {
   return operator_t::eval(lhs_.eval(i), rhs_.eval(i));
 }
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename BinaryOpConst<operator_t, lhs_t, rhs_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename BinaryOpConst<operator_t, lhs_t, rhs_t>::value_t
 BinaryOpConst<operator_t, lhs_t, rhs_t>::eval(sycl::nd_item<1> ndItem) const {
   return BinaryOpConst<operator_t, lhs_t, rhs_t>::eval(ndItem.get_global_id(0));
 }
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE void BinaryOpConst<operator_t, lhs_t, rhs_t>::bind(
+ONEMATH_SYCL_BLAS_INLINE void BinaryOpConst<operator_t, lhs_t, rhs_t>::bind(
     sycl::handler &h) {
   lhs_.bind(h);
   rhs_.bind(h);
 }
 
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 BinaryOpConst<operator_t, lhs_t, rhs_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   rhs_.adjust_access_displacement();
@@ -432,34 +432,34 @@ template <typename rhs_t>
 TupleOp<rhs_t>::TupleOp(rhs_t &_r) : rhs_(_r) {}
 
 template <typename rhs_t>
-PORTBLAS_INLINE typename TupleOp<rhs_t>::index_t TupleOp<rhs_t>::get_size()
+ONEMATH_SYCL_BLAS_INLINE typename TupleOp<rhs_t>::index_t TupleOp<rhs_t>::get_size()
     const {
   return rhs_.get_size();
 }
 
 template <typename rhs_t>
-PORTBLAS_INLINE bool TupleOp<rhs_t>::valid_thread(
+ONEMATH_SYCL_BLAS_INLINE bool TupleOp<rhs_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return ((ndItem.get_global_id(0) < get_size()));
 }
 
 template <typename rhs_t>
-PORTBLAS_INLINE typename TupleOp<rhs_t>::value_t TupleOp<rhs_t>::eval(
+ONEMATH_SYCL_BLAS_INLINE typename TupleOp<rhs_t>::value_t TupleOp<rhs_t>::eval(
     typename TupleOp<rhs_t>::index_t i) {
   return TupleOp<rhs_t>::value_t(i, rhs_.eval(i));
 }
 
 template <typename rhs_t>
-PORTBLAS_INLINE typename TupleOp<rhs_t>::value_t TupleOp<rhs_t>::eval(
+ONEMATH_SYCL_BLAS_INLINE typename TupleOp<rhs_t>::value_t TupleOp<rhs_t>::eval(
     sycl::nd_item<1> ndItem) {
   return TupleOp<rhs_t>::eval(ndItem.get_global_id(0));
 }
 template <typename rhs_t>
-PORTBLAS_INLINE void TupleOp<rhs_t>::bind(sycl::handler &h) {
+ONEMATH_SYCL_BLAS_INLINE void TupleOp<rhs_t>::bind(sycl::handler &h) {
   rhs_.bind(h);
 }
 template <typename rhs_t>
-PORTBLAS_INLINE void TupleOp<rhs_t>::adjust_access_displacement() {
+ONEMATH_SYCL_BLAS_INLINE void TupleOp<rhs_t>::adjust_access_displacement() {
   rhs_.adjust_access_displacement();
 }
 
@@ -474,18 +474,18 @@ AssignReduction<operator_t, lhs_t, rhs_t>::AssignReduction(lhs_t &_l, rhs_t &_r,
     : lhs_(_l), rhs_(_r), local_num_thread_(_blqS), global_num_thread_(_grdS){};
 
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename AssignReduction<operator_t, lhs_t, rhs_t>::index_t
+ONEMATH_SYCL_BLAS_INLINE typename AssignReduction<operator_t, lhs_t, rhs_t>::index_t
 AssignReduction<operator_t, lhs_t, rhs_t>::get_size() const {
   return rhs_.get_size();
 }
 
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE bool AssignReduction<operator_t, lhs_t, rhs_t>::valid_thread(
+ONEMATH_SYCL_BLAS_INLINE bool AssignReduction<operator_t, lhs_t, rhs_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return true;
 }
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename AssignReduction<operator_t, lhs_t, rhs_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename AssignReduction<operator_t, lhs_t, rhs_t>::value_t
 AssignReduction<operator_t, lhs_t, rhs_t>::eval(
     typename AssignReduction<operator_t, lhs_t, rhs_t>::index_t i) {
   index_t vecS = rhs_.get_size();
@@ -515,14 +515,14 @@ AssignReduction<operator_t, lhs_t, rhs_t>::eval(
   return val;
 }
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE typename AssignReduction<operator_t, lhs_t, rhs_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename AssignReduction<operator_t, lhs_t, rhs_t>::value_t
 AssignReduction<operator_t, lhs_t, rhs_t>::eval(sycl::nd_item<1> ndItem) {
   return AssignReduction<operator_t, lhs_t, rhs_t>::eval(
       ndItem.get_global_id(0));
 }
 template <typename operator_t, typename lhs_t, typename rhs_t>
 template <typename sharedT>
-PORTBLAS_INLINE typename AssignReduction<operator_t, lhs_t, rhs_t>::value_t
+ONEMATH_SYCL_BLAS_INLINE typename AssignReduction<operator_t, lhs_t, rhs_t>::value_t
 AssignReduction<operator_t, lhs_t, rhs_t>::eval(sharedT scratch,
                                                 sycl::nd_item<1> ndItem) {
   index_t localid = ndItem.get_local_id(0);
@@ -563,14 +563,14 @@ AssignReduction<operator_t, lhs_t, rhs_t>::eval(sharedT scratch,
 }
 
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE void AssignReduction<operator_t, lhs_t, rhs_t>::bind(
+ONEMATH_SYCL_BLAS_INLINE void AssignReduction<operator_t, lhs_t, rhs_t>::bind(
     sycl::handler &h) {
   lhs_.bind(h);
   rhs_.bind(h);
 }
 
 template <typename operator_t, typename lhs_t, typename rhs_t>
-PORTBLAS_INLINE void
+ONEMATH_SYCL_BLAS_INLINE void
 AssignReduction<operator_t, lhs_t, rhs_t>::adjust_access_displacement() {
   lhs_.adjust_access_displacement();
   rhs_.adjust_access_displacement();
@@ -582,13 +582,13 @@ Rotg<operand_t>::Rotg(operand_t &_a, operand_t &_b, operand_t &_c,
     : a_{_a}, b_{_b}, c_{_c}, s_{_s} {}
 
 template <typename operand_t>
-PORTBLAS_INLINE typename Rotg<operand_t>::index_t Rotg<operand_t>::get_size()
+ONEMATH_SYCL_BLAS_INLINE typename Rotg<operand_t>::index_t Rotg<operand_t>::get_size()
     const {
   return static_cast<Rotg<operand_t>::index_t>(1);
 }
 
 template <typename operand_t>
-PORTBLAS_INLINE typename Rotg<operand_t>::value_t Rotg<operand_t>::eval(
+ONEMATH_SYCL_BLAS_INLINE typename Rotg<operand_t>::value_t Rotg<operand_t>::eval(
     typename Rotg<operand_t>::index_t i) {
   using zero = constant<value_t, const_val::zero>;
   using one = constant<value_t, const_val::one>;
@@ -630,19 +630,19 @@ PORTBLAS_INLINE typename Rotg<operand_t>::value_t Rotg<operand_t>::eval(
 }
 
 template <typename operand_t>
-PORTBLAS_INLINE typename Rotg<operand_t>::value_t Rotg<operand_t>::eval(
+ONEMATH_SYCL_BLAS_INLINE typename Rotg<operand_t>::value_t Rotg<operand_t>::eval(
     sycl::nd_item<1> ndItem) {
   return Rotg<operand_t>::eval(ndItem.get_global_id(0));
 }
 
 template <typename operand_t>
-PORTBLAS_INLINE bool Rotg<operand_t>::valid_thread(
+ONEMATH_SYCL_BLAS_INLINE bool Rotg<operand_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return ((ndItem.get_global_id(0) < Rotg<operand_t>::get_size()));
 }
 
 template <typename operand_t>
-PORTBLAS_INLINE void Rotg<operand_t>::bind(sycl::handler &h) {
+ONEMATH_SYCL_BLAS_INLINE void Rotg<operand_t>::bind(sycl::handler &h) {
   a_.bind(h);
   b_.bind(h);
   c_.bind(h);
@@ -650,7 +650,7 @@ PORTBLAS_INLINE void Rotg<operand_t>::bind(sycl::handler &h) {
 }
 
 template <typename operand_t>
-PORTBLAS_INLINE void Rotg<operand_t>::adjust_access_displacement() {
+ONEMATH_SYCL_BLAS_INLINE void Rotg<operand_t>::adjust_access_displacement() {
   a_.adjust_access_displacement();
   b_.adjust_access_displacement();
   c_.adjust_access_displacement();
@@ -663,7 +663,7 @@ Rotmg<operand_t>::Rotmg(operand_t &_d1, operand_t &_d2, operand_t &_x1,
     : d1_{_d1}, d2_{_d2}, x1_{_x1}, y1_{_y1}, param_{_param} {}
 
 template <typename operand_t>
-PORTBLAS_INLINE typename Rotmg<operand_t>::index_t Rotmg<operand_t>::get_size()
+ONEMATH_SYCL_BLAS_INLINE typename Rotmg<operand_t>::index_t Rotmg<operand_t>::get_size()
     const {
   return static_cast<Rotmg<operand_t>::index_t>(1);
 }
@@ -681,7 +681,7 @@ PORTBLAS_INLINE typename Rotmg<operand_t>::index_t Rotmg<operand_t>::get_size()
  * 1979.
  */
 template <typename operand_t>
-PORTBLAS_INLINE typename Rotmg<operand_t>::value_t Rotmg<operand_t>::eval(
+ONEMATH_SYCL_BLAS_INLINE typename Rotmg<operand_t>::value_t Rotmg<operand_t>::eval(
     typename Rotmg<operand_t>::index_t i) {
   using zero = constant<value_t, const_val::zero>;
   using one = constant<value_t, const_val::one>;
@@ -900,19 +900,19 @@ PORTBLAS_INLINE typename Rotmg<operand_t>::value_t Rotmg<operand_t>::eval(
 }
 
 template <typename operand_t>
-PORTBLAS_INLINE typename Rotmg<operand_t>::value_t Rotmg<operand_t>::eval(
+ONEMATH_SYCL_BLAS_INLINE typename Rotmg<operand_t>::value_t Rotmg<operand_t>::eval(
     sycl::nd_item<1> ndItem) {
   return Rotmg<operand_t>::eval(ndItem.get_global_id(0));
 }
 
 template <typename operand_t>
-PORTBLAS_INLINE bool Rotmg<operand_t>::valid_thread(
+ONEMATH_SYCL_BLAS_INLINE bool Rotmg<operand_t>::valid_thread(
     sycl::nd_item<1> ndItem) const {
   return ((ndItem.get_global_id(0) < Rotmg<operand_t>::get_size()));
 }
 
 template <typename operand_t>
-PORTBLAS_INLINE void Rotmg<operand_t>::bind(sycl::handler &h) {
+ONEMATH_SYCL_BLAS_INLINE void Rotmg<operand_t>::bind(sycl::handler &h) {
   d1_.bind(h);
   d2_.bind(h);
   x1_.bind(h);
@@ -921,7 +921,7 @@ PORTBLAS_INLINE void Rotmg<operand_t>::bind(sycl::handler &h) {
 }
 
 template <typename operand_t>
-PORTBLAS_INLINE void Rotmg<operand_t>::adjust_access_displacement() {
+ONEMATH_SYCL_BLAS_INLINE void Rotmg<operand_t>::adjust_access_displacement() {
   d1_.adjust_access_displacement();
   d2_.adjust_access_displacement();
   x1_.adjust_access_displacement();

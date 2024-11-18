@@ -23,8 +23,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_CONSTANTS_H
-#define PORTBLAS_CONSTANTS_H
+#ifndef ONEMATH_SYCL_BLAS_CONSTANTS_H
+#define ONEMATH_SYCL_BLAS_CONSTANTS_H
 
 #include "blas_meta.h"
 
@@ -46,13 +46,13 @@ template <typename value_t>
 struct GetTupleValue {
   using return_t = value_t;
 
-  PORTBLAS_INLINE static return_t get(const value_t val) { return val; }
+  ONEMATH_SYCL_BLAS_INLINE static return_t get(const value_t val) { return val; }
 };
 template <typename index_t, typename value_t>
 struct GetTupleValue<IndexValueTuple<index_t, value_t>> {
   using return_t = value_t;
 
-  PORTBLAS_INLINE static return_t get(
+  ONEMATH_SYCL_BLAS_INLINE static return_t get(
       const IndexValueTuple<index_t, value_t> val) {
     return val.get_value();
   }
@@ -71,8 +71,8 @@ struct IndexValueTuple {
 
   constexpr explicit IndexValueTuple(index_t _ind, value_t _val)
       : ind(_ind), val(_val) {};
-  PORTBLAS_INLINE index_t get_index() const { return ind; }
-  PORTBLAS_INLINE typename GetTupleValue<value_t>::return_t get_value() const {
+  ONEMATH_SYCL_BLAS_INLINE index_t get_index() const { return ind; }
+  ONEMATH_SYCL_BLAS_INLINE typename GetTupleValue<value_t>::return_t get_value() const {
     return GetTupleValue<value_t>::get(val);
   }
 };
@@ -102,42 +102,42 @@ variable of the type value_t initialized to the specified constant.
 */
 template <typename value_t, const_val Indicator>
 struct constant {
-  constexpr static PORTBLAS_INLINE value_t value() {
+  constexpr static ONEMATH_SYCL_BLAS_INLINE value_t value() {
     return static_cast<value_t>(Indicator);
   }
 };
 
 template <typename value_t>
 struct constant<value_t, const_val::max> {
-  constexpr static PORTBLAS_INLINE value_t value() {
+  constexpr static ONEMATH_SYCL_BLAS_INLINE value_t value() {
     return std::numeric_limits<value_t>::max();
   }
 };
 
 template <typename value_t>
 struct constant<value_t, const_val::min> {
-  constexpr static PORTBLAS_INLINE value_t value() {
+  constexpr static ONEMATH_SYCL_BLAS_INLINE value_t value() {
     return std::numeric_limits<value_t>::lowest();
   }
 };
 
 template <typename value_t>
 struct constant<value_t, const_val::abs_max> {
-  constexpr static PORTBLAS_INLINE value_t value() {
+  constexpr static ONEMATH_SYCL_BLAS_INLINE value_t value() {
     return std::numeric_limits<value_t>::max();
   }
 };
 
 template <typename value_t>
 struct constant<value_t, const_val::abs_min> {
-  constexpr static PORTBLAS_INLINE value_t value() {
+  constexpr static ONEMATH_SYCL_BLAS_INLINE value_t value() {
     return static_cast<value_t>(0);
   }
 };
 
 template <typename value_t, typename index_t>
 struct constant<IndexValueTuple<index_t, value_t>, const_val::abs_max> {
-  constexpr static PORTBLAS_INLINE IndexValueTuple<index_t, value_t> value() {
+  constexpr static ONEMATH_SYCL_BLAS_INLINE IndexValueTuple<index_t, value_t> value() {
     return IndexValueTuple<index_t, value_t>(
         std::numeric_limits<index_t>::max(),
         std::numeric_limits<value_t>::max());
@@ -146,7 +146,7 @@ struct constant<IndexValueTuple<index_t, value_t>, const_val::abs_max> {
 
 template <typename value_t, typename index_t>
 struct constant<IndexValueTuple<index_t, value_t>, const_val::abs_min> {
-  constexpr static PORTBLAS_INLINE IndexValueTuple<index_t, value_t> value() {
+  constexpr static ONEMATH_SYCL_BLAS_INLINE IndexValueTuple<index_t, value_t> value() {
     return IndexValueTuple<index_t, value_t>(
         std::numeric_limits<index_t>::max(), 0);
   }
@@ -154,7 +154,7 @@ struct constant<IndexValueTuple<index_t, value_t>, const_val::abs_min> {
 
 template <typename value_t, typename index_t>
 struct constant<IndexValueTuple<index_t, value_t>, const_val::max> {
-  constexpr static PORTBLAS_INLINE IndexValueTuple<index_t, value_t> value() {
+  constexpr static ONEMATH_SYCL_BLAS_INLINE IndexValueTuple<index_t, value_t> value() {
     return IndexValueTuple<index_t, value_t>(
         std::numeric_limits<index_t>::max(),
         std::numeric_limits<value_t>::max());
@@ -163,7 +163,7 @@ struct constant<IndexValueTuple<index_t, value_t>, const_val::max> {
 
 template <typename value_t, typename index_t>
 struct constant<IndexValueTuple<index_t, value_t>, const_val::min> {
-  constexpr static PORTBLAS_INLINE IndexValueTuple<index_t, value_t> value() {
+  constexpr static ONEMATH_SYCL_BLAS_INLINE IndexValueTuple<index_t, value_t> value() {
     return IndexValueTuple<index_t, value_t>(
         std::numeric_limits<index_t>::max(),
         std::numeric_limits<value_t>::min());
@@ -172,7 +172,7 @@ struct constant<IndexValueTuple<index_t, value_t>, const_val::min> {
 
 template <typename value_t, typename index_t, const_val Indicator>
 struct constant<IndexValueTuple<index_t, value_t>, Indicator> {
-  constexpr static PORTBLAS_INLINE IndexValueTuple<index_t, value_t> value() {
+  constexpr static ONEMATH_SYCL_BLAS_INLINE IndexValueTuple<index_t, value_t> value() {
     return IndexValueTuple<index_t, value_t>(
         std::numeric_limits<index_t>::max(),
         constant<value_t, Indicator>::value());
@@ -181,7 +181,7 @@ struct constant<IndexValueTuple<index_t, value_t>, Indicator> {
 
 template <typename value_t, typename index_t>
 struct constant<IndexValueTuple<index_t, value_t>, const_val::collapse> {
-  constexpr static PORTBLAS_INLINE IndexValueTuple<index_t, value_t> value() {
+  constexpr static ONEMATH_SYCL_BLAS_INLINE IndexValueTuple<index_t, value_t> value() {
     return IndexValueTuple<index_t, value_t>(
         std::numeric_limits<index_t>::max(),
         std::numeric_limits<value_t>::max());
@@ -191,7 +191,7 @@ struct constant<IndexValueTuple<index_t, value_t>, const_val::collapse> {
 #ifdef BLAS_ENABLE_COMPLEX
 template <typename value_t, const_val Indicator>
 struct constant<complex_sycl<value_t>, Indicator> {
-  constexpr static PORTBLAS_INLINE complex_sycl<value_t> value() {
+  constexpr static ONEMATH_SYCL_BLAS_INLINE complex_sycl<value_t> value() {
     return complex_sycl<value_t>(constant<value_t, Indicator>::value(),
                                  constant<value_t, Indicator>::value());
   }
@@ -240,7 +240,7 @@ struct constant<sycl::half, const_val::collapse>
 
 template <typename iv_type, const_val IndexIndicator, const_val ValueIndicator>
 struct constant_pair {
-  constexpr static PORTBLAS_INLINE iv_type value() {
+  constexpr static ONEMATH_SYCL_BLAS_INLINE iv_type value() {
     return iv_type(
         constant<typename iv_type::index_t, IndexIndicator>::value(),
         constant<typename iv_type::value_t, ValueIndicator>::value());

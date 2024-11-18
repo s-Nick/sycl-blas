@@ -23,8 +23,8 @@
  *
  **************************************************************************/
 
-#ifndef PORTBLAS_BLAS1_TREES_H
-#define PORTBLAS_BLAS1_TREES_H
+#ifndef ONEMATH_SYCL_BLAS_BLAS1_TREES_H
+#define ONEMATH_SYCL_BLAS_BLAS1_TREES_H
 #include "operations/blas_constants.h"
 #include "operations/blas_operators.h"
 #include <stdexcept>
