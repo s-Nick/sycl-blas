@@ -18,7 +18,6 @@
  *  limitations under the License.
  *
  *
- *  @filename temp_memory_pool.h
  *
  **************************************************************************/
 #ifndef TEMP_MEMORY_POOL_H

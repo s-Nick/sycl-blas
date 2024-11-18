@@ -18,7 +18,6 @@
  *  limitations under the License.
  *
  *
- *  @filename blas_operators.hpp
  *
  **************************************************************************/
 // NO H for this one as this one is internal. but all the macro will be

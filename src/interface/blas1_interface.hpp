@@ -18,7 +18,6 @@
  *  limitations under the License.
  *
  *
- *  @filename blas1_interface.hpp
  *
  **************************************************************************/
 

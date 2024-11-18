@@ -18,7 +18,6 @@
  *  limitations under the License.
  *
  *
- *  @filename kernel_constructor.hpp
  *
  **************************************************************************/
 #ifndef ONEMATH_SYCL_BLAS_KERNEL_CONSTRUCTOR_HPP

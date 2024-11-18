@@ -18,7 +18,6 @@
  *  limitations under the License.
  *
  *
- *  @filename defaul_cpu.hpp
  *
  **************************************************************************/
 #ifndef ONEMATH_SYCL_BLAS_ASUM_DEFAULT_BACKEND_HPP

@@ -18,7 +18,6 @@
  *  limitations under the License.
  *
  *
- *  @filename intel_gpu.hpp
  *
  **************************************************************************/
 #ifndef ONEMATH_SYCL_BLAS_ASUM_INTEL_GPU_BACKEND_HPP

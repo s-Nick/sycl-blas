@@ -18,7 +18,6 @@
  *  limitations under the License.
  *
  *
- *  @filename gemm_launcher.hpp
  *
  **************************************************************************/
 

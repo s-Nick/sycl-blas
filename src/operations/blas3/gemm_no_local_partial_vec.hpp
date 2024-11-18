@@ -17,7 +17,6 @@
  *  limitations under the License.
  *
  *
- *  @filename gemm_no_local_partial_vec.hpp
  *
  **************************************************************************/
 

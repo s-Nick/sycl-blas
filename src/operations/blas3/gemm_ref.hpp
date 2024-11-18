@@ -17,7 +17,6 @@
  *  limitations under the License.
  *
  *
- *  @filename gemm_ref.hpp
  *
  **************************************************************************/
 

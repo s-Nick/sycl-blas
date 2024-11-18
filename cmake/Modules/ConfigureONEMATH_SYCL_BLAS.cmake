@@ -19,7 +19,6 @@
 # *  limitations under the License.
 # *
 # *
-# *  @filename ConfigureONEMATH_SYCL_BLAS.cmake
 # *
 # **************************************************************************/
 

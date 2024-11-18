@@ -18,7 +18,6 @@
  *  limitations under the License.
  *
  *
- *  @filename sycl_iterator.h
  *
  **************************************************************************/
 #ifndef ONEMATH_SYCL_BLAS_BUFFER_ITERATOR_H

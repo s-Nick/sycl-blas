@@ -18,7 +18,6 @@
  *  limitations under the License.
  *
  *
- *  @filename NVIDIA_GPU.hpp
  *
  **************************************************************************/
 #ifndef ONEMATH_SYCL_BLAS_GEMM_NVIDIA_GPU_BACKEND_HPP

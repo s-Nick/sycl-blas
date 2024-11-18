@@ -17,7 +17,6 @@
  *  limitations under the License.
  *
  *
- *  @filename gemm_local_joint_matrix.hpp
  *
  **************************************************************************/
 

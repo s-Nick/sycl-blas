@@ -18,7 +18,6 @@
  *  limitations under the License.
  *
  *
- *  @filename blas1_interface.h
  *
  **************************************************************************/
 #ifndef ONEMATH_SYCL_BLAS_BLAS1_INTERFACE_H

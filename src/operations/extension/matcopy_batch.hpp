@@ -18,7 +18,6 @@
  *
  *  SYCL-BLAS: BLAS implementation using SYCL
  *
- *  @filename matcopy_batch.hpp
  *
  **************************************************************************/
 

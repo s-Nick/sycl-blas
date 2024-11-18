@@ -18,7 +18,6 @@
 # *  limitations under the License.
 # *
 # *
-# *  @filename CMakeLists.txt
 # *
 # **************************************************************************/
 cmake_minimum_required(VERSION 3.4.3)

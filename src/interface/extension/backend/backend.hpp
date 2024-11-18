@@ -18,7 +18,6 @@
  *  limitations under the License.
  *
  *
- *  @filename backend.hpp
  *
  **************************************************************************/
 #if defined INTEL_GPU

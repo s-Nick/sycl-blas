@@ -18,7 +18,6 @@
  *  limitations under the License.
  *
  *
- *  @filename reduction_interface.hpp
  *
  **************************************************************************/
 

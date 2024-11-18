@@ -18,7 +18,6 @@
 # *  limitations under the License.
 # *
 # *
-# *  @filename CMakeLists.txt
 # *
 # **************************************************************************/
 include(CheckCXXCompilerFlag)

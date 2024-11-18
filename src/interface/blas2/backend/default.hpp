@@ -18,7 +18,6 @@
  *  limitations under the License.
  *
  *
- *  @filename default.hpp
  *
  **************************************************************************/
 #ifndef ONEMATH_SYCL_BLAS_GEMV_DEFAULT_BACKEND_HPP

@@ -18,7 +18,6 @@
  *  limitations under the License.
  *
  *
- *  @filename blas2_trees.hpp
  *
  **************************************************************************/
 

@@ -18,7 +18,6 @@
  *  limitations under the License.
  *
  *
- *  @filename amd_gpu.hpp
  *
  **************************************************************************/
 #ifndef ONEMATH_SYCL_BLAS_TRANSPOSE_AMD_GPU_BACKEND_HPP

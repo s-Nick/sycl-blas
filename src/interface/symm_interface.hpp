@@ -18,7 +18,6 @@
  *  limitations under the License.
  *
  *
- *  @filename symm_interface.hpp
  *
  **************************************************************************/
 
