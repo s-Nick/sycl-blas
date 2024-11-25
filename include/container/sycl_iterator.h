@@ -103,7 +103,7 @@ class BufferIterator {
   /*!
    * @brief Default construct a BufferIterator.
    * This can be used to provide a placeholder BufferIterator, but it is a user
-   * error if passed into any of the portBLAS functions.
+   * error if passed into any of the BLAS functions.
    *
    * Should be removed once SYCL specifies that buffers are default
    * constructible. See:

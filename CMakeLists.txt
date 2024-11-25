@@ -68,7 +68,7 @@ if(INSTALL_HEADER_ONLY)
   set(ONEMATH_SYCL_BLAS_INSTALL_SRC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src> $<INSTALL_INTERFACE:src>)
 endif()
 
-option(BLAS_ENABLE_EXTENSIONS "Whether to enable portBLAS extensions" ON)
+option(BLAS_ENABLE_EXTENSIONS "Whether to enable BLAS extensions" ON)
 option(BLAS_ENABLE_COMPLEX "Whether to enable complex data type for GEMM" ON)
 option(BLAS_ENABLE_HALF "Whether to enable sycl::half data type for supported operators" ON)
 

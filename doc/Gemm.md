@@ -1,6 +1,6 @@
-# portBLAS GEMM Developer Documentation
+# OneMath SYCL BLAS GEMM Developer Documentation
 
-The following is documentation for the `GEMM` kernels and associated areas of code within `portBLAS`.
+The following is documentation for the `GEMM` kernels and associated areas of code within `oneMath SYCL BLAS`.
 This should give you a good understanding of how everything works and where/how to do things such as:
 
 - Work on or create a new `GEMM` kernel
@@ -11,11 +11,11 @@ Please note that while this document primarily refers to `GEMM` and `Blas3` oper
 
 # Contents
 
-- [portBLAS GEMM Developer Documentation](#portBLAS-gemm-developer-documentation)
+- [OneMath SYCL BLAS GEMM Developer Documentation](#OneMath-SYCL-BLAS-gemm-developer-documentation)
 - [Contents](#contents)
 - [GEMM](#gemm)
   - [What is GEMM?](#what-is-gemm)
-  - [portBLAS GEMM Kernels](#portBLAS-gemm-kernels)
+  - [OneMath SYCL BLAS GEMM Kernels](#OneMath-SYCL-BLAS-gemm-kernels)
   - [Relevant CMake Variables](#relevant-cmake-variables)
   - [Kernel Structure](#kernel-structure)
   - [Vectorized Loading/Storing](#vectorized-loadingstoring)
@@ -42,9 +42,9 @@ C = alpha * A * B + beta * C
 where A, B and C are matrices and alpha and beta are scalars.
 ```
 
-## portBLAS GEMM Kernels
+## OneMath SYCL BLAS GEMM Kernels
 
-`portBLAS` currently contains the following `GEMM` kernels in <src/operations/blas3/>:
+`OneMath SYCL BLAS` currently contains the following `GEMM` kernels in <src/operations/blas3/>:
 
 - `gemm_ref.hpp` - A naive, reference implementation of `GEMM` with no optimizations.
 
@@ -59,7 +59,7 @@ where A, B and C are matrices and alpha and beta are scalars.
 - `gemm_no_local_full_vec.hpp` - Doesn't use local memory. Supports full vectorization.
 
 - `gemm_interleaved.hpp` - An alternative approach to batched `GEMM` calculations where the inputs are interleaved in contiguous memory. This means that the batch axis is the fastest moving dimension.
-Uses no local memory and corresponds to HWN data layout (NWH in column major, which is what `portBLAS` uses). Also, the interleaved batched gemm is not subject to custom striding as it beats its initial purpose.
+Uses no local memory and corresponds to HWN data layout (NWH in column major, which is what `oneMath SYCL BLAS` uses). Also, the interleaved batched gemm is not subject to custom striding as it beats its initial purpose.
 
 ## Relevant CMake Variables
 
@@ -233,7 +233,7 @@ Gemm_Launcher<WgSize, DoubleBuffer, ConflictA, ConflictB, ClSize, TileT, TransA,
 
 ## Source Code Generation
 
-In order to correctly link a user's application to the portBLAS library the configurations for both `Gemm_Launcher` and `Gemm` must be instantiated explicitly in `.cpp` files to prevent linking errors. 
+In order to correctly link a user's application to the oneMath SYCL BLAS library the configurations for both `Gemm_Launcher` and `Gemm` must be instantiated explicitly in `.cpp` files to prevent linking errors. 
 These instantiations are generated using a template file and several python scripts which replace variables in the template file with the appropriate types for different configurations. 
 This is driven by CMake and covered more extensively in [this section](#cmake-configurations).
 
@@ -487,7 +487,7 @@ See the section on [backend configurations](#backend-configurations) for an exam
 
 ## Adding a new kernel
 
-The following is a checklist of steps to add a new `GEMM` kernel to `portBLAS` .
+The following is a checklist of steps to add a new `GEMM` kernel to `oneMath SYCL BLAS` .
 
 1. Create your kernel header file in `src/operations/blas3/` and give it a sensible name that follows the convention of the others. 
 For example, if your new kernel is very fast call it `gemm_very_fast.hpp`.

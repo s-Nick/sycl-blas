@@ -99,9 +99,9 @@ been used in various projects to create efficient domain-specific embedded
 languages that enable users to easily fuse GPU kernels.
 
 portBLAS can be used
-- either as a header-only framework by including `portblas.hpp` in
+- either as a header-only framework by including `onemath_sycl_blas.hpp` in
 an application and passing the `src` folder in the list of include directories
-- or as a library by including `portblas.h` in an application.
+- or as a library by including `onemath_sycl_blas.h` in an application.
 
 All the relevant files can be found in
 the `include` directory.

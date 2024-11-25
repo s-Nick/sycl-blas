@@ -1,15 +1,15 @@
 # Adding a new BLAS level 3 operation
 
 This document is meant to be a guide on how to add a new BLAS Level 3
-operation to portBLAS. It is mostly based on the work done when adding the
-TRSM algorithm to portBLAS.
+operation to oneMath SYCL BLAS. It is mostly based on the work done when adding the
+TRSM algorithm to oneMath SYCL BLAS.
 
 The steps described here are just a guideline and may vary when doing the
 actual implementation.
 
 ## Add the operation interface
 
-The folder `include/interface` contains the public interface of portBLAS.
+The folder `include/interface` contains the public interface of oneMath SYCL BLAS.
 The files in this folder contain the functions that users can call to 
 run the available blas operations.
 
@@ -18,14 +18,14 @@ function will be located in `include/interface/blas3_interface.h`.
 
 When defining a new level 3 operation, the first step is to define the
 user-facing function, in this case `blas::_trsm`, and declare the
-internal function that will be implemented inside portBLAS, 
+internal function that will be implemented inside oneMath SYCL BLAS,
 called `blas::internal::_trsm`, similar to the following:
 
 ```c++
 namespace blas {
 namespace internal {
 
-// Internal function that will be implemented in the portBLAS library
+// Internal function that will be implemented in the oneMath SYCL BLAS library
 template <typename sb_handle_t, typename container_0_t, typename container_1_t,
           typename element_t, typename index_t>
 typename sb_handle_t::event_t _trsm(sb_handle_t& sb_handle, char Side,
@@ -174,7 +174,7 @@ typename sb_handle_t::event_t _trsm(
 ## Instantiate the new operation
 
 The next step is to define the `_trsm` function in a `.cpp` file. In this way, when the client
-binary is linked against portBLAS, the linker will find the definition of the missing symbol.
+binary is linked against oneMath SYCL BLAS, the linker will find the definition of the missing symbol.
 
 To do this, we create the source file that will contain instantiations of the new `_trsm` operation.
 The file is located at `src/interface/blas3/trsm.cpp.in`. This is not the file that will be 
@@ -239,7 +239,7 @@ generate_blas_objects(blas3 trsm)
 
 After this, the new object file created must be added to the library and is done by adding a new
 entry to `cmake/CmakeFunctionHelper.cmake`. At the end of this file there is a list of all object
-files that are archived to form the portBLAS library. A new entry must be added in the function
+files that are archived to form the oneMath SYCL BLAS library. A new entry must be added in the function
 `build_library`:
 
 ```cmake
@@ -307,12 +307,12 @@ The last part is to add this file in the include list in `src/operations/blas3/b
 
 ## Adding a call to the system blas version of the new operation
 
-portBLAS implements the netlib-blas interface, so there will be a system blas version of the operation
+oneMath SYCL BLAS implements the netlib-blas interface, so there will be a system blas version of the operation
 being added. In the case of `_trsm`, the
 [netlib-blas version of the function](http://www.netlib.org/lapack/explore-html/d2/d8b/strsm_8f.html)
 can be called to verify that our implementation produces the correct results for a certain combination of parameters.
 
-portBLAS provides a utility header that is used to invoke different system-blas functions for testing and benchmarking purposes.
+oneMath SYCL BLAS provides a utility header that is used to invoke different system-blas functions for testing and benchmarking purposes.
 To make the new operation available, add it to the file `include/utils/system_reference_blas.hpp`, like the following:
 
 ```c++
@@ -339,5 +339,5 @@ So results from the reference implementation can be used to check if the operati
 
 ## Conclusion
 
-By following the steps described in this document, you can add a new operation in portBLAS alongside
+By following the steps described in this document, you can add a new operation in oneMath SYCL BLAS alongside
 the tests required to validate the implementation.

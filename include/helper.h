@@ -228,7 +228,7 @@ inline bool is_malloc_shared(sb_handle_t &sb_handle, const containerT _rs) {
 
 /*
  @brief Check device and throw unsupported exception if Intel discrete GPU
- @param sb_handle portBLAS handler
+ @param sb_handle BLAS handler
  @param operator_name unsupported operator name
  */
 template <typename sb_handle_t>

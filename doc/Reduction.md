@@ -1,11 +1,11 @@
 # Reduction
 
-The following is documentation for the Reduction kernel within `portBLAS`.
+The following is documentation for the Reduction kernel within `oneMath SYCL BLAS`.
 
 ## What is Reduction?
 
 `Reduction` is not a standard BLAS operation. It is provided as an extension in
-`portBLAS`. It refers to an operation where some or all elements of a matrix
+`oneMath SYCL BLAS`. It refers to an operation where some or all elements of a matrix
 are reduced to a single scalar value via a binary operator. The supported
 operators are:
 
@@ -16,7 +16,7 @@ operators are:
 - `MaxOperator`
 - `MeanOperator`
 
-Currently in `portBLAS` only partial reduction is supported. Unlike full
+Currently in `oneMath SYCL BLAS` only partial reduction is supported. Unlike full
 reduction, it reduces the columns or rows of a matrix to a single row or column
 depending on the reduction dimension specified. The reduction dimension is
 specified with the enumeration `reduction_dim_t`.
@@ -54,9 +54,9 @@ the input matrix
 The CMake option `BLAS_ENABLE_EXTENSIONS` (`ON` by default) can be used to
 enable/disable compilation of the `Reduction` operation.
 
-## portBLAS Reduction kernel
+## oneMath SYCL BLAS Reduction kernel
 
-Currently `portBLAS` supports a partial reduction kernel. Its implementation
+Currently `oneMath SYCL BLAS` supports a partial reduction kernel. Its implementation
 can be found in
 [src/operations/extension/reduction.hpp](../src/operations/extension/reduction.hpp).
 

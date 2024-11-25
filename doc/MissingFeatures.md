@@ -1,6 +1,6 @@
 ## Missing Features
 
-The following is a list of features missing in portBLAS for supporting entirely the [oneAPI oneMKL BLAS interface](https://oneapi-spec.uxlfoundation.org/specifications/oneapi/latest/elements/onemkl/source/domains/blas/blas).
+The following is a list of features missing in oneMath SYCL BLAS for supporting entirely the [oneAPI oneMKL BLAS interface](https://oneapi-spec.uxlfoundation.org/specifications/oneapi/latest/elements/onemkl/source/domains/blas/blas).
 The order does not reflect any kind of priority.
 
 For questions regarding input types or operators support, please refer to the link above.
